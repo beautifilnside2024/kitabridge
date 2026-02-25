@@ -90,7 +90,7 @@ function ArbeitgeberPage() {
     kartenname: "", kartennummer: "", ablauf: "", cvv: "",
   });
 
-  const upd = (f: string, v: any) => { setForm((p: any) => ({ ...p, [f]: v })); setErrors((p: any) => ({ ...p, [f]: "" })); }; { setForm(p => ({ ...p, [f]: v })); setErrors(p => ({ ...p, [f]: "" })); };
+  const upd = (f: string, v: any) => { setForm((p: any) => ({ ...p, [f]: v })); setErrors((p: any) => ({ ...p, [f]: "" })); };
 
   const toggleArr = (field, val, max = 99) => {
     setForm(p => ({
