@@ -42,6 +42,33 @@ const POSITIONEN = [
   "Gruppenleitung", "Kita-Leitung", "Schulbegleitung", "Andere",
 ];
 
+const ADDONS = [
+  {
+    id: "hervorgehoben",
+    icon: "⭐",
+    title: "Hervorgehobenes Arbeitgeberprofil",
+    desc: "Ihr Profil erscheint ganz oben in der Suchliste — mehr Sichtbarkeit, mehr Bewerbungen.",
+    price: "49 € / Monat",
+    priceNum: 49,
+  },
+  {
+    id: "topplatzierung",
+    icon: "🚀",
+    title: "Stellenanzeige Top-Platzierung",
+    desc: "Ihre Stellenanzeige wird 30 Tage lang ganz oben angezeigt.",
+    price: "79 € / 30 Tage",
+    priceNum: 79,
+  },
+  {
+    id: "schnellantworten",
+    icon: "⚡",
+    title: "Direktkontakt-Markierung „Schnell antworten"",
+    desc: "Fachkräfte sehen, dass Sie schnell antworten — steigert die Bewerbungsrate.",
+    price: "29 € / Monat",
+    priceNum: 29,
+  },
+];
+
 const steps = [
   { num: 1, label: "Einrichtung", icon: "🏫" },
   { num: 2, label: "Adresse", icon: "📍" },
@@ -51,58 +78,73 @@ const steps = [
   { num: 6, label: "Fertig", icon: "✅" },
 ];
 
-const TARIFE = [
-  {
-    id: "basis", name: "Basis", price: "99", period: "Monat",
-    badge: "", color: NAVY,
-    features: ["Bis zu 3 Stellenanzeigen", "Zugang zu allen Fachkraft-Profilen", "Direktnachrichten", "E-Mail Support"],
-  },
-  {
-    id: "professional", name: "Professional", price: "249", period: "Monat",
-    badge: "⭐ Empfohlen", color: GREEN,
-    features: ["Unbegrenzte Stellenanzeigen", "KI-Matching & Empfehlungen", "Compliance-Dashboard", "Prioritäts-Support", "Detaillierte Statistiken"],
-  },
-  {
-    id: "traeger", name: "Träger / Netzwerk", price: "499", period: "Monat",
-    badge: "", color: BLUE,
-    features: ["Alles aus Professional", "Unbegrenzte Nutzer", "Persönlicher Account Manager", "API-Zugang", "Individuelle Auswertungen"],
-  },
-];
+interface FormState {
+  einrichtungName: string;
+  einrichtungstyp: string;
+  traeger: string;
+  beschreibung: string;
+  strasse: string;
+  hausnummer: string;
+  plz: string;
+  ort: string;
+  bundesland: string;
+  ansprechName: string;
+  ansprechRolle: string;
+  email: string;
+  telefon: string;
+  passwort: string;
+  passwort2: string;
+  stellenAnzahl: string;
+  fachrichtungen: string[];
+  positionen: string[];
+  kartenname: string;
+  kartennummer: string;
+  ablauf: string;
+  cvv: string;
+}
 
 function ArbeitgeberPage() {
   const [step, setStep] = useState(1);
   const [done, setDone] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [selectedTarif, setSelectedTarif] = useState("professional");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [payStep, setPayStep] = useState(false);
   const [paying, setPaying] = useState(false);
 
-  const [form, setForm] = useState({
-    // Step 1
+  const [form, setForm] = useState<FormState>({
     einrichtungName: "", einrichtungstyp: "", traeger: "", beschreibung: "",
-    // Step 2
     strasse: "", hausnummer: "", plz: "", ort: "", bundesland: "",
-    // Step 3
     ansprechName: "", ansprechRolle: "", email: "", telefon: "", passwort: "", passwort2: "",
-    // Step 4
-    stellenAnzahl: "", fachrichtungen: [], positionen: [], eintrittstermin: "",
-    // Step 5 (Stripe simulation)
+    stellenAnzahl: "", fachrichtungen: [], positionen: [],
     kartenname: "", kartennummer: "", ablauf: "", cvv: "",
   });
 
-  const upd = (f: string, v: any) => { setForm((p: any) => ({ ...p, [f]: v })); setErrors((p: any) => ({ ...p, [f]: "" })); };
-
-  const toggleArr = (field, val, max = 99) => {
-    setForm(p => ({
-      ...p,
-      [field]: p[field].includes(val)
-        ? p[field].filter(x => x !== val)
-        : p[field].length < max ? [...p[field], val] : p[field],
-    }));
+  const upd = (f: string, v: string | string[]) => {
+    setForm(p => ({ ...p, [f]: v }));
+    setErrors(p => ({ ...p, [f]: "" }));
   };
 
+  const toggleArr = (field: string, val: string) => {
+    setForm(p => {
+      const arr = p[field as keyof FormState] as string[];
+      return {
+        ...p,
+        [field]: arr.includes(val) ? arr.filter((x: string) => x !== val) : [...arr, val],
+      };
+    });
+  };
+
+  const toggleAddon = (id: string) => {
+    setSelectedAddons(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+  };
+
+  const totalMonthly = 299 + selectedAddons.reduce((sum, id) => {
+    const a = ADDONS.find(x => x.id === id);
+    return sum + (a ? a.priceNum : 0);
+  }, 0);
+
   const validate = () => {
-    const e = {};
+    const e: Record<string, string> = {};
     if (step === 1) {
       if (!form.einrichtungName.trim()) e.einrichtungName = "Pflichtfeld";
       if (!form.einrichtungstyp) e.einrichtungstyp = "Pflichtfeld";
@@ -126,7 +168,7 @@ function ArbeitgeberPage() {
     }
     if (step === 5 && payStep) {
       if (!form.kartenname.trim()) e.kartenname = "Pflichtfeld";
-      if (form.kartennummer.replace(/\s/g,"").length < 16) e.kartennummer = "Bitte gültige Kartennummer eingeben";
+      if (form.kartennummer.replace(/\s/g, "").length < 16) e.kartennummer = "Bitte gültige Kartennummer eingeben";
       if (!form.ablauf.trim()) e.ablauf = "Pflichtfeld";
       if (form.cvv.length < 3) e.cvv = "Bitte gültigen CVV eingeben";
     }
@@ -144,63 +186,52 @@ function ArbeitgeberPage() {
     setTimeout(() => { setPaying(false); setDone(true); }, 2200);
   };
 
-  const formatKarte = (val) => {
-    const clean = val.replace(/\D/g, "").slice(0, 16);
-    return clean.replace(/(.{4})/g, "$1 ").trim();
+  const formatKarte = (val: string) => val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+  const formatAblauf = (val: string) => {
+    const c = val.replace(/\D/g, "").slice(0, 4);
+    return c.length >= 2 ? c.slice(0, 2) + "/" + c.slice(2) : c;
   };
 
-  const formatAblauf = (val) => {
-    const clean = val.replace(/\D/g, "").slice(0, 4);
-    if (clean.length >= 2) return clean.slice(0, 2) + "/" + clean.slice(2);
-    return clean;
-  };
-
-  const inp = (f) => ({
+  const inp = (f: string) => ({
     width: "100%", padding: "12px 15px", borderRadius: 11,
     border: `1.5px solid ${errors[f] ? "#E74C3C" : "#E8EDF4"}`,
     fontSize: "0.92rem", fontFamily: "'DM Sans', sans-serif",
     outline: "none", color: "#1a1a2e", background: "white", transition: "border-color 0.2s",
   });
-  const sel = (f) => ({ ...inp(f), appearance: "none", cursor: "pointer", backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7897' strokeWidth='1.5' fill='none'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 14px center" });
-  const lbl = { fontSize: "0.8rem", fontWeight: 700, color: NAVY, marginBottom: 5, display: "block", letterSpacing: 0.3 };
-  const err = (f) => errors[f] ? <div style={{ fontSize: "0.73rem", color: "#E74C3C", marginTop: 3 }}>⚠ {errors[f]}</div> : null;
+  const sel = (f: string) => ({ ...inp(f), appearance: "none" as const, cursor: "pointer", backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7897' strokeWidth='1.5' fill='none'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat" as const, backgroundPosition: "right 14px center" });
+  const lbl: React.CSSProperties = { fontSize: "0.8rem", fontWeight: 700, color: NAVY, marginBottom: 5, display: "block", letterSpacing: 0.3 };
+  const errEl = (f: string) => errors[f] ? <div style={{ fontSize: "0.73rem", color: "#E74C3C", marginTop: 3 }}>⚠ {errors[f]}</div> : null;
   const fw = { marginBottom: 18 };
-  const grid2 = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18 };
-
-  const tarif = TARIFE.find(t => t.id === selectedTarif);
+  const grid2: React.CSSProperties = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18 };
 
   if (done) return (
     <div style={{ minHeight: "100vh", background: `linear-gradient(135deg, #0D3B2E, ${GREEN})`, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'DM Sans', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap');`}</style>
       <div style={{ background: "white", borderRadius: 28, padding: "52px 44px", textAlign: "center", maxWidth: 520, width: "100%", boxShadow: "0 30px 80px rgba(0,0,0,0.3)" }}>
         <div style={{ fontSize: "3.5rem", marginBottom: 18 }}>🎊</div>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.9rem", color: NAVY, marginBottom: 10 }}>
-          Willkommen bei KitaBridge!
-        </h2>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.9rem", color: NAVY, marginBottom: 10 }}>Willkommen bei KitaBridge!</h2>
         <p style={{ color: "#6B7897", fontSize: "0.92rem", lineHeight: 1.75, marginBottom: 24 }}>
-          <strong>{form.einrichtungName}</strong> ist jetzt registriert.<br/>
-          Deine Mitgliedschaft <strong>{tarif.name}</strong> ist aktiv — du hast sofort Zugang zu allen Fachkraft-Profilen.
+          <strong>{form.einrichtungName}</strong> ist jetzt aktiv.<br/>
+          Sie haben sofort Zugang zu allen Fachkraft-Profilen.
         </p>
         <div style={{ background: "#EAF7EF", borderRadius: 14, padding: "16px 20px", marginBottom: 28, textAlign: "left" }}>
-          <div style={{ fontSize: "0.78rem", fontWeight: 700, color: GREEN, marginBottom: 10 }}>✅ Deine Mitgliedschaft:</div>
+          <div style={{ fontSize: "0.78rem", fontWeight: 700, color: GREEN, marginBottom: 10 }}>✅ Ihre Mitgliedschaft:</div>
           {[
             ["🏫", form.einrichtungName],
             ["📍", `${form.ort}, ${form.bundesland}`],
             ["👤", form.ansprechName],
             ["📧", form.email],
-            ["💳", `${tarif.name} — ${tarif.price} €/Monat`],
-            ["💼", `${form.stellenAnzahl} Stelle(n) gesucht`],
+            ["💳", `Monatlicher Zugang — 299 € / Monat`],
           ].map(([icon, val]) => val && (
             <div key={icon} style={{ fontSize: "0.83rem", color: "#333", marginBottom: 5 }}>{icon} {val}</div>
           ))}
+          <div style={{ fontSize: "0.88rem", fontWeight: 700, color: NAVY, marginTop: 8, borderTop: "1px solid #D5F5E3", paddingTop: 8 }}>
+            Gesamt: {totalMonthly} € / Monat (zzgl. MwSt.)
+          </div>
         </div>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <a href="/" style={{ padding: "12px 24px", borderRadius: 50, border: `1.5px solid ${NAVY}`, color: NAVY, fontWeight: 600, fontSize: "0.9rem", textDecoration: "none" }}>
-            Zur Homepage
-          </a>
-          <a href="#" style={{ padding: "12px 24px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 600, fontSize: "0.9rem", textDecoration: "none" }}>
-            Zum Dashboard →
-          </a>
+          <a href="/" style={{ padding: "12px 24px", borderRadius: 50, border: `1.5px solid ${NAVY}`, color: NAVY, fontWeight: 600, fontSize: "0.9rem", textDecoration: "none" }}>Zur Homepage</a>
+          <a href="#" style={{ padding: "12px 24px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 600, fontSize: "0.9rem", textDecoration: "none" }}>Zum Dashboard →</a>
         </div>
       </div>
     </div>
@@ -222,10 +253,10 @@ function ArbeitgeberPage() {
         .btn-next:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
         .btn-back { width: 100%; padding: 13px; border-radius: 50px; background: transparent; color: #6B7897; border: 1.5px solid #E8EDF4; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.92rem; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
         .btn-back:hover { border-color: ${NAVY}; color: ${NAVY}; }
-        .tarif-card { border-radius: 18px; padding: 24px; border: 2px solid #E8EDF4; background: white; cursor: pointer; transition: all 0.25s; position: relative; }
-        .tarif-card:hover { border-color: ${BLUE}; box-shadow: 0 8px 24px rgba(26,63,111,0.1); }
-        .tarif-card.selected { border-color: ${GREEN}; box-shadow: 0 8px 28px rgba(30,132,73,0.18); }
-        @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr !important; } .form-wrap { padding: 24px 18px !important; } .tarife-grid { grid-template-columns: 1fr !important; } }
+        .addon-card { border-radius: 16px; padding: 18px; border: 2px solid #E8EDF4; background: white; cursor: pointer; transition: all 0.25s; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 12px; }
+        .addon-card:hover { border-color: ${BLUE}; }
+        .addon-card.on { border-color: ${GREEN}; background: #F0FBF4; }
+        @media (max-width: 600px) { .form-wrap { padding: 24px 18px !important; } }
       `}</style>
 
       {/* Nav */}
@@ -245,26 +276,20 @@ function ArbeitgeberPage() {
             <span style={{ color: NAVY }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
           </span>
         </a>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ fontSize: "0.82rem", color: "#6B7897" }}>
-            Bereits registriert? <a href="#" style={{ color: BLUE, fontWeight: 600 }}>Anmelden</a>
-          </div>
-          <div style={{ background: "#EAF7EF", color: GREEN, padding: "5px 14px", borderRadius: 50, fontSize: "0.78rem", fontWeight: 700 }}>
-            30 Tage gratis testen
-          </div>
+        <div style={{ fontSize: "0.82rem", color: "#6B7897" }}>
+          Bereits registriert? <a href="#" style={{ color: BLUE, fontWeight: 600 }}>Anmelden</a>
         </div>
       </div>
 
-      {/* Progress bar */}
+      {/* Progress */}
       <div style={{ height: 3, background: "#E8EDF4" }}>
         <div style={{ height: "100%", width: `${progress}%`, background: `linear-gradient(90deg, ${NAVY}, ${GREEN})`, transition: "width 0.4s ease" }}/>
       </div>
 
       <div style={{ maxWidth: 620, margin: "0 auto", padding: "40px 16px 60px" }}>
 
-        {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ fontSize: "0.74rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8 }}>✦ 30 Tage kostenlos testen</div>
+          <div style={{ fontSize: "0.74rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8 }}>✦ Für Schulen & Kitas</div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.9rem", fontWeight: 800, color: NAVY, marginBottom: 6 }}>Arbeitgeber-Registrierung</h1>
           <p style={{ color: "#6B7897", fontSize: "0.88rem" }}>Schritt {step} von {steps.length} — {steps[step - 1].label}</p>
         </div>
@@ -291,294 +316,183 @@ function ArbeitgeberPage() {
           ))}
         </div>
 
-        {/* Card */}
         <div className="form-wrap" style={{ background: "white", borderRadius: 22, padding: "32px 32px", boxShadow: "0 8px 40px rgba(26,63,111,0.09)", border: "1px solid #E8EDF4" }}>
 
-          {/* ══ STEP 1: Einrichtung ══ */}
+          {/* STEP 1 */}
           {step === 1 && <>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 4 }}>🏫 Ihre Einrichtung</h2>
             <p style={{ color: "#6B7897", fontSize: "0.83rem", marginBottom: 24 }}>Grunddaten Ihrer Schule, Kita oder Ihres Trägers.</p>
-
-            <div style={fw}>
-              <label style={lbl}>Name der Einrichtung *</label>
-              <input style={inp("einrichtungName")} value={form.einrichtungName} onChange={e => upd("einrichtungName", e.target.value)} placeholder="z.B. Grundschule Am Stadtpark"/>
-              {err("einrichtungName")}
+            <div style={fw}><label style={lbl}>Name der Einrichtung *</label><input style={inp("einrichtungName")} value={form.einrichtungName} onChange={e => upd("einrichtungName", e.target.value)} placeholder="z.B. Grundschule Am Stadtpark"/>{errEl("einrichtungName")}</div>
+            <div style={grid2}>
+              <div><label style={lbl}>Einrichtungstyp *</label><select style={sel("einrichtungstyp")} value={form.einrichtungstyp} onChange={e => upd("einrichtungstyp", e.target.value)}><option value="">— Bitte wählen —</option>{EINRICHTUNGSTYPEN.map(t => <option key={t}>{t}</option>)}</select>{errEl("einrichtungstyp")}</div>
+              <div><label style={lbl}>Trägerschaft *</label><select style={sel("traeger")} value={form.traeger} onChange={e => upd("traeger", e.target.value)}><option value="">— Bitte wählen —</option>{TRAEGER.map(t => <option key={t}>{t}</option>)}</select>{errEl("traeger")}</div>
             </div>
-
-            <div className="grid2" style={grid2}>
-              <div>
-                <label style={lbl}>Einrichtungstyp *</label>
-                <select style={sel("einrichtungstyp")} value={form.einrichtungstyp} onChange={e => upd("einrichtungstyp", e.target.value)}>
-                  <option value="">— Bitte wählen —</option>
-                  {EINRICHTUNGSTYPEN.map(t => <option key={t}>{t}</option>)}
-                </select>{err("einrichtungstyp")}
-              </div>
-              <div>
-                <label style={lbl}>Trägerschaft *</label>
-                <select style={sel("traeger")} value={form.traeger} onChange={e => upd("traeger", e.target.value)}>
-                  <option value="">— Bitte wählen —</option>
-                  {TRAEGER.map(t => <option key={t}>{t}</option>)}
-                </select>{err("traeger")}
-              </div>
-            </div>
-
-            <div style={fw}>
-              <label style={lbl}>Kurzbeschreibung der Einrichtung (optional)</label>
-              <textarea style={{ ...inp("beschreibung"), resize: "vertical", minHeight: 90 }} maxLength={400} value={form.beschreibung} onChange={e => upd("beschreibung", e.target.value)} placeholder="z.B. Wir sind eine offene Ganztagesgrundschule mit 320 Schüler*innen in Berlin-Mitte..."/>
-              <div style={{ fontSize: "0.72rem", color: "#9BA8C0", marginTop: 3 }}>{form.beschreibung.length}/400 Zeichen</div>
-            </div>
-
+            <div style={fw}><label style={lbl}>Kurzbeschreibung (optional)</label><textarea style={{ ...inp("beschreibung"), resize: "vertical", minHeight: 90 }} maxLength={400} value={form.beschreibung} onChange={e => upd("beschreibung", e.target.value)} placeholder="z.B. Offene Ganztagesgrundschule mit 320 Schüler*innen..."/><div style={{ fontSize: "0.72rem", color: "#9BA8C0", marginTop: 3 }}>{form.beschreibung.length}/400</div></div>
             <button className="btn-next" onClick={next}>Weiter →</button>
           </>}
 
-          {/* ══ STEP 2: Adresse ══ */}
+          {/* STEP 2 */}
           {step === 2 && <>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 4 }}>📍 Adresse</h2>
             <p style={{ color: "#6B7897", fontSize: "0.83rem", marginBottom: 24 }}>Wo befindet sich Ihre Einrichtung?</p>
-
-            <div className="grid2" style={{ ...grid2, gridTemplateColumns: "2fr 1fr" }}>
-              <div>
-                <label style={lbl}>Straße *</label>
-                <input style={inp("strasse")} value={form.strasse} onChange={e => upd("strasse", e.target.value)} placeholder="z.B. Hauptstraße"/>
-                {err("strasse")}
-              </div>
-              <div>
-                <label style={lbl}>Hausnummer</label>
-                <input style={inp("hausnummer")} value={form.hausnummer} onChange={e => upd("hausnummer", e.target.value)} placeholder="z.B. 12a"/>
-              </div>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14, marginBottom: 18 }}>
+              <div><label style={lbl}>Straße *</label><input style={inp("strasse")} value={form.strasse} onChange={e => upd("strasse", e.target.value)} placeholder="z.B. Hauptstraße"/>{errEl("strasse")}</div>
+              <div><label style={lbl}>Nr.</label><input style={inp("hausnummer")} value={form.hausnummer} onChange={e => upd("hausnummer", e.target.value)} placeholder="12a"/></div>
             </div>
-
-            <div className="grid2" style={{ ...grid2, gridTemplateColumns: "1fr 2fr" }}>
-              <div>
-                <label style={lbl}>PLZ *</label>
-                <input style={inp("plz")} value={form.plz} onChange={e => upd("plz", e.target.value.slice(0,5))} placeholder="z.B. 10115" maxLength={5}/>
-                {err("plz")}
-              </div>
-              <div>
-                <label style={lbl}>Ort *</label>
-                <input style={inp("ort")} value={form.ort} onChange={e => upd("ort", e.target.value)} placeholder="z.B. Berlin"/>
-                {err("ort")}
-              </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 14, marginBottom: 18 }}>
+              <div><label style={lbl}>PLZ *</label><input style={inp("plz")} value={form.plz} onChange={e => upd("plz", e.target.value.slice(0,5))} placeholder="10115" maxLength={5}/>{errEl("plz")}</div>
+              <div><label style={lbl}>Ort *</label><input style={inp("ort")} value={form.ort} onChange={e => upd("ort", e.target.value)} placeholder="z.B. Berlin"/>{errEl("ort")}</div>
             </div>
-
-            <div style={fw}>
-              <label style={lbl}>Bundesland *</label>
-              <select style={sel("bundesland")} value={form.bundesland} onChange={e => upd("bundesland", e.target.value)}>
-                <option value="">— Bundesland wählen —</option>
-                {BUNDESLAENDER.map(b => <option key={b}>{b}</option>)}
-              </select>{err("bundesland")}
-            </div>
-
+            <div style={fw}><label style={lbl}>Bundesland *</label><select style={sel("bundesland")} value={form.bundesland} onChange={e => upd("bundesland", e.target.value)}><option value="">— Bundesland wählen —</option>{BUNDESLAENDER.map(b => <option key={b}>{b}</option>)}</select>{errEl("bundesland")}</div>
             <button className="btn-next" onClick={next}>Weiter →</button>
             <button className="btn-back" onClick={back}>← Zurück</button>
           </>}
 
-          {/* ══ STEP 3: Kontakt & Account ══ */}
+          {/* STEP 3 */}
           {step === 3 && <>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 4 }}>👤 Ansprechpartner & Account</h2>
             <p style={{ color: "#6B7897", fontSize: "0.83rem", marginBottom: 24 }}>Mit diesen Daten können Sie sich später anmelden.</p>
-
-            <div className="grid2" style={grid2}>
-              <div>
-                <label style={lbl}>Name Ansprechpartner*in *</label>
-                <input style={inp("ansprechName")} value={form.ansprechName} onChange={e => upd("ansprechName", e.target.value)} placeholder="z.B. Maria Müller"/>
-                {err("ansprechName")}
-              </div>
-              <div>
-                <label style={lbl}>Rolle / Funktion</label>
-                <input style={inp("ansprechRolle")} value={form.ansprechRolle} onChange={e => upd("ansprechRolle", e.target.value)} placeholder="z.B. Schulleiterin"/>
-              </div>
+            <div style={grid2}>
+              <div><label style={lbl}>Name *</label><input style={inp("ansprechName")} value={form.ansprechName} onChange={e => upd("ansprechName", e.target.value)} placeholder="z.B. Maria Müller"/>{errEl("ansprechName")}</div>
+              <div><label style={lbl}>Rolle</label><input style={inp("ansprechRolle")} value={form.ansprechRolle} onChange={e => upd("ansprechRolle", e.target.value)} placeholder="z.B. Schulleiterin"/></div>
             </div>
-
-            <div className="grid2" style={grid2}>
-              <div>
-                <label style={lbl}>E-Mail-Adresse *</label>
-                <input style={inp("email")} type="email" value={form.email} onChange={e => upd("email", e.target.value)} placeholder="schule@email.de"/>
-                {err("email")}
-              </div>
-              <div>
-                <label style={lbl}>Telefon (optional)</label>
-                <input style={inp("telefon")} value={form.telefon} onChange={e => upd("telefon", e.target.value)} placeholder="z.B. 030 12345678"/>
-              </div>
+            <div style={grid2}>
+              <div><label style={lbl}>E-Mail *</label><input style={inp("email")} type="email" value={form.email} onChange={e => upd("email", e.target.value)} placeholder="schule@email.de"/>{errEl("email")}</div>
+              <div><label style={lbl}>Telefon</label><input style={inp("telefon")} value={form.telefon} onChange={e => upd("telefon", e.target.value)} placeholder="030 12345678"/></div>
             </div>
-
-            <div className="grid2" style={grid2}>
-              <div>
-                <label style={lbl}>Passwort * (min. 6 Zeichen)</label>
-                <input style={inp("passwort")} type="password" value={form.passwort} onChange={e => upd("passwort", e.target.value)} placeholder="••••••••"/>
-                {err("passwort")}
-              </div>
-              <div>
-                <label style={lbl}>Passwort wiederholen *</label>
-                <input style={inp("passwort2")} type="password" value={form.passwort2} onChange={e => upd("passwort2", e.target.value)} placeholder="••••••••"/>
-                {err("passwort2")}
-              </div>
+            <div style={grid2}>
+              <div><label style={lbl}>Passwort * (min. 6)</label><input style={inp("passwort")} type="password" value={form.passwort} onChange={e => upd("passwort", e.target.value)} placeholder="••••••••"/>{errEl("passwort")}</div>
+              <div><label style={lbl}>Wiederholen *</label><input style={inp("passwort2")} type="password" value={form.passwort2} onChange={e => upd("passwort2", e.target.value)} placeholder="••••••••"/>{errEl("passwort2")}</div>
             </div>
-
             <button className="btn-next" onClick={next}>Weiter →</button>
             <button className="btn-back" onClick={back}>← Zurück</button>
           </>}
 
-          {/* ══ STEP 4: Stellen ══ */}
+          {/* STEP 4 */}
           {step === 4 && <>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 4 }}>💼 Gesuchte Stellen</h2>
             <p style={{ color: "#6B7897", fontSize: "0.83rem", marginBottom: 24 }}>Welche Fachkräfte suchen Sie?</p>
-
             <div style={fw}>
-              <label style={lbl}>Anzahl gesuchter Stellen *</label>
+              <label style={lbl}>Anzahl *</label>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                {STELLEN_ANZ.map(a => (
-                  <button key={a} className={`pill-btn ${form.stellenAnzahl === a ? "on" : ""}`} onClick={() => upd("stellenAnzahl", a)}>
-                    {a}
-                  </button>
-                ))}
-              </div>
-              {err("stellenAnzahl")}
+                {STELLEN_ANZ.map(a => <button key={a} className={`pill-btn ${form.stellenAnzahl === a ? "on" : ""}`} onClick={() => upd("stellenAnzahl", a)}>{a}</button>)}
+              </div>{errEl("stellenAnzahl")}
             </div>
-
             <div style={fw}>
-              <label style={lbl}>Gesuchte Fachrichtungen * (Mehrfachwahl)</label>
+              <label style={lbl}>Fachrichtungen * (Mehrfachwahl)</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
-                {FACHRICHTUNGEN.map(f => (
-                  <button key={f} className={`pill-btn ${form.fachrichtungen.includes(f) ? "on" : ""}`} onClick={() => toggleArr("fachrichtungen", f)}>
-                    {form.fachrichtungen.includes(f) ? "✓ " : ""}{f}
-                  </button>
-                ))}
-              </div>
-              {err("fachrichtungen")}
+                {FACHRICHTUNGEN.map(f => <button key={f} className={`pill-btn ${form.fachrichtungen.includes(f) ? "on" : ""}`} onClick={() => toggleArr("fachrichtungen", f)}>{form.fachrichtungen.includes(f) ? "✓ " : ""}{f}</button>)}
+              </div>{errEl("fachrichtungen")}
             </div>
-
             <div style={fw}>
-              <label style={lbl}>Gesuchte Positionen (optional)</label>
+              <label style={lbl}>Positionen (optional)</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
-                {POSITIONEN.map(p => (
-                  <button key={p} className={`pill-btn ${form.positionen.includes(p) ? "on" : ""}`} onClick={() => toggleArr("positionen", p)}>
-                    {form.positionen.includes(p) ? "✓ " : ""}{p}
-                  </button>
-                ))}
+                {POSITIONEN.map(p => <button key={p} className={`pill-btn ${form.positionen.includes(p) ? "on" : ""}`} onClick={() => toggleArr("positionen", p)}>{form.positionen.includes(p) ? "✓ " : ""}{p}</button>)}
               </div>
             </div>
-
             <button className="btn-next" onClick={next}>Weiter →</button>
             <button className="btn-back" onClick={back}>← Zurück</button>
           </>}
 
-          {/* ══ STEP 5: Tarif & Zahlung ══ */}
+          {/* STEP 5 */}
           {step === 5 && <>
             {!payStep ? (
               <>
-                <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 4 }}>💳 Tarif wählen</h2>
-                <p style={{ color: "#6B7897", fontSize: "0.83rem", marginBottom: 20 }}>30 Tage kostenlos testen — danach monatlich kündbar.</p>
+                <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 4 }}>💳 Ihr Tarif</h2>
+                <p style={{ color: "#6B7897", fontSize: "0.83rem", marginBottom: 20 }}>Ein Plan. Volle Kontrolle. Keine Provision.</p>
 
-                <div className="tarife-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
-                  {TARIFE.map(t => (
-                    <div key={t.id} className={`tarif-card ${selectedTarif === t.id ? "selected" : ""}`} onClick={() => setSelectedTarif(t.id)}>
-                      {t.badge && (
-                        <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: GREEN, color: "white", padding: "3px 12px", borderRadius: 50, fontSize: "0.7rem", fontWeight: 700, whiteSpace: "nowrap" }}>
-                          {t.badge}
-                        </div>
-                      )}
-                      <div style={{ fontWeight: 700, color: t.color, fontSize: "0.95rem", marginBottom: 6 }}>{t.name}</div>
-                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", fontWeight: 700, color: NAVY, marginBottom: 2 }}>
-                        {t.price} €
+                {/* Main plan */}
+                <div style={{ borderRadius: 18, border: `2px solid ${GREEN}`, background: "linear-gradient(135deg, #F0FBF4, #FFFFFF)", padding: "24px", marginBottom: 24, position: "relative" }}>
+                  <div style={{ position: "absolute", top: -13, left: 24, background: GREEN, color: "white", padding: "4px 16px", borderRadius: 50, fontSize: "0.75rem", fontWeight: 700 }}>✦ Hauptplan</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+                    <div>
+                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 700, color: NAVY, marginBottom: 4 }}>Monatlicher Zugang</div>
+                      <div style={{ fontSize: "0.83rem", color: "#6B7897", marginBottom: 14, lineHeight: 1.6 }}>Direkter Zugang zu qualifizierten Fachkräften — ohne Provision.</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px 16px" }}>
+                        {["Alle Fachkräfte-Profile", "Unbegrenzte Suche", "Direktkontakt", "Nachrichtenfunktion", "Filter & Qualifikation", "Keine Provision", "Monatlich kündbar", "Rechnung mit MwSt."].map(f => (
+                          <div key={f} style={{ fontSize: "0.77rem", color: "#333", display: "flex", gap: 5 }}>
+                            <span style={{ color: GREEN, fontWeight: 700 }}>✓</span>{f}
+                          </div>
+                        ))}
                       </div>
-                      <div style={{ fontSize: "0.72rem", color: "#9BA8C0", marginBottom: 14 }}>/ {t.period}</div>
-                      {t.features.map(f => (
-                        <div key={f} style={{ fontSize: "0.75rem", color: "#444", marginBottom: 5, display: "flex", gap: 6, alignItems: "flex-start" }}>
-                          <span style={{ color: GREEN, flexShrink: 0 }}>✓</span>{f}
-                        </div>
-                      ))}
-                      {selectedTarif === t.id && (
-                        <div style={{ marginTop: 12, background: "#EAF7EF", borderRadius: 8, padding: "6px 10px", fontSize: "0.73rem", color: GREEN, fontWeight: 700, textAlign: "center" }}>
-                          ✓ Ausgewählt
-                        </div>
-                      )}
                     </div>
-                  ))}
-                </div>
-
-                <div style={{ background: "#EBF5FB", borderRadius: 12, padding: "12px 16px", marginBottom: 20 }}>
-                  <div style={{ fontSize: "0.77rem", fontWeight: 700, color: BLUE, marginBottom: 4 }}>🎁 30 Tage kostenlos</div>
-                  <div style={{ fontSize: "0.8rem", color: "#444", lineHeight: 1.6 }}>
-                    Kein Risiko — Sie werden erst nach 30 Tagen belastet und können jederzeit kündigen.
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700, color: NAVY }}>299 €</div>
+                      <div style={{ fontSize: "0.77rem", color: "#9BA8C0" }}>/ Monat zzgl. MwSt.</div>
+                      <div style={{ fontSize: "0.72rem", color: GREEN, marginTop: 4, fontWeight: 600 }}>Keine Einrichtungsgebühr</div>
+                    </div>
                   </div>
                 </div>
 
-                <button className="btn-next" onClick={() => { if(validate()) setPayStep(true); }}>
-                  Weiter zur Zahlung →
-                </button>
+                {/* Add-ons */}
+                <label style={{ ...lbl, marginBottom: 12 }}>⚡ Optionale Add-ons</label>
+                {ADDONS.map(addon => (
+                  <div key={addon.id} className={`addon-card ${selectedAddons.includes(addon.id) ? "on" : ""}`} onClick={() => toggleAddon(addon.id)}>
+                    <div style={{ width: 42, height: 42, borderRadius: 11, flexShrink: 0, background: selectedAddons.includes(addon.id) ? GREEN : "#F0F4F9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", transition: "all 0.2s" }}>
+                      {addon.icon}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: "0.86rem", color: NAVY, marginBottom: 2 }}>{addon.title}</div>
+                      <div style={{ fontSize: "0.77rem", color: "#6B7897", lineHeight: 1.5 }}>{addon.desc}</div>
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontWeight: 700, fontSize: "0.86rem", color: selectedAddons.includes(addon.id) ? GREEN : NAVY }}>{addon.price}</div>
+                      <div style={{ marginTop: 6, width: 22, height: 22, borderRadius: 6, border: `2px solid ${selectedAddons.includes(addon.id) ? GREEN : "#C0C8D8"}`, background: selectedAddons.includes(addon.id) ? GREEN : "white", display: "flex", alignItems: "center", justifyContent: "center", marginLeft: "auto", transition: "all 0.2s" }}>
+                        {selectedAddons.includes(addon.id) && <span style={{ color: "white", fontSize: "0.7rem", fontWeight: 700 }}>✓</span>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Total */}
+                <div style={{ background: "#F0F4F9", borderRadius: 14, padding: "14px 18px", marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.9rem" }}>Gesamt / Monat</div>
+                    <div style={{ fontSize: "0.75rem", color: "#9BA8C0" }}>zzgl. MwSt. — jederzeit kündbar</div>
+                  </div>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", fontWeight: 700, color: NAVY }}>{totalMonthly} €</div>
+                </div>
+
+                <button className="btn-next" onClick={() => { if (validate()) setPayStep(true); }}>Weiter zur Zahlung →</button>
                 <button className="btn-back" onClick={back}>← Zurück</button>
               </>
             ) : (
               <>
                 <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 4 }}>💳 Zahlungsdaten</h2>
-                <p style={{ color: "#6B7897", fontSize: "0.83rem", marginBottom: 4 }}>
-                  Tarif: <strong>{tarif.name}</strong> — {tarif.price} €/Monat (nach 30 Tagen)
-                </p>
+                <p style={{ color: "#6B7897", fontSize: "0.83rem", marginBottom: 16 }}>Monatlicher Zugang — <strong>{totalMonthly} € / Monat</strong> (zzgl. MwSt.)</p>
 
-                {/* Stripe-style card */}
                 <div style={{ background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, borderRadius: 16, padding: "20px 22px", marginBottom: 22, position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", right: -20, top: -20, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.06)" }}/>
-                  <div style={{ position: "absolute", right: 20, bottom: -30, width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }}/>
                   <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.72rem", marginBottom: 16, letterSpacing: 1 }}>KREDITKARTE / DEBITKARTE</div>
-                  <div style={{ color: "white", fontSize: "1.1rem", fontWeight: 600, letterSpacing: 3, marginBottom: 16 }}>
-                    {form.kartennummer || "•••• •••• •••• ••••"}
-                  </div>
+                  <div style={{ color: "white", fontSize: "1.1rem", fontWeight: 600, letterSpacing: 3, marginBottom: 16 }}>{form.kartennummer || "•••• •••• •••• ••••"}</div>
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <div>
-                      <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem" }}>KARTENINHABER</div>
-                      <div style={{ color: "white", fontSize: "0.85rem", fontWeight: 600 }}>{form.kartenname || "—"}</div>
-                    </div>
-                    <div>
-                      <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem" }}>GÜLTIG BIS</div>
-                      <div style={{ color: "white", fontSize: "0.85rem", fontWeight: 600 }}>{form.ablauf || "MM/JJ"}</div>
-                    </div>
+                    <div><div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem" }}>KARTENINHABER</div><div style={{ color: "white", fontSize: "0.85rem", fontWeight: 600 }}>{form.kartenname || "—"}</div></div>
+                    <div><div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem" }}>GÜLTIG BIS</div><div style={{ color: "white", fontSize: "0.85rem", fontWeight: 600 }}>{form.ablauf || "MM/JJ"}</div></div>
                   </div>
                 </div>
 
-                <div style={fw}>
-                  <label style={lbl}>Name auf der Karte *</label>
-                  <input style={inp("kartenname")} value={form.kartenname} onChange={e => upd("kartenname", e.target.value.toUpperCase())} placeholder="z.B. MARIA MÜLLER"/>
-                  {err("kartenname")}
+                <div style={fw}><label style={lbl}>Name auf der Karte *</label><input style={inp("kartenname")} value={form.kartenname} onChange={e => upd("kartenname", e.target.value.toUpperCase())} placeholder="MARIA MÜLLER"/>{errEl("kartenname")}</div>
+                <div style={fw}><label style={lbl}>Kartennummer *</label><input style={inp("kartennummer")} value={form.kartennummer} onChange={e => upd("kartennummer", formatKarte(e.target.value))} placeholder="1234 5678 9012 3456" maxLength={19}/>{errEl("kartennummer")}</div>
+                <div style={grid2}>
+                  <div><label style={lbl}>Ablaufdatum *</label><input style={inp("ablauf")} value={form.ablauf} onChange={e => upd("ablauf", formatAblauf(e.target.value))} placeholder="MM/JJ" maxLength={5}/>{errEl("ablauf")}</div>
+                  <div><label style={lbl}>CVV *</label><input style={inp("cvv")} value={form.cvv} onChange={e => upd("cvv", e.target.value.replace(/\D/g,"").slice(0,4))} placeholder="123" maxLength={4} type="password"/>{errEl("cvv")}</div>
                 </div>
-
-                <div style={fw}>
-                  <label style={lbl}>Kartennummer *</label>
-                  <input style={inp("kartennummer")} value={form.kartennummer} onChange={e => upd("kartennummer", formatKarte(e.target.value))} placeholder="1234 5678 9012 3456" maxLength={19}/>
-                  {err("kartennummer")}
-                </div>
-
-                <div className="grid2" style={grid2}>
-                  <div>
-                    <label style={lbl}>Ablaufdatum *</label>
-                    <input style={inp("ablauf")} value={form.ablauf} onChange={e => upd("ablauf", formatAblauf(e.target.value))} placeholder="MM/JJ" maxLength={5}/>
-                    {err("ablauf")}
-                  </div>
-                  <div>
-                    <label style={lbl}>CVV *</label>
-                    <input style={inp("cvv")} value={form.cvv} onChange={e => upd("cvv", e.target.value.replace(/\D/g,"").slice(0,4))} placeholder="123" maxLength={4} type="password"/>
-                    {err("cvv")}
-                  </div>
-                </div>
-
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, background: "#F8FAFF", borderRadius: 10, padding: "10px 14px" }}>
-                  <span style={{ fontSize: "1.1rem" }}>🔒</span>
-                  <span style={{ fontSize: "0.78rem", color: "#6B7897" }}>Ihre Zahlungsdaten werden SSL-verschlüsselt übertragen und sicher verarbeitet.</span>
+                  <span>🔒</span>
+                  <span style={{ fontSize: "0.78rem", color: "#6B7897" }}>SSL-verschlüsselt — keine Kartendaten werden gespeichert.</span>
                 </div>
-
                 <button className="btn-next" style={{ background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, boxShadow: "0 6px 20px rgba(30,132,73,0.32)" }} onClick={handlePay} disabled={paying}>
-                  {paying ? "⏳ Zahlung wird verarbeitet..." : `🚀 Jetzt ${tarif.price} €/Monat starten`}
+                  {paying ? "⏳ Wird verarbeitet..." : `🚀 Jetzt ${totalMonthly} € / Monat starten`}
                 </button>
                 <button className="btn-back" onClick={() => setPayStep(false)}>← Zurück zur Tarifauswahl</button>
               </>
             )}
           </>}
 
-          {/* ══ STEP 6: Übersicht ══ */}
+          {/* STEP 6 */}
           {step === 6 && <>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 4 }}>✅ Zusammenfassung</h2>
             <p style={{ color: "#6B7897", fontSize: "0.83rem", marginBottom: 20 }}>Bitte überprüfen Sie Ihre Angaben.</p>
-
             {[
               ["🏫 Einrichtung", form.einrichtungName],
               ["📋 Typ", form.einrichtungstyp],
@@ -587,21 +501,20 @@ function ArbeitgeberPage() {
               ["🗺️ Bundesland", form.bundesland],
               ["👤 Ansprechpartner", form.ansprechName],
               ["📧 E-Mail", form.email],
-              ["📞 Telefon", form.telefon || "—"],
               ["💼 Stellen", form.stellenAnzahl],
               ["📚 Fachrichtungen", form.fachrichtungen.join(", ")],
-              ["💳 Tarif", `${tarif.name} — ${tarif.price} €/Monat`],
+              ["💳 Plan", "299 € / Monat"],
+              ["⚡ Add-ons", selectedAddons.length > 0 ? selectedAddons.map(id => ADDONS.find(a => a.id === id)?.title).join(", ") : "Keine"],
+              ["💰 Gesamt", `${totalMonthly} € / Monat (zzgl. MwSt.)`],
             ].map(([label, val]) => (
               <div key={label} style={{ display: "flex", padding: "9px 0", borderBottom: "1px solid #F0F4F9", gap: 10 }}>
                 <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "#6B7897", minWidth: 160, flexShrink: 0 }}>{label}</span>
                 <span style={{ fontSize: "0.82rem", color: "#1a1a2e" }}>{val || "—"}</span>
               </div>
             ))}
-
             <div style={{ marginTop: 16, fontSize: "0.75rem", color: "#9BA8C0", textAlign: "center", lineHeight: 1.6, marginBottom: 4 }}>
-              Mit der Registrierung stimmen Sie unseren <a href="#" style={{ color: BLUE }}>AGB</a> und der <a href="#" style={{ color: BLUE }}>Datenschutzerklärung</a> zu.
+              Mit der Registrierung stimmen Sie unseren <a href="#" style={{ color: BLUE }}>AGB</a> und der <a href="#" style={{ color: BLUE }}>Datenschutzerklärung</a> zu. Monatlich kündbar.
             </div>
-
             <button className="btn-next" style={{ background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, boxShadow: "0 6px 20px rgba(30,132,73,0.32)", marginTop: 16 }} onClick={() => setDone(true)}>
               🎊 Registrierung abschließen
             </button>
@@ -611,7 +524,7 @@ function ArbeitgeberPage() {
         </div>
 
         <div style={{ textAlign: "center", marginTop: 20, fontSize: "0.78rem", color: "#9BA8C0" }}>
-          🔒 DSGVO-konform — Ihre Daten werden sicher verarbeitet.
+          🔒 DSGVO-konform — Monatlich kündbar — Keine Einrichtungsgebühr
         </div>
       </div>
     </div>
