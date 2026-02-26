@@ -1,1 +1,1 @@
-export default function Page(){return require("react").createElement("div",null,"Registrierung")}
+export default function Page(){return <div>Registrierung</div>}
