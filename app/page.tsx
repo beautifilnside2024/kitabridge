@@ -1,4 +1,3 @@
-export default function Home(){return(<div><h1>KitaBridge</h1></div>);}
 "use client";
 import { useState, useEffect } from "react";
 
