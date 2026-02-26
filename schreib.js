@@ -1,0 +1,1 @@
+require('fs').writeFileSync('app/Registrieren/page.tsx',require('fs').readFileSync('registrieren.tsx','utf8'),'utf8');console.log('done');
