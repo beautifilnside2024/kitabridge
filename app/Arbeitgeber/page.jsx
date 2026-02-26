@@ -67,13 +67,19 @@ export default function Arbeitgeber() {
         status: "neu"
       }]);
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       alert("Fehler: " + error.message);
       return;
     }
 
+    await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "arbeitgeber", data: form })
+    });
+
+    setLoading(false);
     setSubmitted(true);
   };
 
