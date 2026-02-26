@@ -1,3 +1,5 @@
 var fs=require('fs');
-fs.writeFileSync('app/Arbeitgeber/page.jsx',fs.readFileSync('arbeitgeber.tsx','utf8'),'utf8');
-console.log('done');
+var c=fs.readFileSync('app/Arbeitgeber/page.jsx','utf8');
+var alt='<div style={{ marginBottom: 20 }}>';
+console.log('Gefunden:', c.includes(alt));
+console.log('Anzahl step 5:', c.split('step === 5').length-1);
