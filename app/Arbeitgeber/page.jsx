@@ -6,14 +6,7 @@ const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
 const GREEN = "#1E8449";
 
-const STEPS = [
-  "Einrichtung",
-  "Adresse",
-  "Ansprechpartner",
-  "Stellen",
-  "Plan",
-  "Abschluss"
-];
+const STEPS = ["Einrichtung", "Adresse", "Ansprechpartner", "Stellen", "Plan", "Abschluss"];
 
 const inputStyle = {
   width: "100%", padding: "12px 16px", borderRadius: 10, border: "1.5px solid #E2E8F0",
@@ -23,12 +16,10 @@ const inputStyle = {
 
 const labelStyle = {
   display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#4A5568",
-  marginBottom: 6, textTransform: "uppercase" as const, letterSpacing: 0.5
+  marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5
 };
 
-const selectStyle = {
-  ...inputStyle, cursor: "pointer", appearance: "none" as const
-};
+const selectStyle = { ...inputStyle, cursor: "pointer" };
 
 export default function Arbeitgeber() {
   const [step, setStep] = useState(0);
@@ -38,16 +29,15 @@ export default function Arbeitgeber() {
     einrichtung_name: "", einrichtungstyp: "", traeger: "", beschreibung: "",
     strasse: "", hausnummer: "", plz: "", ort: "", bundesland: "",
     ansprech_name: "", ansprech_rolle: "", email: "", telefon: "",
-    stellen_anzahl: "", fachrichtungen: [] as string[], positionen: [] as string[], tarif: "",
-    addons: [] as string[],
+    stellen_anzahl: "", fachrichtungen: [], positionen: [], addons: [],
     agb: false, datenschutz: false
   });
 
-  const set = (key: string, value: any) => setForm(f => ({ ...f, [key]: value }));
+  const set = (key, value) => setForm(f => ({ ...f, [key]: value }));
 
-  const toggleArr = (key: string, val: string) => {
-    const arr = (form as any)[key] as string[];
-    set(key, arr.includes(val) ? arr.filter((x: string) => x !== val) : [...arr, val]);
+  const toggleArr = (key, val) => {
+    const arr = form[key];
+    set(key, arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
   };
 
   const handleSubmit = async () => {
@@ -80,8 +70,7 @@ export default function Arbeitgeber() {
     setLoading(false);
 
     if (error) {
-      console.error("Supabase Fehler:", error.message);
-      alert("Fehler beim Speichern: " + error.message);
+      alert("Fehler: " + error.message);
       return;
     }
 
@@ -115,7 +104,6 @@ export default function Arbeitgeber() {
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", fontFamily: "'DM Sans', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap'); * { box-sizing: border-box; } input:focus, select:focus, textarea:focus { border-color: ${BLUE} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.1); }`}</style>
 
-      {/* Header */}
       <div style={{ background: "white", borderBottom: "1px solid #E8EDF4", padding: "16px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 700 }}>
           <span style={{ color: NAVY }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
@@ -124,7 +112,6 @@ export default function Arbeitgeber() {
       </div>
 
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "40px 24px" }}>
-        {/* Progress */}
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
             <span style={{ fontSize: "0.8rem", fontWeight: 700, color: NAVY }}>{STEPS[step]}</span>
@@ -140,12 +127,10 @@ export default function Arbeitgeber() {
           </div>
         </div>
 
-        {/* Card */}
         <div style={{ background: "white", borderRadius: 24, padding: 40, boxShadow: "0 8px 40px rgba(26,63,111,0.1)", border: "1px solid #E8EDF4" }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", color: NAVY, marginBottom: 8 }}>{STEPS[step]}</h2>
           <p style={{ color: "#9BA8C0", fontSize: "0.85rem", marginBottom: 28 }}>Bitte fulle alle Felder aus</p>
 
-          {/* STEP 0 - Einrichtung */}
           {step === 0 && (
             <div>
               <div style={{ marginBottom: 16 }}>
@@ -173,7 +158,6 @@ export default function Arbeitgeber() {
             </div>
           )}
 
-          {/* STEP 1 - Adresse */}
           {step === 1 && (
             <div>
               <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 16, marginBottom: 16 }}>
@@ -206,7 +190,6 @@ export default function Arbeitgeber() {
             </div>
           )}
 
-          {/* STEP 2 - Ansprechpartner */}
           {step === 2 && (
             <div>
               <div style={{ marginBottom: 16 }}>
@@ -231,7 +214,6 @@ export default function Arbeitgeber() {
             </div>
           )}
 
-          {/* STEP 3 - Stellen */}
           {step === 3 && (
             <div>
               <div style={{ marginBottom: 16 }}>
@@ -266,42 +248,36 @@ export default function Arbeitgeber() {
             </div>
           )}
 
-          {/* STEP 4 - Plan */}
           {step === 4 && (
             <div>
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, borderRadius: 20, padding: 28, color: "white", marginBottom: 16 }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 700, opacity: 0.7, marginBottom: 4, textTransform: "uppercase" as const, letterSpacing: 1 }}>Hauptplan</div>
-                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.5rem", fontWeight: 700 }}>299 EUR</div>
-                  <div style={{ opacity: 0.7, fontSize: "0.82rem", marginBottom: 16 }}>pro Monat, zzgl. MwSt.</div>
-                  {["Alle Fachkraefte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kuendbar"].map(f => (
-                    <div key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: "0.85rem" }}>
-                      <span style={{ color: "#27AE60" }}>+</span> {f}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label style={labelStyle}>Optionale Zusatzleistungen</label>
-                {[
-                  { key: "Profil-Boost", price: "49 EUR/Monat", desc: "Ihre Kita wird prominent hervorgehoben" },
-                  { key: "Bewerber-Matching", price: "79 EUR/Monat", desc: "KI-gestuetztes Matching mit passenden Fachkraeften" },
-                  { key: "Recruiting-Support", price: "99 EUR/Monat", desc: "Persoenliche Unterstuetzung bei der Personalsuche" },
-                ].map(addon => (
-                  <label key={addon.key} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${form.addons.includes(addon.key) ? BLUE : "#E2E8F0"}`, background: form.addons.includes(addon.key) ? "#EBF4FF" : "white", marginBottom: 10 }}>
-                    <input type="checkbox" checked={form.addons.includes(addon.key)} onChange={() => toggleArr("addons", addon.key)} style={{ accentColor: BLUE }}/>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.9rem" }}>{addon.key}</div>
-                      <div style={{ color: "#9BA8C0", fontSize: "0.8rem" }}>{addon.desc}</div>
-                    </div>
-                    <div style={{ fontWeight: 700, color: BLUE, fontSize: "0.85rem" }}>{addon.price}</div>
-                  </label>
+              <div style={{ background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, borderRadius: 20, padding: 28, color: "white", marginBottom: 16 }}>
+                <div style={{ fontSize: "0.8rem", fontWeight: 700, opacity: 0.7, marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Hauptplan</div>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.5rem", fontWeight: 700 }}>299 EUR</div>
+                <div style={{ opacity: 0.7, fontSize: "0.82rem", marginBottom: 16 }}>pro Monat, zzgl. MwSt.</div>
+                {["Alle Fachkraefte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kuendbar"].map(f => (
+                  <div key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: "0.85rem" }}>
+                    <span style={{ color: "#27AE60" }}>+</span> {f}
+                  </div>
                 ))}
               </div>
+              <label style={labelStyle}>Optionale Zusatzleistungen</label>
+              {[
+                { key: "Profil-Boost", price: "49 EUR/Monat", desc: "Ihre Kita wird prominent hervorgehoben" },
+                { key: "Bewerber-Matching", price: "79 EUR/Monat", desc: "KI-gestuetztes Matching mit passenden Fachkraeften" },
+                { key: "Recruiting-Support", price: "99 EUR/Monat", desc: "Persoenliche Unterstuetzung bei der Personalsuche" },
+              ].map(addon => (
+                <label key={addon.key} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${form.addons.includes(addon.key) ? BLUE : "#E2E8F0"}`, background: form.addons.includes(addon.key) ? "#EBF4FF" : "white", marginBottom: 10 }}>
+                  <input type="checkbox" checked={form.addons.includes(addon.key)} onChange={() => toggleArr("addons", addon.key)} style={{ accentColor: BLUE }}/>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.9rem" }}>{addon.key}</div>
+                    <div style={{ color: "#9BA8C0", fontSize: "0.8rem" }}>{addon.desc}</div>
+                  </div>
+                  <div style={{ fontWeight: 700, color: BLUE, fontSize: "0.85rem" }}>{addon.price}</div>
+                </label>
+              ))}
             </div>
           )}
 
-          {/* STEP 5 - Abschluss */}
           {step === 5 && (
             <div>
               <div style={{ background: "#F8FAFF", borderRadius: 16, padding: 20, marginBottom: 24 }}>
@@ -334,7 +310,6 @@ export default function Arbeitgeber() {
             </div>
           )}
 
-          {/* Navigation */}
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 32, gap: 12 }}>
             {step > 0 ? (
               <button onClick={() => setStep(s => s - 1)} style={{ padding: "12px 28px", borderRadius: 50, border: `2px solid ${NAVY}`, background: "transparent", color: NAVY, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
