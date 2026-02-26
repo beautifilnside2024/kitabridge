@@ -1,0 +1,1 @@
+var fs=require('fs');fs.writeFileSync('app/Registrieren/page.tsx','export default function Page(){return require("react").createElement("div",null,"Registrierung")}');console.log("done");
