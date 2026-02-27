@@ -191,14 +191,7 @@ export default function Home() {
                 <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "3rem", fontWeight: 700, marginBottom: 4 }}>299 EUR</div>
                 <div style={{ opacity: 0.7, fontSize: "0.85rem", marginBottom: 28 }}>pro Monat, zzgl. MwSt.</div>
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: 20 }}>
-                  {[
-                    "Alle Fachkraefte-Profile",
-                    "Direktkontakt",
-                    "Unbegrenzte Suche",
-                    "Keine Provision",
-                    "Monatlich kuendbar",
-                    "Kita-Profil sichtbar fuer Bewerber"
-                  ].map(f => (
+                  {["Alle Fachkraefte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kuendbar","Kita-Profil sichtbar fuer Bewerber"].map(f => (
                     <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: "0.88rem" }}>
                       <span style={{ color: "#27AE60" }}>+</span> {f}
                     </div>
@@ -244,13 +237,7 @@ export default function Home() {
                 <div style={{ color: "#444", fontSize: "0.88rem", lineHeight: 1.7 }}>Die Registrierung und alle Funktionen sind fuer Erzieherinnen und Kinderpflegerinnen komplett kostenlos. Immer.</div>
               </div>
               <div style={{ marginBottom: 28 }}>
-                {[
-                  "Erzieherin / Erzieher",
-                  "Kinderpflegerin / Kinderpfleger",
-                  "Sozialpaedagogin / Sozialpaedagoge",
-                  "Heilpaedagogin / Heilpaedagoge",
-                  "Kita-Leitung"
-                ].map(f => (
+                {["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpaedagogin / Sozialpaedagoge","Heilpaedagogin / Heilpaedagoge","Kita-Leitung"].map(f => (
                   <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, fontSize: "0.88rem", color: "#444" }}>
                     <span style={{ color: GREEN, fontWeight: 700 }}>+</span> {f}
                   </div>
@@ -302,8 +289,13 @@ export default function Home() {
         <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 700, marginBottom: 12 }}>
           <span style={{ color: "white" }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
         </div>
-        <p style={{ fontSize: "0.82rem" }}>Die Plattform fuer internationale Kita-Fachkraefte in Deutschland.</p>
-        <p style={{ fontSize: "0.78rem", marginTop: 16, opacity: 0.5 }}>2025 KitaBridge - DSGVO-konform</p>
+        <p style={{ fontSize: "0.82rem", marginBottom: 20 }}>Die Plattform fuer internationale Kita-Fachkraefte in Deutschland.</p>
+        <div style={{ marginBottom: 16 }}>
+          <a href="/impressum" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>Impressum</a>
+          <a href="/datenschutz" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>Datenschutz</a>
+          <a href="/agb" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>AGB</a>
+        </div>
+        <p style={{ fontSize: "0.78rem", opacity: 0.5 }}>2026 KitaBridge - DSGVO-konform</p>
       </footer>
     </div>
   );
