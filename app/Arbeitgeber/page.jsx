@@ -53,7 +53,6 @@ export default function Arbeitgeber() {
     }
     setLoading(true);
 
-    // Supabase Auth Account erstellen
     const { error: authError } = await supabase.auth.signUp({
       email: form.email,
       password: form.passwort,
@@ -62,13 +61,12 @@ export default function Arbeitgeber() {
       }
     });
 
-    if (authError) {
+    if (authError && authError.message !== "User already registered") {
       setLoading(false);
-      alert("Auth Fehler: " + authError.message);
+      alert("Fehler: " + authError.message);
       return;
     }
 
-    // Daten in Supabase speichern
     const { error } = await supabase
       .from("arbeitgeber")
       .insert([{
@@ -98,7 +96,6 @@ export default function Arbeitgeber() {
       return;
     }
 
-    // E-Mail Benachrichtigung
     await fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -119,7 +116,7 @@ export default function Arbeitgeber() {
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 16 }}>Registrierung erfolgreich!</h2>
           <p style={{ color: "#6B7897", lineHeight: 1.7, marginBottom: 28 }}>Vielen Dank! Wir haben Ihre Anfrage erhalten und melden uns innerhalb von 24 Stunden.</p>
           <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
-            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>Naechste Schritte:</div>
+            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>Nächste Schritte:</div>
             <div style={{ color: "#444", fontSize: "0.85rem", marginTop: 8, lineHeight: 1.7 }}>
               1. Bitte bestätigen Sie Ihre E-Mail<br/>
               2. Dann können Sie sich einloggen<br/>
@@ -161,7 +158,7 @@ export default function Arbeitgeber() {
 
         <div style={{ background: "white", borderRadius: 24, padding: 40, boxShadow: "0 8px 40px rgba(26,63,111,0.1)", border: "1px solid #E8EDF4" }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", color: NAVY, marginBottom: 8 }}>{STEPS[step]}</h2>
-          <p style={{ color: "#9BA8C0", fontSize: "0.85rem", marginBottom: 28 }}>Bitte fulle alle Felder aus</p>
+          <p style={{ color: "#9BA8C0", fontSize: "0.85rem", marginBottom: 28 }}>Bitte fülle alle Felder aus</p>
 
           {step === 0 && (
             <div>
@@ -172,15 +169,15 @@ export default function Arbeitgeber() {
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Einrichtungstyp *</label>
                 <select style={selectStyle} value={form.einrichtungstyp} onChange={e => set("einrichtungstyp", e.target.value)}>
-                  <option value="">Bitte waehlen</option>
+                  <option value="">Bitte wählen</option>
                   {["Krippe (0-3 Jahre)","Kindergarten (3-6 Jahre)","Kita (0-6 Jahre)","Hort (6-12 Jahre)","Integrationskita","Waldkita","Montessori Kita","Betriebskita"].map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Traeger *</label>
+                <label style={labelStyle}>Träger *</label>
                 <select style={selectStyle} value={form.traeger} onChange={e => set("traeger", e.target.value)}>
-                  <option value="">Bitte waehlen</option>
-                  {["Oeffentlich (kommunal)","AWO","Caritas","Diakonie","DRK","Paritaet","Privat / Eigentraeger","Sonstiger freier Traeger"].map(t => <option key={t} value={t}>{t}</option>)}
+                  <option value="">Bitte wählen</option>
+                  {["Öffentlich (kommunal)","AWO","Caritas","Diakonie","DRK","Paritätischer Wohlfahrtsverband","Privat / Eigenträger","Sonstiger freier Träger"].map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div>
@@ -194,8 +191,8 @@ export default function Arbeitgeber() {
             <div>
               <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 16, marginBottom: 16 }}>
                 <div>
-                  <label style={labelStyle}>Strasse *</label>
-                  <input style={inputStyle} value={form.strasse} onChange={e => set("strasse", e.target.value)} placeholder="Musterstrasse"/>
+                  <label style={labelStyle}>Straße *</label>
+                  <input style={inputStyle} value={form.strasse} onChange={e => set("strasse", e.target.value)} placeholder="Musterstraße"/>
                 </div>
                 <div>
                   <label style={labelStyle}>Hausnummer *</label>
@@ -215,8 +212,8 @@ export default function Arbeitgeber() {
               <div>
                 <label style={labelStyle}>Bundesland *</label>
                 <select style={selectStyle} value={form.bundesland} onChange={e => set("bundesland", e.target.value)}>
-                  <option value="">Bitte waehlen</option>
-                  {["Baden-Wuerttemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thueringen"].map(b => <option key={b} value={b}>{b}</option>)}
+                  <option value="">Bitte wählen</option>
+                  {["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}
                 </select>
               </div>
             </div>
@@ -231,8 +228,8 @@ export default function Arbeitgeber() {
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Rolle / Position</label>
                 <select style={selectStyle} value={form.ansprech_rolle} onChange={e => set("ansprech_rolle", e.target.value)}>
-                  <option value="">Bitte waehlen</option>
-                  {["Kita-Leitung","Stellv. Leitung","Traeger-Geschaeftsfuehrung","HR / Personal","Sonstiges"].map(r => <option key={r} value={r}>{r}</option>)}
+                  <option value="">Bitte wählen</option>
+                  {["Kita-Leitung","Stellv. Leitung","Träger-Geschäftsführung","HR / Personal","Sonstiges"].map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom: 16 }}>
@@ -251,14 +248,14 @@ export default function Arbeitgeber() {
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Anzahl offener Stellen *</label>
                 <select style={selectStyle} value={form.stellen_anzahl} onChange={e => set("stellen_anzahl", e.target.value)}>
-                  <option value="">Bitte waehlen</option>
+                  <option value="">Bitte wählen</option>
                   {["1 Stelle","2-3 Stellen","4-5 Stellen","6-10 Stellen","Mehr als 10 Stellen"].map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Gesuchte Berufe</label>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  {["Erzieherin / Erzieher","Kinderpflegerin","Sozialpaedagogin","Heilpaedagogin","Kita-Leitung","Praktikant / FSJ"].map(f => (
+                  {["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kita-Leitung","Praktikant / FSJ"].map(f => (
                     <label key={f} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #E2E8F0", background: form.fachrichtungen.includes(f) ? "#EAF7EF" : "white" }}>
                       <input type="checkbox" checked={form.fachrichtungen.includes(f)} onChange={() => toggleArr("fachrichtungen", f)} style={{ accentColor: GREEN }}/>
                       {f}
@@ -267,7 +264,7 @@ export default function Arbeitgeber() {
                 </div>
               </div>
               <div>
-                <label style={labelStyle}>Beschaeftigungsart</label>
+                <label style={labelStyle}>Beschäftigungsart</label>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {["Vollzeit","Teilzeit","Minijob","Vertretung"].map(p => (
                     <label key={p} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #E2E8F0", background: form.positionen.includes(p) ? "#EAF7EF" : "white" }}>
@@ -286,7 +283,7 @@ export default function Arbeitgeber() {
                 <div style={{ fontSize: "0.8rem", fontWeight: 700, opacity: 0.7, marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Hauptplan</div>
                 <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.5rem", fontWeight: 700 }}>299 EUR</div>
                 <div style={{ opacity: 0.7, fontSize: "0.82rem", marginBottom: 16 }}>pro Monat, zzgl. MwSt.</div>
-                {["Alle Fachkraefte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kuendbar"].map(f => (
+                {["Alle Fachkräfte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kündbar"].map(f => (
                   <div key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: "0.85rem" }}>
                     <span style={{ color: "#27AE60" }}>+</span> {f}
                   </div>
@@ -295,8 +292,8 @@ export default function Arbeitgeber() {
               <label style={labelStyle}>Optionale Zusatzleistungen</label>
               {[
                 { key: "Profil-Boost", price: "49 EUR/Monat", desc: "Ihre Kita wird prominent hervorgehoben" },
-                { key: "Bewerber-Matching", price: "79 EUR/Monat", desc: "KI-gestuetztes Matching mit passenden Fachkraeften" },
-                { key: "Recruiting-Support", price: "99 EUR/Monat", desc: "Persoenliche Unterstuetzung bei der Personalsuche" },
+                { key: "Bewerber-Matching", price: "79 EUR/Monat", desc: "KI-gestütztes Matching mit passenden Fachkräften" },
+                { key: "Recruiting-Support", price: "99 EUR/Monat", desc: "Persönliche Unterstützung bei der Personalsuche" },
               ].map(addon => (
                 <label key={addon.key} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${form.addons.includes(addon.key) ? BLUE : "#E2E8F0"}`, background: form.addons.includes(addon.key) ? "#EBF4FF" : "white", marginBottom: 10 }}>
                   <input type="checkbox" checked={form.addons.includes(addon.key)} onChange={() => toggleArr("addons", addon.key)} style={{ accentColor: BLUE }}/>
@@ -351,11 +348,11 @@ export default function Arbeitgeber() {
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", marginBottom: 12 }}>
                   <input type="checkbox" checked={form.agb} onChange={e => set("agb", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY }}/>
-                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich stimme den <a href="#" style={{ color: BLUE }}>Allgemeinen Geschaeftsbedingungen</a> zu *</span>
+                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich stimme den <a href="/agb" style={{ color: BLUE }}>Allgemeinen Geschäftsbedingungen</a> zu *</span>
                 </label>
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
                   <input type="checkbox" checked={form.datenschutz} onChange={e => set("datenschutz", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY }}/>
-                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich habe die <a href="#" style={{ color: BLUE }}>Datenschutzerklaerung</a> gelesen und stimme zu *</span>
+                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich habe die <a href="/datenschutz" style={{ color: BLUE }}>Datenschutzerklärung</a> gelesen und stimme zu *</span>
                 </label>
               </div>
             </div>
@@ -364,7 +361,7 @@ export default function Arbeitgeber() {
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 32, gap: 12 }}>
             {step > 0 ? (
               <button onClick={() => setStep(s => s - 1)} style={{ padding: "12px 28px", borderRadius: 50, border: `2px solid ${NAVY}`, background: "transparent", color: NAVY, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
-                Zurueck
+                Zurück
               </button>
             ) : <div/>}
             {step < STEPS.length - 1 ? (
@@ -376,7 +373,7 @@ export default function Arbeitgeber() {
                 onClick={handleSubmit}
                 disabled={!form.agb || !form.datenschutz || loading}
                 style={{ padding: "12px 28px", borderRadius: 50, border: "none", background: form.agb && form.datenschutz ? `linear-gradient(135deg, ${GREEN}, #27AE60)` : "#ccc", color: "white", fontWeight: 700, cursor: form.agb && form.datenschutz ? "pointer" : "not-allowed", fontFamily: "'DM Sans', sans-serif" }}>
-                {loading ? "Wird gespeichert..." : "Registrierung abschliessen"}
+                {loading ? "Wird gespeichert..." : "Registrierung abschließen"}
               </button>
             )}
           </div>
