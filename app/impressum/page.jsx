@@ -23,7 +23,7 @@ export default function Impressum() {
           <p style={{ color: "#444", lineHeight: 1.8, marginBottom: 24 }}>
             Jennefer Rahman<br/>
             Heusenstammer Weg 69<br/>
-            63067 Offenbach am Main<br/>
+            63071 Offenbach am Main<br/>
             Deutschland
           </p>
 
@@ -36,7 +36,7 @@ export default function Impressum() {
           <p style={{ color: "#444", lineHeight: 1.8, marginBottom: 24 }}>
             Jennefer Rahman<br/>
             Heusenstammer Weg 69<br/>
-            63067 Offenbach am Main
+            63071 Offenbach am Main
           </p>
 
           <h2 style={{ color: NAVY, fontSize: "1.1rem", marginBottom: 12 }}>Haftungsausschluss</h2>
