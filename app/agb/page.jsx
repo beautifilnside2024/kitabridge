@@ -22,7 +22,7 @@ export default function AGB() {
 
           <h2 style={{ color: NAVY, fontSize: "1.1rem", marginBottom: 12 }}>§ 1 Geltungsbereich</h2>
           <p style={{ color: "#444", lineHeight: 1.8, marginBottom: 24 }}>
-            Diese AGB gelten für alle Nutzer der Plattform KitaBridge (kitabridge.vercel.app), betrieben von Jennefer Rahman, Heusenstammer Weg 69, 63067 Offenbach am Main.
+            Diese AGB gelten für alle Nutzer der Plattform KitaBridge (kitabridge.vercel.app), betrieben von Jennefer Rahman, Heusenstammer Weg 69, 63071 Offenbach am Main.
           </p>
 
           <h2 style={{ color: NAVY, fontSize: "1.1rem", marginBottom: 12 }}>§ 2 Leistungsbeschreibung</h2>

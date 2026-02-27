@@ -24,7 +24,7 @@ export default function Datenschutz() {
           <p style={{ color: "#444", lineHeight: 1.8, marginBottom: 24 }}>
             Jennefer Rahman<br/>
             Heusenstammer Weg 69<br/>
-            63067 Offenbach am Main<br/>
+            63071 Offenbach am Main<br/>
             E-Mail: <a href="mailto:kitabridge@protonmail.com" style={{ color: BLUE }}>kitabridge@protonmail.com</a>
           </p>
 
