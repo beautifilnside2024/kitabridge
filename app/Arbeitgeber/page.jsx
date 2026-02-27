@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 const NAVY = "#1A3F6F";
@@ -22,8 +23,8 @@ const labelStyle = {
 const selectStyle = { ...inputStyle, cursor: "pointer" };
 
 export default function Arbeitgeber() {
+  const router = useRouter();
   const [step, setStep] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     einrichtung_name: "", einrichtungstyp: "", traeger: "", beschreibung: "",
@@ -53,6 +54,7 @@ export default function Arbeitgeber() {
     }
     setLoading(true);
 
+    // 1. Supabase Auth Account erstellen
     const { error: authError } = await supabase.auth.signUp({
       email: form.email,
       password: form.passwort,
@@ -67,7 +69,8 @@ export default function Arbeitgeber() {
       return;
     }
 
-    const { error } = await supabase
+    // 2. Arbeitgeber in Datenbank speichern
+    const { data: insertedData, error } = await supabase
       .from("arbeitgeber")
       .insert([{
         einrichtung_name: form.einrichtung_name,
@@ -88,7 +91,9 @@ export default function Arbeitgeber() {
         positionen: form.positionen,
         addons: form.addons,
         status: "neu"
-      }]);
+      }])
+      .select()
+      .single();
 
     if (error) {
       setLoading(false);
@@ -96,38 +101,27 @@ export default function Arbeitgeber() {
       return;
     }
 
+    // 3. Benachrichtigungs-E-Mail senden
     await fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: "arbeitgeber", data: form })
     });
 
+    // 4. Arbeitgeber-Daten für Bezahlseite speichern
+    localStorage.setItem("kitabridge_pending_arbeitgeber", JSON.stringify({
+      id: insertedData.id,
+      email: form.email,
+      einrichtung_name: form.einrichtung_name,
+    }));
+
     setLoading(false);
-    setSubmitted(true);
+
+    // 5. Weiterleitung zur Bezahlseite
+    router.push("/bezahlung");
   };
 
   const progress = ((step + 1) / STEPS.length) * 100;
-
-  if (submitted) {
-    return (
-      <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'DM Sans', sans-serif" }}>
-        <div style={{ background: "white", borderRadius: 24, padding: 48, maxWidth: 500, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(26,63,111,0.12)" }}>
-          <div style={{ fontSize: "4rem", marginBottom: 20 }}>🎉</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 16 }}>Registrierung erfolgreich!</h2>
-          <p style={{ color: "#6B7897", lineHeight: 1.7, marginBottom: 28 }}>Vielen Dank! Wir haben Ihre Anfrage erhalten und melden uns innerhalb von 24 Stunden.</p>
-          <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
-            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>Nächste Schritte:</div>
-            <div style={{ color: "#444", fontSize: "0.85rem", marginTop: 8, lineHeight: 1.7 }}>
-              1. Bitte bestätigen Sie Ihre E-Mail<br/>
-              2. Dann können Sie sich einloggen<br/>
-              3. Sofort Fachkräfte suchen und kontaktieren
-            </div>
-          </div>
-          <a href="/login" style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, textDecoration: "none" }}>Zum Login</a>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", fontFamily: "'DM Sans', sans-serif" }}>
@@ -355,6 +349,13 @@ export default function Arbeitgeber() {
                   <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich habe die <a href="/datenschutz" style={{ color: BLUE }}>Datenschutzerklärung</a> gelesen und stimme zu *</span>
                 </label>
               </div>
+
+              {/* Hinweis auf Bezahlung */}
+              <div style={{ background: "#EBF4FF", border: "1px solid #BFDBFE", borderRadius: 12, padding: 16, marginBottom: 8 }}>
+                <p style={{ color: NAVY, fontSize: "0.85rem", margin: 0, fontWeight: 600 }}>
+                  💳 Nach der Registrierung werden Sie zur sicheren Bezahlung weitergeleitet (299 EUR/Monat via Stripe).
+                </p>
+              </div>
             </div>
           )}
 
@@ -373,7 +374,7 @@ export default function Arbeitgeber() {
                 onClick={handleSubmit}
                 disabled={!form.agb || !form.datenschutz || loading}
                 style={{ padding: "12px 28px", borderRadius: 50, border: "none", background: form.agb && form.datenschutz ? `linear-gradient(135deg, ${GREEN}, #27AE60)` : "#ccc", color: "white", fontWeight: 700, cursor: form.agb && form.datenschutz ? "pointer" : "not-allowed", fontFamily: "'DM Sans', sans-serif" }}>
-                {loading ? "Wird gespeichert..." : "Registrierung abschließen"}
+                {loading ? "Wird gespeichert..." : "Weiter zur Bezahlung →"}
               </button>
             )}
           </div>
