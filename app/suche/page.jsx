@@ -99,21 +99,21 @@ export default function Suche() {
               <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", marginBottom: 6, textTransform: "uppercase" }}>Qualifikation</label>
               <select style={selectStyle} value={filter.qualifikation} onChange={e => setF("qualifikation", e.target.value)}>
                 <option value="">Alle</option>
-                {["Staatlich anerkannte Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpaedagogin / Sozialpaedagoge","Heilpaedagogin / Heilpaedagoge","Kindheitpaedagogin / Kindheitspaedagoge"].map(q => <option key={q} value={q}>{q}</option>)}
+                {["Staatlich anerkannte Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kindheitspädagogin / Kindheitspädagoge"].map(q => <option key={q} value={q}>{q}</option>)}
               </select>
             </div>
             <div>
               <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", marginBottom: 6, textTransform: "uppercase" }}>Deutsch</label>
               <select style={selectStyle} value={filter.deutsch} onChange={e => setF("deutsch", e.target.value)}>
                 <option value="">Alle</option>
-                {["A1 - Anfaenger","A2 - Grundlagen","B1 - Mittelstufe","B2 - Gute Kenntnisse","C1 - Fortgeschritten","C2 - Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
+                {["A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
               </select>
             </div>
             <div>
               <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", marginBottom: 6, textTransform: "uppercase" }}>Bundesland</label>
               <select style={selectStyle} value={filter.bundesland} onChange={e => setF("bundesland", e.target.value)}>
                 <option value="">Alle</option>
-                {["Baden-Wuerttemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thueringen"].map(b => <option key={b} value={b}>{b}</option>)}
+                {["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}
               </select>
             </div>
             <div>

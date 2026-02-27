@@ -64,8 +64,8 @@ export default function Home() {
         </a>
         <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: 32 }}>
           <a href="#wie-es-funktioniert" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Wie es funktioniert</a>
-          <a href="#fuer-kitas" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Fuer Kitas</a>
-          <a href="#fuer-fachkraefte" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Fuer Fachkraefte</a>
+          <a href="#fuer-kitas" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Für Kitas</a>
+          <a href="#fuer-fachkraefte" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Für Fachkräfte</a>
           <a href="#preise" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Preise</a>
         </div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -83,21 +83,21 @@ export default function Home() {
             <div>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(30,132,73,0.1)", borderRadius: 50, padding: "6px 16px", marginBottom: 24 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: GREEN }}/>
-                <span style={{ fontSize: "0.78rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 1 }}>Die Plattform fuer Kita-Fachkraefte</span>
+                <span style={{ fontSize: "0.78rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 1 }}>Die Plattform für Kita-Fachkräfte</span>
               </div>
               <h1 className="hero-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "3.4rem", fontWeight: 900, color: NAVY, lineHeight: 1.15, marginBottom: 24 }}>
                 Qualifizierte Erzieherinnen.<br/>
                 <span style={{ color: GREEN }}>Direkt. Ohne Provision.</span>
               </h1>
               <p style={{ fontSize: "1.1rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 36, maxWidth: 480 }}>
-                KitaBridge verbindet internationale Erziehungsfachkraefte mit Kitas und Krippen in Deutschland. Schnell, transparent und ohne versteckte Kosten.
+                KitaBridge verbindet internationale Erziehungsfachkräfte mit Kitas und Krippen in Deutschland. Schnell, transparent und ohne versteckte Kosten.
               </p>
               <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                <a href="/Arbeitgeber" className="btn-primary">Fachkraefte finden</a>
+                <a href="/Arbeitgeber" className="btn-primary">Fachkräfte finden</a>
                 <a href="/Registrieren" className="btn-green">Als Fachkraft bewerben</a>
               </div>
               <div style={{ display: "flex", gap: 32, marginTop: 40 }}>
-                {[["500+","Fachkraefte"],["200+","Kitas"],["0","Provision"]].map(([n,l]) => (
+                {[["500+","Fachkräfte"],["200+","Kitas"],["0","Provision"]].map(([n,l]) => (
                   <div key={l}>
                     <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", fontWeight: 700, color: NAVY }}>{n}</div>
                     <div style={{ fontSize: "0.8rem", color: "#9BA8C0", fontWeight: 500 }}>{l}</div>
@@ -111,11 +111,11 @@ export default function Home() {
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "1.2rem" }}>👩‍🍼</div>
                   <div>
                     <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.95rem" }}>Amara Diallo</div>
-                    <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>Erzieherin - Fruehkindliche Bildung</div>
+                    <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>Erzieherin - Frühkindliche Bildung</div>
                   </div>
-                  <div style={{ marginLeft: "auto", background: "#EAF7EF", borderRadius: 50, padding: "4px 12px", fontSize: "0.75rem", fontWeight: 700, color: GREEN }}>Verfuegbar</div>
+                  <div style={{ marginLeft: "auto", background: "#EAF7EF", borderRadius: 50, padding: "4px 12px", fontSize: "0.75rem", fontWeight: 700, color: GREEN }}>Verfügbar</div>
                 </div>
-                {[["Sprachen","Deutsch B2, Franzoesisch"],["Erfahrung","4 Jahre Kita"],["Einsatz","Ab sofort"],["Ort","Hamburg"]].map(([k,v]) => (
+                {[["Sprachen","Deutsch B2, Französisch"],["Erfahrung","4 Jahre Kita"],["Einsatz","Ab sofort"],["Ort","Hamburg"]].map(([k,v]) => (
                   <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #F0F4F9", fontSize: "0.83rem" }}>
                     <span style={{ color: "#9BA8C0", fontWeight: 600 }}>{k}</span>
                     <span style={{ color: NAVY, fontWeight: 500 }}>{v}</span>
@@ -142,7 +142,7 @@ export default function Home() {
           </div>
           <div className="cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
             {[
-              { num: "01", title: "Profil erstellen", desc: "Fachkraefte registrieren sich kostenlos und erstellen ein detailliertes Profil mit Qualifikationen und Kita-Erfahrung.", icon: "📝" },
+              { num: "01", title: "Profil erstellen", desc: "Fachkräfte registrieren sich kostenlos und erstellen ein detailliertes Profil mit Qualifikationen und Kita-Erfahrung.", icon: "📝" },
               { num: "02", title: "Gefunden werden", desc: "Kitas und Krippen suchen nach passenden Kandidatinnen und kontaktieren sie direkt ohne Vermittler.", icon: "🔍" },
               { num: "03", title: "Direkt einstellen", desc: "Kein Vermittler, keine Provision. Sie kommunizieren direkt und stellen die beste Fachkraft ein.", icon: "🤝" },
             ].map(item => (
@@ -162,17 +162,17 @@ export default function Home() {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}>
             <div>
-              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Fuer Kitas und Krippen</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Für Kitas und Krippen</div>
               <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.2rem", fontWeight: 800, color: NAVY, marginBottom: 20 }}>Ein Plan. Volle Kontrolle. Keine Provision.</h2>
-              <p style={{ color: "#6B7897", lineHeight: 1.8, marginBottom: 28 }}>Erhalten Sie direkten Zugang zu qualifizierten internationalen Erziehungsfachkraeften. Suchen, filtern und kontaktieren Sie Kandidatinnen ohne Einschraenkungen.</p>
+              <p style={{ color: "#6B7897", lineHeight: 1.8, marginBottom: 28 }}>Erhalten Sie direkten Zugang zu qualifizierten internationalen Erziehungsfachkräften. Suchen, filtern und kontaktieren Sie Kandidatinnen ohne Einschränkungen.</p>
               <div style={{ marginBottom: 32 }}>
                 {[
-                  "Alle Fachkraefte-Profile einsehen",
+                  "Alle Fachkräfte-Profile einsehen",
                   "Direkter Kontakt ohne Vermittler",
                   "Unbegrenzte Suche und Filter nach Qualifikation",
-                  "Monatlich kuendbar - keine Bindung",
+                  "Monatlich kündbar - keine Bindung",
                   "Keine Provision bei Einstellung",
-                  "Profil Ihrer Kita fuer Bewerber sichtbar"
+                  "Profil Ihrer Kita für Bewerber sichtbar"
                 ].map(f => (
                   <div key={f} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                     <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#EAF7EF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -182,7 +182,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <a href="/Arbeitgeber" className="btn-primary">Jetzt registrieren - 299 EUR/Monat</a>
+              <a href="/Arbeitgeber" className="btn-primary">Jetzt registrieren – 299 EUR/Monat</a>
             </div>
             <div>
               <div style={{ background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, borderRadius: 24, padding: 36, color: "white", position: "relative", overflow: "hidden" }}>
@@ -191,14 +191,14 @@ export default function Home() {
                 <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "3rem", fontWeight: 700, marginBottom: 4 }}>299 EUR</div>
                 <div style={{ opacity: 0.7, fontSize: "0.85rem", marginBottom: 28 }}>pro Monat, zzgl. MwSt.</div>
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: 20 }}>
-                  {["Alle Fachkraefte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kuendbar","Kita-Profil sichtbar fuer Bewerber"].map(f => (
+                  {["Alle Fachkräfte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kündbar","Kita-Profil sichtbar für Bewerber"].map(f => (
                     <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: "0.88rem" }}>
                       <span style={{ color: "#27AE60" }}>+</span> {f}
                     </div>
                   ))}
                 </div>
                 <div style={{ marginTop: 20, background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 16px", fontSize: "0.8rem", opacity: 0.9 }}>
-                  Keine Einrichtungsgebuehr - Keine Mindestlaufzeit
+                  Keine Einrichtungsgebühr – Keine Mindestlaufzeit
                 </div>
               </div>
             </div>
@@ -227,17 +227,17 @@ export default function Home() {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Fuer internationale Fachkraefte</div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Für internationale Fachkräfte</div>
               <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.2rem", fontWeight: 800, color: NAVY, marginBottom: 20 }}>Dein Weg in die Kita beginnt hier</h2>
               <p style={{ color: "#6B7897", lineHeight: 1.8, marginBottom: 28 }}>
-                Ob Erzieherin, Kinderpflegerin oder Sozialpaedagogin — erstelle kostenlos dein Profil und werde von Kitas in ganz Deutschland gefunden. Transparent, sicher und ohne versteckte Kosten.
+                Ob Erzieherin, Kinderpflegerin oder Sozialpädagogin — erstelle kostenlos dein Profil und werde von Kitas in ganz Deutschland gefunden. Transparent, sicher und ohne versteckte Kosten.
               </p>
               <div style={{ background: "#EAF7EF", borderRadius: 16, padding: 20, marginBottom: 28 }}>
-                <div style={{ fontWeight: 700, color: GREEN, marginBottom: 8, fontSize: "0.9rem" }}>Kostenlos fuer Fachkraefte</div>
-                <div style={{ color: "#444", fontSize: "0.88rem", lineHeight: 1.7 }}>Die Registrierung und alle Funktionen sind fuer Erzieherinnen und Kinderpflegerinnen komplett kostenlos. Immer.</div>
+                <div style={{ fontWeight: 700, color: GREEN, marginBottom: 8, fontSize: "0.9rem" }}>Kostenlos für Fachkräfte</div>
+                <div style={{ color: "#444", fontSize: "0.88rem", lineHeight: 1.7 }}>Die Registrierung und alle Funktionen sind für Erzieherinnen und Kinderpflegerinnen komplett kostenlos. Immer.</div>
               </div>
               <div style={{ marginBottom: 28 }}>
-                {["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpaedagogin / Sozialpaedagoge","Heilpaedagogin / Heilpaedagoge","Kita-Leitung"].map(f => (
+                {["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kita-Leitung"].map(f => (
                   <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, fontSize: "0.88rem", color: "#444" }}>
                     <span style={{ color: GREEN, fontWeight: 700 }}>+</span> {f}
                   </div>
@@ -258,9 +258,9 @@ export default function Home() {
           </div>
           <div className="cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
             {[
-              { icon: "💰", title: "Keine Provision", desc: "Klassische Vermittler verlangen bis zu 3 Monatsgehaelter. Bei KitaBridge zahlen Sie nur eine faire Monatsgebuehr." },
-              { icon: "⚡", title: "Schnell und direkt", desc: "Kontaktieren Sie Fachkraefte sofort. Keine Wartezeiten durch Zwischenhaendler." },
-              { icon: "🌍", title: "Internationale Talente", desc: "Zugang zu qualifizierten Fachkraeften aus der ganzen Welt mit deutschen Sprachkenntnissen." },
+              { icon: "💰", title: "Keine Provision", desc: "Klassische Vermittler verlangen bis zu 3 Monatsgehälter. Bei KitaBridge zahlen Sie nur eine faire Monatsgebühr." },
+              { icon: "⚡", title: "Schnell und direkt", desc: "Kontaktieren Sie Fachkräfte sofort. Keine Wartezeiten durch Zwischenhändler." },
+              { icon: "🌍", title: "Internationale Talente", desc: "Zugang zu qualifizierten Fachkräften aus der ganzen Welt mit deutschen Sprachkenntnissen." },
             ].map(item => (
               <div key={item.title} className="card" style={{ textAlign: "center" }}>
                 <div style={{ fontSize: "2.5rem", marginBottom: 16 }}>{item.icon}</div>
@@ -276,9 +276,9 @@ export default function Home() {
       <section style={{ padding: "100px 40px", background: `linear-gradient(135deg, ${NAVY} 0%, ${BLUE} 100%)` }}>
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.6rem", fontWeight: 800, color: "white", marginBottom: 20 }}>Bereit loszulegen?</h2>
-          <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "1.05rem", lineHeight: 1.75, marginBottom: 40 }}>Ob Kita oder Fachkraft - bei KitaBridge finden Sie sich. Schnell, direkt und ohne Provision.</p>
+          <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "1.05rem", lineHeight: 1.75, marginBottom: 40 }}>Ob Kita oder Fachkraft – bei KitaBridge finden Sie sich. Schnell, direkt und ohne Provision.</p>
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href="/Arbeitgeber" style={{ padding: "14px 32px", borderRadius: 50, background: "white", color: NAVY, fontWeight: 700, fontSize: "0.95rem", textDecoration: "none" }}>Fachkraefte finden</a>
+            <a href="/Arbeitgeber" style={{ padding: "14px 32px", borderRadius: 50, background: "white", color: NAVY, fontWeight: 700, fontSize: "0.95rem", textDecoration: "none" }}>Fachkräfte finden</a>
             <a href="/Registrieren" style={{ padding: "14px 32px", borderRadius: 50, background: "rgba(255,255,255,0.15)", color: "white", fontWeight: 700, fontSize: "0.95rem", textDecoration: "none", border: "2px solid rgba(255,255,255,0.4)" }}>Als Fachkraft bewerben</a>
           </div>
         </div>
@@ -289,13 +289,13 @@ export default function Home() {
         <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 700, marginBottom: 12 }}>
           <span style={{ color: "white" }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
         </div>
-        <p style={{ fontSize: "0.82rem", marginBottom: 20 }}>Die Plattform fuer internationale Kita-Fachkraefte in Deutschland.</p>
+        <p style={{ fontSize: "0.82rem", marginBottom: 20 }}>Die Plattform für internationale Kita-Fachkräfte in Deutschland.</p>
         <div style={{ marginBottom: 16 }}>
           <a href="/impressum" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>Impressum</a>
           <a href="/datenschutz" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>Datenschutz</a>
           <a href="/agb" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>AGB</a>
         </div>
-        <p style={{ fontSize: "0.78rem", opacity: 0.5 }}>2026 KitaBridge - DSGVO-konform</p>
+        <p style={{ fontSize: "0.78rem", opacity: 0.5 }}>© 2026 KitaBridge – DSGVO-konform</p>
       </footer>
     </div>
   );
