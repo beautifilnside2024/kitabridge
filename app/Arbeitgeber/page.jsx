@@ -6,7 +6,7 @@ const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
 const GREEN = "#1E8449";
 
-const STEPS = ["Einrichtung", "Adresse", "Ansprechpartner", "Stellen", "Plan", "Abschluss"];
+const STEPS = ["Einrichtung", "Adresse", "Ansprechpartner", "Stellen", "Plan", "Passwort", "Abschluss"];
 
 const inputStyle = {
   width: "100%", padding: "12px 16px", borderRadius: 10, border: "1.5px solid #E2E8F0",
@@ -29,6 +29,7 @@ export default function Arbeitgeber() {
     einrichtung_name: "", einrichtungstyp: "", traeger: "", beschreibung: "",
     strasse: "", hausnummer: "", plz: "", ort: "", bundesland: "",
     ansprech_name: "", ansprech_rolle: "", email: "", telefon: "",
+    passwort: "", passwort2: "",
     stellen_anzahl: "", fachrichtungen: [], positionen: [], addons: [],
     agb: false, datenschutz: false
   });
@@ -42,8 +43,32 @@ export default function Arbeitgeber() {
 
   const handleSubmit = async () => {
     if (!form.agb || !form.datenschutz) return;
+    if (form.passwort !== form.passwort2) {
+      alert("Passwörter stimmen nicht überein!");
+      return;
+    }
+    if (form.passwort.length < 6) {
+      alert("Passwort muss mindestens 6 Zeichen lang sein!");
+      return;
+    }
     setLoading(true);
 
+    // Supabase Auth Account erstellen
+    const { error: authError } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.passwort,
+      options: {
+        data: { role: "arbeitgeber", einrichtung_name: form.einrichtung_name }
+      }
+    });
+
+    if (authError) {
+      setLoading(false);
+      alert("Auth Fehler: " + authError.message);
+      return;
+    }
+
+    // Daten in Supabase speichern
     const { error } = await supabase
       .from("arbeitgeber")
       .insert([{
@@ -73,6 +98,7 @@ export default function Arbeitgeber() {
       return;
     }
 
+    // E-Mail Benachrichtigung
     await fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -95,12 +121,12 @@ export default function Arbeitgeber() {
           <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
             <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>Naechste Schritte:</div>
             <div style={{ color: "#444", fontSize: "0.85rem", marginTop: 8, lineHeight: 1.7 }}>
-              1. Wir pruefen Ihre Angaben<br/>
-              2. Sie erhalten Zugangsdaten per E-Mail<br/>
-              3. Sofort Fachkraefte suchen und kontaktieren
+              1. Bitte bestätigen Sie Ihre E-Mail<br/>
+              2. Dann können Sie sich einloggen<br/>
+              3. Sofort Fachkräfte suchen und kontaktieren
             </div>
           </div>
-          <a href="/" style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, textDecoration: "none" }}>Zur Startseite</a>
+          <a href="/login" style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, textDecoration: "none" }}>Zum Login</a>
         </div>
       </div>
     );
@@ -285,6 +311,25 @@ export default function Arbeitgeber() {
           )}
 
           {step === 5 && (
+            <div>
+              <div style={{ background: "#F0F4F9", borderRadius: 12, padding: 16, marginBottom: 20, fontSize: "0.85rem", color: "#6B7897" }}>
+                Mit diesem Passwort können Sie sich später auf KitaBridge einloggen und Fachkräfte suchen.
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Passwort erstellen *</label>
+                <input style={inputStyle} type="password" value={form.passwort} onChange={e => set("passwort", e.target.value)} placeholder="Mindestens 6 Zeichen"/>
+              </div>
+              <div>
+                <label style={labelStyle}>Passwort wiederholen *</label>
+                <input style={inputStyle} type="password" value={form.passwort2} onChange={e => set("passwort2", e.target.value)} placeholder="Passwort wiederholen"/>
+              </div>
+              {form.passwort && form.passwort2 && form.passwort !== form.passwort2 && (
+                <div style={{ color: "#DC2626", fontSize: "0.82rem", marginTop: 8 }}>Passwörter stimmen nicht überein</div>
+              )}
+            </div>
+          )}
+
+          {step === 6 && (
             <div>
               <div style={{ background: "#F8FAFF", borderRadius: 16, padding: 20, marginBottom: 24 }}>
                 <h3 style={{ color: NAVY, fontSize: "0.95rem", fontWeight: 700, marginBottom: 12 }}>Zusammenfassung</h3>
