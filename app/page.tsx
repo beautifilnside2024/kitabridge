@@ -69,7 +69,7 @@ export default function Home() {
           <a href="#preise" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Preise</a>
         </div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <a href="#" className="btn-secondary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>Anmelden</a>
+          <a href="/login" className="btn-secondary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>Anmelden</a>
           <a href="/Arbeitgeber" className="btn-primary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>Jetzt starten</a>
         </div>
       </nav>
