@@ -5,8 +5,36 @@ const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
 const GREEN = "#1E8449";
 
+const faqs = [
+  {
+    q: "Was kostet KitaBridge für Arbeitgeber?",
+    a: "Der Hauptplan kostet 299 EUR pro Monat zzgl. MwSt. Es gibt keine Einrichtungsgebühr, keine Provision und keine Mindestlaufzeit. Sie können monatlich kündigen."
+  },
+  {
+    q: "Ist die Registrierung für Fachkräfte wirklich kostenlos?",
+    a: "Ja, vollständig kostenlos. Fachkräfte erstellen ihr Profil kostenlos und werden von Kitas direkt kontaktiert. Es fallen keine Gebühren an."
+  },
+  {
+    q: "Wie kann ich als Arbeitgeber kündigen?",
+    a: "Sie können Ihr Abonnement jederzeit zum Ende des laufenden Monats kündigen. Kein Papierkram, keine Fristen. Einfach in Ihrem Account unter Einstellungen."
+  },
+  {
+    q: "Welche Qualifikationen haben die Fachkräfte?",
+    a: "Alle Fachkräfte auf KitaBridge sind ausgebildete Erzieherinnen, Kinderpflegerinnen, Sozialpädagoginnen oder Heilpädagoginnen mit nachgewiesenen Deutschkenntnissen."
+  },
+  {
+    q: "Wie schnell finde ich eine passende Fachkraft?",
+    a: "Nach Ihrer Registrierung haben Sie sofort Zugang zu allen Profilen. Viele Kitas finden innerhalb weniger Tage passende Kandidatinnen."
+  },
+  {
+    q: "Zahle ich Provision wenn ich jemanden einstelle?",
+    a: "Nein. Bei KitaBridge zahlen Sie ausschließlich die monatliche Plattformgebühr. Keine Provision, egal wie viele Fachkräfte Sie einstellen."
+  },
+];
+
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
+  const [openFaq, setOpenFaq] = useState(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -28,6 +56,9 @@ export default function Home() {
         .btn-green:hover { transform: translateY(-2px); }
         .card { background: white; border-radius: 20px; padding: 32px; border: 1px solid #E8EDF4; transition: all 0.3s; box-shadow: 0 4px 20px rgba(26,63,111,0.06); }
         .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(26,63,111,0.14); }
+        .faq-item { border-bottom: 1px solid #E8EDF4; }
+        .faq-btn { width: 100%; text-align: left; background: none; border: none; padding: 20px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; color: #1A3F6F; }
+        .faq-btn:hover { color: #2471A3; }
         @media (max-width: 768px) {
           .hero-title { font-size: 2.2rem !important; }
           .hero-grid { grid-template-columns: 1fr !important; }
@@ -66,7 +97,7 @@ export default function Home() {
           <a href="#wie-es-funktioniert" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Wie es funktioniert</a>
           <a href="#fuer-kitas" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Für Kitas</a>
           <a href="#fuer-fachkraefte" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Für Fachkräfte</a>
-          <a href="#preise" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>Preise</a>
+          <a href="#faq" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>FAQ</a>
         </div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <a href="/login" className="btn-secondary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>Anmelden</a>
@@ -96,21 +127,32 @@ export default function Home() {
                 <a href="/login" className="btn-primary">Fachkräfte finden</a>
                 <a href="/Registrieren" className="btn-green">Als Fachkraft bewerben</a>
               </div>
-              <div style={{ display: "flex", gap: 32, marginTop: 40 }}>
-                {[["500+","Fachkräfte"],["200+","Kitas"],["0","Provision"]].map(([n,l]) => (
-                  <div key={l}>
-                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", fontWeight: 700, color: NAVY }}>{n}</div>
-                    <div style={{ fontSize: "0.8rem", color: "#9BA8C0", fontWeight: 500 }}>{l}</div>
+
+              {/* Vertrauens-Badges statt falscher Zahlen */}
+              <div style={{ display: "flex", gap: 20, marginTop: 40, flexWrap: "wrap" }}>
+                {[
+                  { icon: "🔒", text: "DSGVO-konform" },
+                  { icon: "💳", text: "Monatlich kündbar" },
+                  { icon: "🚀", text: "Sofort starten" },
+                ].map(b => (
+                  <div key={b.text} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: "1rem" }}>{b.icon}</span>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#6B7897" }}>{b.text}</span>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* Demo Profil Karte */}
             <div className="hide-mobile" style={{ position: "relative" }}>
               <div style={{ background: "white", borderRadius: 24, padding: 32, boxShadow: "0 20px 60px rgba(26,63,111,0.15)", border: "1px solid #E8EDF4" }}>
+                <div style={{ background: "#EEF2FF", borderRadius: 10, padding: "6px 12px", fontSize: "0.72rem", fontWeight: 700, color: "#4F46E5", display: "inline-block", marginBottom: 16 }}>
+                  Beispiel-Profil
+                </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "1.2rem" }}>👩‍🍼</div>
                   <div>
-                    <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.95rem" }}>Amara Diallo</div>
+                    <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.95rem" }}>Amara D.</div>
                     <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>Erzieherin - Frühkindliche Bildung</div>
                   </div>
                   <div style={{ marginLeft: "auto", background: "#EAF7EF", borderRadius: 50, padding: "4px 12px", fontSize: "0.75rem", fontWeight: 700, color: GREEN }}>Verfügbar</div>
@@ -121,7 +163,9 @@ export default function Home() {
                     <span style={{ color: NAVY, fontWeight: 500 }}>{v}</span>
                   </div>
                 ))}
-                <button className="btn-primary" style={{ width: "100%", marginTop: 20, textAlign: "center" }}>Profil ansehen</button>
+                <a href="/Arbeitgeber" className="btn-primary" style={{ width: "100%", marginTop: 20, textAlign: "center", display: "block" }}>
+                  Jetzt registrieren um Profile zu sehen →
+                </a>
               </div>
               <div style={{ position: "absolute", top: -20, right: -20, background: "white", borderRadius: 16, padding: "12px 18px", boxShadow: "0 8px 24px rgba(0,0,0,0.1)", border: "1px solid #E8EDF4" }}>
                 <div style={{ fontSize: "0.75rem", color: "#9BA8C0", marginBottom: 2 }}>Neue Anfrage</div>
@@ -268,6 +312,35 @@ export default function Home() {
                 <p style={{ color: "#6B7897", fontSize: "0.88rem", lineHeight: 1.7 }}>{item.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" style={{ padding: "100px 40px", background: "white" }}>
+        <div style={{ maxWidth: 780, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 60 }}>
+            <div style={{ fontSize: "0.75rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Häufige Fragen</div>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.4rem", fontWeight: 800, color: NAVY }}>Alles was Sie wissen müssen</h2>
+          </div>
+          <div>
+            {faqs.map((faq, i) => (
+              <div key={i} className="faq-item">
+                <button className="faq-btn" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+                  <span>{faq.q}</span>
+                  <span style={{ fontSize: "1.4rem", color: BLUE, transition: "transform 0.3s", transform: openFaq === i ? "rotate(45deg)" : "rotate(0deg)", display: "inline-block" }}>+</span>
+                </button>
+                {openFaq === i && (
+                  <div style={{ paddingBottom: 20, color: "#6B7897", fontSize: "0.92rem", lineHeight: 1.8 }}>
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: "center", marginTop: 48 }}>
+            <p style={{ color: "#9BA8C0", fontSize: "0.9rem", marginBottom: 16 }}>Noch eine Frage?</p>
+            <a href="mailto:kitabridge@protonmail.com" className="btn-secondary">Kontakt aufnehmen</a>
           </div>
         </div>
       </section>
