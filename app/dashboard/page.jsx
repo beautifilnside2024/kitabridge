@@ -63,6 +63,29 @@ export default function Dashboard() {
     }
   };
 
+  const handleKuendigung = async () => {
+    const bestaetigung = window.confirm(
+      "Möchten Sie Ihr Abo wirklich kündigen? Sie haben bis zum Ende des aktuellen Monats weiterhin Zugang."
+    );
+    if (!bestaetigung) return;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const res = await fetch("/api/stripe/kuendigung", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: session.user.email }),
+    });
+
+    if (res.ok) {
+      alert("Ihr Abo wurde erfolgreich gekündigt. Sie haben bis zum Ende des Monats weiterhin Zugang.");
+      loadDashboard();
+    } else {
+      alert("Fehler beim Kündigen. Bitte kontaktieren Sie uns unter kitabridge@protonmail.com");
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F0F4F9", fontFamily: "'DM Sans', sans-serif" }}>
@@ -170,6 +193,14 @@ export default function Dashboard() {
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", marginBottom: 12 }}>Ihr Plan</h3>
                 <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700, marginBottom: 4 }}>299 EUR</div>
                 <div style={{ opacity: 0.7, fontSize: "0.82rem", marginBottom: 20 }}>pro Monat, zzgl. MwSt.</div>
+                {arbeitgeber?.stripe_subscription_id && (
+                  <button
+                    onClick={handleKuendigung}
+                    style={{ marginBottom: 16, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.3)", color: "white", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.78rem", fontFamily: "'DM Sans', sans-serif", width: "100%" }}
+                  >
+                    Abo kündigen
+                  </button>
+                )}
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {["Alle Fachkräfte-Profile", "Direktkontakt", "Keine Provision", "Monatlich kündbar"].map(f => (
                     <div key={f} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem" }}>
