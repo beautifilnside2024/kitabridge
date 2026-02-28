@@ -65,7 +65,7 @@ export default function Login() {
               onKeyDown={e => e.key === "Enter" && handleLogin()}
             />
           </div>
-          <div style={{ marginBottom: 24 }}>
+          <div style={{ marginBottom: 8 }}>
             <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Passwort</label>
             <input
               style={inputStyle}
@@ -75,6 +75,13 @@ export default function Login() {
               placeholder="••••••••"
               onKeyDown={e => e.key === "Enter" && handleLogin()}
             />
+          </div>
+
+          {/* Passwort vergessen Link */}
+          <div style={{ textAlign: "right", marginBottom: 20 }}>
+            <a href="/passwort-vergessen" style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.82rem", textDecoration: "none" }}>
+              Passwort vergessen?
+            </a>
           </div>
 
           {error && (
