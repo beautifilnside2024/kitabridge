@@ -146,22 +146,35 @@ export default function Suche() {
                 Keine Fachkräfte gefunden. Filter anpassen?
               </div>
             ) : filtered.map(fk => (
-              <div key={fk.id} onClick={() => setSelected(selected?.id === fk.id ? null : fk)} style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(26,63,111,0.08)", cursor: "pointer", border: `2px solid ${selected?.id === fk.id ? BLUE : "transparent"}`, transition: "all 0.2s" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 12, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: "1.1rem", fontFamily: "'Playfair Display', serif" }}>
-                    {fk.vorname?.[0]}{fk.nachname?.[0]}
+              <div key={fk.id} style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(26,63,111,0.08)", border: `2px solid ${selected?.id === fk.id ? BLUE : "transparent"}`, transition: "all 0.2s" }}>
+                <div
+                  onClick={() => setSelected(selected?.id === fk.id ? null : fk)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: "1.1rem", fontFamily: "'Playfair Display', serif" }}>
+                      {fk.vorname?.[0]}{fk.nachname?.[0]}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.95rem" }}>{fk.vorname} {fk.nachname}</div>
+                      <div style={{ color: "#9BA8C0", fontSize: "0.8rem" }}>{fk.wohnort || fk.bundesland || "-"}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.95rem" }}>{fk.vorname} {fk.nachname}</div>
-                    <div style={{ color: "#9BA8C0", fontSize: "0.8rem" }}>{fk.wohnort || fk.bundesland || "-"}</div>
+                  <div style={{ fontSize: "0.82rem", color: "#444", marginBottom: 12, lineHeight: 1.5 }}>{fk.qualifikation}</div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+                    {fk.deutsch && <span style={{ background: "#EEF2FF", color: "#4F46E5", padding: "3px 8px", borderRadius: 20, fontSize: "0.72rem", fontWeight: 600 }}>DE: {fk.deutsch}</span>}
+                    {fk.arbeitszeit && <span style={{ background: "#EAF7EF", color: GREEN, padding: "3px 8px", borderRadius: 20, fontSize: "0.72rem", fontWeight: 600 }}>{fk.arbeitszeit}</span>}
+                    {fk.verfuegbar_ab && <span style={{ background: "#FFF7ED", color: "#EA580C", padding: "3px 8px", borderRadius: 20, fontSize: "0.72rem", fontWeight: 600 }}>Ab {fk.verfuegbar_ab}</span>}
                   </div>
                 </div>
-                <div style={{ fontSize: "0.82rem", color: "#444", marginBottom: 8, lineHeight: 1.5 }}>{fk.qualifikation}</div>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {fk.deutsch && <span style={{ background: "#EEF2FF", color: "#4F46E5", padding: "3px 8px", borderRadius: 20, fontSize: "0.72rem", fontWeight: 600 }}>DE: {fk.deutsch}</span>}
-                  {fk.arbeitszeit && <span style={{ background: "#EAF7EF", color: GREEN, padding: "3px 8px", borderRadius: 20, fontSize: "0.72rem", fontWeight: 600 }}>{fk.arbeitszeit}</span>}
-                  {fk.verfuegbar_ab && <span style={{ background: "#FFF7ED", color: "#EA580C", padding: "3px 8px", borderRadius: 20, fontSize: "0.72rem", fontWeight: 600 }}>Ab {fk.verfuegbar_ab}</span>}
-                </div>
+                {/* Profil ansehen Button */}
+                <a
+                  href={`/fachkraft/${fk.id}`}
+                  style={{ display: "block", textAlign: "center", padding: "10px", borderRadius: 10, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, textDecoration: "none", fontSize: "0.85rem", fontFamily: "'DM Sans', sans-serif" }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  Vollständiges Profil ansehen →
+                </a>
               </div>
             ))}
           </div>
@@ -206,11 +219,14 @@ export default function Suche() {
                 </div>
               )}
 
-              <a href={`mailto:${selected.email}`} style={{ display: "block", textAlign: "center", marginTop: 16, padding: "12px", borderRadius: 12, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" }}>
+              <a href={`/fachkraft/${selected.id}`} style={{ display: "block", textAlign: "center", marginTop: 16, padding: "12px", borderRadius: 12, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" }}>
+                Vollständiges Profil ansehen →
+              </a>
+              <a href={`mailto:${selected.email}`} style={{ display: "block", textAlign: "center", marginTop: 8, padding: "12px", borderRadius: 12, background: "#EAF7EF", color: GREEN, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" }}>
                 📧 Direkt kontaktieren
               </a>
               {selected.telefon && (
-                <a href={`tel:${selected.telefon}`} style={{ display: "block", textAlign: "center", marginTop: 8, padding: "12px", borderRadius: 12, background: "#EAF7EF", color: GREEN, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" }}>
+                <a href={`tel:${selected.telefon}`} style={{ display: "block", textAlign: "center", marginTop: 8, padding: "12px", borderRadius: 12, background: "#F0F4F9", color: NAVY, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" }}>
                   📞 {selected.telefon}
                 </a>
               )}

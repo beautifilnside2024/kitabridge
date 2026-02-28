@@ -7,11 +7,11 @@ const BLUE = "#2471A3";
 const GREEN = "#1E8449";
 
 const STEPS = [
-  "Persönliche Daten",
+  "Persoenliche Daten",
   "Qualifikation",
   "Sprachkenntnisse",
   "Berufserfahrung",
-  "Verfügbarkeit",
+  "Verfuegbarkeit",
   "Abschluss"
 ];
 
@@ -74,13 +74,55 @@ export default function Registrieren() {
       status: "neu"
     }]);
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       alert("Fehler: " + error.message);
       return;
     }
 
+    // Bestaetigung an Fachkraft
+    await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to: form.email,
+        subject: "Deine Registrierung bei KitaBridge",
+        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto">
+          <div style="background:#1A3F6F;padding:24px 32px">
+            <h1 style="color:white;margin:0;font-size:22px">KitaBridge</h1>
+          </div>
+          <div style="padding:32px;background:#fff">
+            <h2 style="color:#1A3F6F">Hallo ${form.vorname}!</h2>
+            <p style="color:#444;line-height:1.7">Vielen Dank fuer deine Registrierung bei KitaBridge! Wir haben dein Profil erhalten und werden es innerhalb von <strong>24 Stunden</strong> pruefen.</p>
+            <div style="background:#EAF7EF;border-radius:12px;padding:20px;margin:24px 0">
+              <p style="color:#1E8449;font-weight:700;margin:0 0 12px">Naechste Schritte:</p>
+              <p style="color:#444;margin:0;line-height:1.8">
+                1. Wir pruefen dein Profil sorgfaeltig<br/>
+                2. Du erhaeltst eine E-Mail sobald dein Profil freigeschaltet ist<br/>
+                3. Kitas in ganz Deutschland koennen dich dann direkt kontaktieren
+              </p>
+            </div>
+            <div style="background:#F8FAFF;border-radius:12px;padding:20px;margin:24px 0">
+              <p style="color:#1A3F6F;font-weight:700;margin:0 0 12px">Deine Angaben:</p>
+              <table style="width:100%;font-size:14px">
+                <tr><td style="color:#9BA8C0;padding:4px 0">Name</td><td style="text-align:right">${form.vorname} ${form.nachname}</td></tr>
+                <tr><td style="color:#9BA8C0;padding:4px 0">Qualifikation</td><td style="text-align:right">${form.qualifikation}</td></tr>
+                <tr><td style="color:#9BA8C0;padding:4px 0">Deutschkenntnisse</td><td style="text-align:right">${form.deutsch}</td></tr>
+                <tr><td style="color:#9BA8C0;padding:4px 0">Verfuegbar ab</td><td style="text-align:right">${form.verfuegbar_ab}</td></tr>
+                <tr><td style="color:#9BA8C0;padding:4px 0">Arbeitszeit</td><td style="text-align:right">${form.arbeitszeit}</td></tr>
+              </table>
+            </div>
+            <p style="color:#444;line-height:1.7">Bei Fragen: <a href="mailto:kitabridge@protonmail.com" style="color:#2471A3">kitabridge@protonmail.com</a></p>
+            <p style="color:#444">Viele Gruesse,<br/><strong>Das KitaBridge-Team</strong></p>
+          </div>
+          <div style="background:#F8FAFF;padding:16px 32px;text-align:center">
+            <p style="color:#9BA8C0;font-size:12px;margin:0">KitaBridge - Heusenstammer Weg 69 - 63071 Offenbach am Main</p>
+          </div>
+        </div>`
+      })
+    });
+
+    setLoading(false);
     setSubmitted(true);
   };
 
@@ -94,8 +136,15 @@ export default function Registrieren() {
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 16 }}>Registrierung erfolgreich!</h2>
           <p style={{ color: "#6B7897", lineHeight: 1.7, marginBottom: 28 }}>Vielen Dank, {form.vorname}! Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden bei dir.</p>
           <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
-            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>Nächste Schritte:</div>
+            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>📧 Bestätigungs-E-Mail gesendet!</div>
             <div style={{ color: "#444", fontSize: "0.85rem", marginTop: 8, lineHeight: 1.7 }}>
+              Wir haben eine E-Mail an <strong>{form.email}</strong> geschickt.<br/>
+              Bitte prüfe auch deinen Spam-Ordner.
+            </div>
+          </div>
+          <div style={{ background: "#F8FAFF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
+            <div style={{ color: NAVY, fontWeight: 700, fontSize: "0.9rem", marginBottom: 8 }}>Nächste Schritte:</div>
+            <div style={{ color: "#444", fontSize: "0.85rem", lineHeight: 1.7 }}>
               1. Wir prüfen dein Profil<br/>
               2. Du erhältst eine Bestätigung per E-Mail<br/>
               3. Kitas können dich direkt kontaktieren
@@ -222,7 +271,7 @@ export default function Registrieren() {
                 <input style={inputStyle} value={form.weitere_sprachen} onChange={e => set("weitere_sprachen", e.target.value)} placeholder="z.B. Französisch B2, Arabisch Muttersprache"/>
               </div>
               <div style={{ marginTop: 20, background: "#F0F4F9", borderRadius: 12, padding: 16, fontSize: "0.85rem", color: "#6B7897" }}>
-                Hinweis: Mindestens Deutschkenntnisse auf B1-Niveau sind erforderlich um in deutschen Kitas arbeiten zu können.
+                Hinweis: Mindestens Deutschkenntnisse auf B1-Niveau sind erforderlich.
               </div>
             </div>
           )}
@@ -304,11 +353,11 @@ export default function Registrieren() {
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", marginBottom: 12 }}>
                   <input type="checkbox" checked={form.agb} onChange={e => set("agb", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY }}/>
-                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich stimme den <a href="/agb" style={{ color: BLUE }}>Allgemeinen Geschäftsbedingungen</a> zu *</span>
+                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich stimme den <a href="/agb" style={{ color: BLUE }}>AGB</a> zu *</span>
                 </label>
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
                   <input type="checkbox" checked={form.datenschutz} onChange={e => set("datenschutz", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY }}/>
-                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich habe die <a href="/datenschutz" style={{ color: BLUE }}>Datenschutzerklärung</a> gelesen und stimme zu *</span>
+                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich habe die <a href="/datenschutz" style={{ color: BLUE }}>Datenschutzerklärung</a> gelesen *</span>
                 </label>
               </div>
             </div>
