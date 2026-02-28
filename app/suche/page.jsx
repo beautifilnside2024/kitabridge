@@ -33,6 +33,24 @@ export default function Suche() {
       window.location.href = "/login";
       return;
     }
+
+    // Prüfen ob Arbeitgeber mit aktivem Abo
+    const { data: arbeitgeber } = await supabase
+      .from("arbeitgeber")
+      .select("id, status")
+      .eq("email", session.user.email)
+      .single();
+
+    if (!arbeitgeber) {
+      window.location.href = "/fachkraft/einstellungen";
+      return;
+    }
+
+    if (arbeitgeber.status !== "aktiv") {
+      window.location.href = "/dashboard";
+      return;
+    }
+
     setUser(session.user);
     loadFachkraefte();
   };
@@ -147,10 +165,7 @@ export default function Suche() {
               </div>
             ) : filtered.map(fk => (
               <div key={fk.id} style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(26,63,111,0.08)", border: `2px solid ${selected?.id === fk.id ? BLUE : "transparent"}`, transition: "all 0.2s" }}>
-                <div
-                  onClick={() => setSelected(selected?.id === fk.id ? null : fk)}
-                  style={{ cursor: "pointer" }}
-                >
+                <div onClick={() => setSelected(selected?.id === fk.id ? null : fk)} style={{ cursor: "pointer" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
                     <div style={{ width: 48, height: 48, borderRadius: 12, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: "1.1rem", fontFamily: "'Playfair Display', serif" }}>
                       {fk.vorname?.[0]}{fk.nachname?.[0]}
@@ -167,8 +182,7 @@ export default function Suche() {
                     {fk.verfuegbar_ab && <span style={{ background: "#FFF7ED", color: "#EA580C", padding: "3px 8px", borderRadius: 20, fontSize: "0.72rem", fontWeight: 600 }}>Ab {fk.verfuegbar_ab}</span>}
                   </div>
                 </div>
-                {/* Profil ansehen Button */}
-                <a
+                
                   href={`/fachkraft/${fk.id}`}
                   style={{ display: "block", textAlign: "center", padding: "10px", borderRadius: 10, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, textDecoration: "none", fontSize: "0.85rem", fontFamily: "'DM Sans', sans-serif" }}
                   onClick={e => e.stopPropagation()}
