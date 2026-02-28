@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -143,11 +143,11 @@ export default function Registrieren() {
     return (
       <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'DM Sans', sans-serif" }}>
         <div style={{ background: "white", borderRadius: 24, padding: 48, maxWidth: 500, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(26,63,111,0.12)" }}>
-          <div style={{ fontSize: "4rem", marginBottom: 20 }}>🎉</div>
+          <div style={{ fontSize: "4rem", marginBottom: 20 }}>ðŸŽ‰</div>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 16 }}>Registrierung erfolgreich!</h2>
           <p style={{ color: "#6B7897", lineHeight: 1.7, marginBottom: 28 }}>Vielen Dank, {form.vorname}! Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden bei dir.</p>
           <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
-            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>📧 Bestätigungs-E-Mail gesendet!</div>
+            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>ðŸ“§ Bestätigungs-E-Mail gesendet!</div>
             <div style={{ color: "#444", fontSize: "0.85rem", marginTop: 8, lineHeight: 1.7 }}>
               Wir haben eine E-Mail an <strong>{form.email}</strong> geschickt.<br/>
               Bitte prüfe auch deinen Spam-Ordner.
@@ -216,7 +216,7 @@ export default function Registrieren() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Passwort * (mind. 8 Zeichen)</label>
-                <input style={inputStyle} type="password" value={form.passwort} onChange={e => set("passwort", e.target.value)} placeholder="••••••••"/>
+                <input style={inputStyle} type="password" value={form.passwort} onChange={e => set("passwort", e.target.value)} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"/>
                 <div style={{ fontSize: "0.78rem", color: "#9BA8C0", marginTop: 4 }}>Mit diesem Passwort kannst du dich später einloggen.</div>
               </div>
               <div style={{ marginBottom: 16 }}>
@@ -272,14 +272,14 @@ export default function Registrieren() {
                 <label style={labelStyle}>Deutschkenntnisse *</label>
                 <select style={selectStyle} value={form.deutsch} onChange={e => set("deutsch", e.target.value)}>
                   <option value="">Bitte wählen</option>
-                  {["A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
+                  {["A1 â€“ Anfänger","A2 â€“ Grundlagen","B1 â€“ Mittelstufe","B2 â€“ Gute Kenntnisse","C1 â€“ Fortgeschritten","C2 â€“ Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Englischkenntnisse</label>
                 <select style={selectStyle} value={form.englisch} onChange={e => set("englisch", e.target.value)}>
                   <option value="">Bitte wählen</option>
-                  {["Keine","A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
+                  {["Keine","A1 â€“ Anfänger","A2 â€“ Grundlagen","B1 â€“ Mittelstufe","B2 â€“ Gute Kenntnisse","C1 â€“ Fortgeschritten","C2 â€“ Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
               <div>
