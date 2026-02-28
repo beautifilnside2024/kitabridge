@@ -38,7 +38,7 @@ export default function Login() {
       return;
     }
 
-    window.location.href = "/suche";
+    window.location.href = "/dashboard";
   };
 
   return (
@@ -77,7 +77,6 @@ export default function Login() {
             />
           </div>
 
-          {/* Passwort vergessen Link */}
           <div style={{ textAlign: "right", marginBottom: 20 }}>
             <a href="/passwort-vergessen" style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.82rem", textDecoration: "none" }}>
               Passwort vergessen?
