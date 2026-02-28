@@ -31,18 +31,29 @@ export default function Login() {
       password: passwort
     });
 
-    setLoading(false);
-
     if (authError) {
+      setLoading(false);
       setError("E-Mail oder Passwort falsch");
       return;
     }
 
-    window.location.href = "/dashboard";
+    // Prüfen ob Arbeitgeber oder Fachkraft
+    const { data: arbeitgeber } = await supabase
+      .from("arbeitgeber")
+      .select("id")
+      .eq("email", email)
+      .single();
+
+    if (arbeitgeber) {
+      window.location.href = "/dashboard";
+    } else {
+      window.location.href = "/fachkraft/einstellungen";
+    }
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: `linear-gradient(135deg, ${NAVY} 0%, #0F2340 100%)`, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: `linear-gradient(135deg, ${NAVY} 0%, #0F2340 100%)`,
+display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'DM Sans', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap'); * { box-sizing: border-box; } input::placeholder { color: rgba(255,255,255,0.3); }`}</style>
 
       <div style={{ width: "100%", maxWidth: 420 }}>
@@ -50,7 +61,7 @@ export default function Login() {
           <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700 }}>
             <span style={{ color: "white" }}>Kita</span><span style={{ color: "#4ADE80" }}>Bridge</span>
           </a>
-          <p style={{ color: "rgba(255,255,255,0.5)", marginTop: 8, fontSize: "0.9rem" }}>Arbeitgeber Login</p>
+          <p style={{ color: "rgba(255,255,255,0.5)", marginTop: 8, fontSize: "0.9rem" }}>Login für Arbeitgeber & Fachkräfte</p>
         </div>
 
         <div style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 24, padding: 40 }}>
@@ -97,8 +108,12 @@ export default function Login() {
           </button>
 
           <div style={{ textAlign: "center", marginTop: 20, fontSize: "0.85rem", color: "rgba(255,255,255,0.4)" }}>
-            Noch kein Konto?{" "}
+            Arbeitgeber?{" "}
             <a href="/Arbeitgeber" style={{ color: "#4ADE80", textDecoration: "none", fontWeight: 600 }}>Jetzt registrieren</a>
+          </div>
+          <div style={{ textAlign: "center", marginTop: 10, fontSize: "0.85rem", color: "rgba(255,255,255,0.4)" }}>
+            Fachkraft?{" "}
+            <a href="/Registrieren" style={{ color: "#4ADE80", textDecoration: "none", fontWeight: 600 }}>Jetzt registrieren</a>
           </div>
         </div>
       </div>

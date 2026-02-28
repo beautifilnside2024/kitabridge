@@ -33,7 +33,7 @@ export default function Registrieren() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    vorname: "", nachname: "", email: "", telefon: "", geburtsland: "", wohnort: "",
+    vorname: "", nachname: "", email: "", passwort: "", telefon: "", geburtsland: "", wohnort: "",
     qualifikation: "", zusatzqualifikation: "", uniabschluss: "",
     deutsch: "", englisch: "", weitere_sprachen: "",
     erfahrung_jahre: "", kita_alter: [], beschreibung: "",
@@ -50,9 +50,26 @@ export default function Registrieren() {
 
   const handleSubmit = async () => {
     if (!form.agb || !form.datenschutz) return;
+    if (!form.passwort || form.passwort.length < 8) {
+      alert("Passwort muss mindestens 8 Zeichen lang sein.");
+      return;
+    }
     setLoading(true);
 
-    const { error } = await supabase.from("fachkraefte").insert([{
+    // Supabase Auth Account erstellen
+    const { error: authError } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.passwort,
+    });
+
+    if (authError) {
+      setLoading(false);
+      alert("Fehler beim Erstellen des Accounts: " + authError.message);
+      return;
+    }
+
+    // Profil in Datenbank speichern
+    const { error: dbError } = await supabase.from("fachkraefte").insert([{
       vorname: form.vorname,
       nachname: form.nachname,
       email: form.email,
@@ -74,13 +91,13 @@ export default function Registrieren() {
       status: "neu"
     }]);
 
-    if (error) {
+    if (dbError) {
       setLoading(false);
-      alert("Fehler: " + error.message);
+      alert("Fehler: " + dbError.message);
       return;
     }
 
-    // Bestaetigung an Fachkraft
+    // Bestätigungs-E-Mail senden
     await fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -103,14 +120,8 @@ export default function Registrieren() {
               </p>
             </div>
             <div style="background:#F8FAFF;border-radius:12px;padding:20px;margin:24px 0">
-              <p style="color:#1A3F6F;font-weight:700;margin:0 0 12px">Deine Angaben:</p>
-              <table style="width:100%;font-size:14px">
-                <tr><td style="color:#9BA8C0;padding:4px 0">Name</td><td style="text-align:right">${form.vorname} ${form.nachname}</td></tr>
-                <tr><td style="color:#9BA8C0;padding:4px 0">Qualifikation</td><td style="text-align:right">${form.qualifikation}</td></tr>
-                <tr><td style="color:#9BA8C0;padding:4px 0">Deutschkenntnisse</td><td style="text-align:right">${form.deutsch}</td></tr>
-                <tr><td style="color:#9BA8C0;padding:4px 0">Verfuegbar ab</td><td style="text-align:right">${form.verfuegbar_ab}</td></tr>
-                <tr><td style="color:#9BA8C0;padding:4px 0">Arbeitszeit</td><td style="text-align:right">${form.arbeitszeit}</td></tr>
-              </table>
+              <p style="color:#1A3F6F;font-weight:700;margin:0 0 8px">Dein Login:</p>
+              <p style="color:#444;font-size:14px;margin:0">E-Mail: ${form.email}<br/>Du kannst dich jederzeit unter <a href="https://kitabridge.vercel.app/login">kitabridge.vercel.app/login</a> einloggen.</p>
             </div>
             <p style="color:#444;line-height:1.7">Bei Fragen: <a href="mailto:kitabridge@protonmail.com" style="color:#2471A3">kitabridge@protonmail.com</a></p>
             <p style="color:#444">Viele Gruesse,<br/><strong>Das KitaBridge-Team</strong></p>
@@ -150,7 +161,7 @@ export default function Registrieren() {
               3. Kitas können dich direkt kontaktieren
             </div>
           </div>
-          <a href="/" style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, textDecoration: "none" }}>Zur Startseite</a>
+          <a href="/login" style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, textDecoration: "none" }}>Zum Login</a>
         </div>
       </div>
     );
@@ -202,6 +213,11 @@ export default function Registrieren() {
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>E-Mail Adresse *</label>
                 <input style={inputStyle} type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="maria@example.com"/>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Passwort * (mind. 8 Zeichen)</label>
+                <input style={inputStyle} type="password" value={form.passwort} onChange={e => set("passwort", e.target.value)} placeholder="••••••••"/>
+                <div style={{ fontSize: "0.78rem", color: "#9BA8C0", marginTop: 4 }}>Mit diesem Passwort kannst du dich später einloggen.</div>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Telefonnummer</label>
