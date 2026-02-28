@@ -34,7 +34,6 @@ export default function Suche() {
       return;
     }
 
-    // Prüfen ob Arbeitgeber mit aktivem Abo
     const { data: arbeitgeber } = await supabase
       .from("arbeitgeber")
       .select("id, status")
@@ -93,7 +92,6 @@ export default function Suche() {
     <div style={{ minHeight: "100vh", background: "#F0F4F9", fontFamily: "'DM Sans', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap'); * { box-sizing: border-box; }`}</style>
 
-      {/* Header */}
       <div style={{ background: NAVY, padding: "16px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 700 }}>
           <span style={{ color: "white" }}>Kita</span><span style={{ color: "#4ADE80" }}>Bridge</span>
@@ -110,7 +108,6 @@ export default function Suche() {
         <h1 style={{ fontFamily: "'Playfair Display', serif", color: NAVY, fontSize: "1.8rem", marginBottom: 8 }}>Fachkräfte suchen</h1>
         <p style={{ color: "#9BA8C0", marginBottom: 32, fontSize: "0.9rem" }}>{filtered.length} Fachkräfte gefunden</p>
 
-        {/* Filter */}
         <div style={{ background: "white", borderRadius: 16, padding: 24, marginBottom: 24, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
             <div>
@@ -156,8 +153,7 @@ export default function Suche() {
           )}
         </div>
 
-        {/* Results */}
-        <div style={{ display: "grid", gridTemplateColumns: selected ? "1fr 380px" : "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: selected ? "1fr 380px" : "1fr", gap: 16 }}>
           <div style={{ display: "grid", gridTemplateColumns: selected ? "1fr" : "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
             {filtered.length === 0 ? (
               <div style={{ background: "white", borderRadius: 16, padding: 40, textAlign: "center", color: "#9BA8C0", gridColumn: "1/-1" }}>
@@ -193,7 +189,6 @@ export default function Suche() {
             ))}
           </div>
 
-          {/* Detail Panel */}
           {selected && (
             <div style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(26,63,111,0.08)", height: "fit-content", position: "sticky", top: 24 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
