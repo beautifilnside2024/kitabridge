@@ -364,6 +364,7 @@ export default function Home() {
         </div>
         <p style={{ fontSize: "0.82rem", marginBottom: 20 }}>Die Plattform für internationale Kita-Fachkräfte in Deutschland.</p>
         <div style={{ marginBottom: 16 }}>
+            <a href="/kontakt" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>Kontakt</a>
           <a href="/impressum" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>Impressum</a>
           <a href="/datenschutz" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>Datenschutz</a>
           <a href="/agb" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>AGB</a>
