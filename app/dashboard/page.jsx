@@ -37,29 +37,31 @@ export default function Dashboard() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/login");
-  }const handleDeleteAccount = async () => {
-  const bestaetigung = window.confirm(
-    "Sind Sie sicher? Ihr Account und alle Daten werden unwiderruflich gelöscht. Ihr Abonnement wird sofort gekündigt."
-  );
-  if (!bestaetigung) return;
+  };
 
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return;
+  const handleDeleteAccount = async () => {
+    const bestaetigung = window.confirm(
+      "Sind Sie sicher? Ihr Account und alle Daten werden unwiderruflich gelöscht. Ihr Abonnement wird sofort gekündigt."
+    );
+    if (!bestaetigung) return;
 
-  const res = await fetch("/api/account/delete", {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: session.user.email, rolle: "arbeitgeber" }),
-  });
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
 
-  if (res.ok) {
-    await supabase.auth.signOut();
-    alert("Ihr Account wurde erfolgreich gelöscht.");
-    router.push("/");
-  } else {
-    alert("Fehler beim Löschen. Bitte kontaktieren Sie uns unter kitabridge@protonmail.com");
-  }
-};
+    const res = await fetch("/api/account/delete", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: session.user.email, rolle: "arbeitgeber" }),
+    });
+
+    if (res.ok) {
+      await supabase.auth.signOut();
+      alert("Ihr Account wurde erfolgreich gelöscht.");
+      router.push("/");
+    } else {
+      alert("Fehler beim Löschen. Bitte kontaktieren Sie uns unter kitabridge@protonmail.com");
+    }
+  };
 
   if (loading) {
     return (
@@ -134,7 +136,6 @@ export default function Dashboard() {
         {/* Übersicht */}
         {activeTab === "uebersicht" && (
           <div>
-            {/* Stats */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 28 }}>
               {[
                 { icon: "👥", label: "Offene Stellen", value: arbeitgeber?.stellen_anzahl || "-" },
@@ -149,7 +150,6 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* Schnellzugriff */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", color: NAVY, marginBottom: 16 }}>Schnellzugriff</h3>
@@ -206,8 +206,23 @@ export default function Dashboard() {
                 </div>
               ) : null)}
             </div>
+
             <div style={{ marginTop: 24, padding: 16, background: "#F0F4F9", borderRadius: 12, fontSize: "0.85rem", color: "#6B7897" }}>
               Um Ihre Profildaten zu ändern, kontaktieren Sie uns unter <a href="mailto:kitabridge@protonmail.com" style={{ color: BLUE }}>kitabridge@protonmail.com</a>
+            </div>
+
+            {/* Account löschen */}
+            <div style={{ marginTop: 32, padding: 20, background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 12 }}>
+              <div style={{ fontWeight: 700, color: "#9B1C1C", marginBottom: 6, fontSize: "0.95rem" }}>⚠️ Account löschen</div>
+              <div style={{ color: "#7F1D1D", fontSize: "0.84rem", marginBottom: 14 }}>
+                Ihr Account und alle Ihre Daten werden unwiderruflich gelöscht. Ihr Stripe-Abonnement wird sofort gekündigt.
+              </div>
+              <button
+                onClick={handleDeleteAccount}
+                style={{ background: "#DC2626", color: "white", border: "none", padding: "10px 20px", borderRadius: 8, fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
+              >
+                Account unwiderruflich löschen
+              </button>
             </div>
           </div>
         )}
