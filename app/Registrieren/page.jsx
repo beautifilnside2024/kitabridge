@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -33,7 +33,7 @@ export default function Registrieren() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    vorname: "", nachname: "", email: "", passwort: "", telefon: "", geburtsland: "", wohnort: "",
+    vorname: "", nachname: "", email: "", passwort: "", telefon: "", wohnort: "",
     qualifikation: "", zusatzqualifikation: "", uniabschluss: "",
     deutsch: "", englisch: "", weitere_sprachen: "",
     erfahrung_jahre: "", kita_alter: [], beschreibung: "",
@@ -56,7 +56,6 @@ export default function Registrieren() {
     }
     setLoading(true);
 
-    // Supabase Auth Account erstellen
     const { error: authError } = await supabase.auth.signUp({
       email: form.email,
       password: form.passwort,
@@ -68,13 +67,11 @@ export default function Registrieren() {
       return;
     }
 
-    // Profil in Datenbank speichern
     const { error: dbError } = await supabase.from("fachkraefte").insert([{
       vorname: form.vorname,
       nachname: form.nachname,
       email: form.email,
       telefon: form.telefon,
-      geburtsland: form.geburtsland,
       wohnort: form.wohnort,
       qualifikation: form.qualifikation,
       zusatzqualifikation: form.zusatzqualifikation,
@@ -97,7 +94,6 @@ export default function Registrieren() {
       return;
     }
 
-    // Bestätigungs-E-Mail senden
     await fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -110,13 +106,13 @@ export default function Registrieren() {
           </div>
           <div style="padding:32px;background:#fff">
             <h2 style="color:#1A3F6F">Hallo ${form.vorname}!</h2>
-            <p style="color:#444;line-height:1.7">Vielen Dank fuer deine Registrierung bei KitaBridge! Wir haben dein Profil erhalten und werden es innerhalb von <strong>24 Stunden</strong> pruefen.</p>
+            <p style="color:#444;line-height:1.7">Vielen Dank für deine Registrierung bei KitaBridge! Wir haben dein Profil erhalten und werden es innerhalb von <strong>24 Stunden</strong> prüfen.</p>
             <div style="background:#EAF7EF;border-radius:12px;padding:20px;margin:24px 0">
-              <p style="color:#1E8449;font-weight:700;margin:0 0 12px">Naechste Schritte:</p>
+              <p style="color:#1E8449;font-weight:700;margin:0 0 12px">Nächste Schritte:</p>
               <p style="color:#444;margin:0;line-height:1.8">
-                1. Wir pruefen dein Profil sorgfaeltig<br/>
-                2. Du erhaeltst eine E-Mail sobald dein Profil freigeschaltet ist<br/>
-                3. Kitas in ganz Deutschland koennen dich dann direkt kontaktieren
+                1. Wir prüfen dein Profil sorgfältig<br/>
+                2. Du erhältst eine E-Mail sobald dein Profil freigeschaltet ist<br/>
+                3. Kitas in ganz Deutschland können dich dann direkt kontaktieren
               </p>
             </div>
             <div style="background:#F8FAFF;border-radius:12px;padding:20px;margin:24px 0">
@@ -124,7 +120,7 @@ export default function Registrieren() {
               <p style="color:#444;font-size:14px;margin:0">E-Mail: ${form.email}<br/>Du kannst dich jederzeit unter <a href="https://kitabridge.vercel.app/login">kitabridge.vercel.app/login</a> einloggen.</p>
             </div>
             <p style="color:#444;line-height:1.7">Bei Fragen: <a href="mailto:kitabridge@protonmail.com" style="color:#2471A3">kitabridge@protonmail.com</a></p>
-            <p style="color:#444">Viele Gruesse,<br/><strong>Das KitaBridge-Team</strong></p>
+            <p style="color:#444">Viele Grüße,<br/><strong>Das KitaBridge-Team</strong></p>
           </div>
           <div style="background:#F8FAFF;padding:16px 32px;text-align:center">
             <p style="color:#9BA8C0;font-size:12px;margin:0">KitaBridge - Heusenstammer Weg 69 - 63071 Offenbach am Main</p>
@@ -143,11 +139,11 @@ export default function Registrieren() {
     return (
       <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'DM Sans', sans-serif" }}>
         <div style={{ background: "white", borderRadius: 24, padding: 48, maxWidth: 500, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(26,63,111,0.12)" }}>
-          <div style={{ fontSize: "4rem", marginBottom: 20 }}>ðŸŽ‰</div>
+          <div style={{ fontSize: "4rem", marginBottom: 20 }}>🎉</div>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 16 }}>Registrierung erfolgreich!</h2>
           <p style={{ color: "#6B7897", lineHeight: 1.7, marginBottom: 28 }}>Vielen Dank, {form.vorname}! Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden bei dir.</p>
           <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
-            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>ðŸ“§ Bestätigungs-E-Mail gesendet!</div>
+            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>📧 Bestätigungs-E-Mail gesendet!</div>
             <div style={{ color: "#444", fontSize: "0.85rem", marginTop: 8, lineHeight: 1.7 }}>
               Wir haben eine E-Mail an <strong>{form.email}</strong> geschickt.<br/>
               Bitte prüfe auch deinen Spam-Ordner.
@@ -216,17 +212,16 @@ export default function Registrieren() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Passwort * (mind. 8 Zeichen)</label>
-                <input style={inputStyle} type="password" value={form.passwort} onChange={e => set("passwort", e.target.value)} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"/>
+                <input style={inputStyle} type="password" value={form.passwort} onChange={e => set("passwort", e.target.value)} placeholder="••••••••"/>
                 <div style={{ fontSize: "0.78rem", color: "#9BA8C0", marginTop: 4 }}>Mit diesem Passwort kannst du dich später einloggen.</div>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Telefonnummer</label>
                 <input style={inputStyle} value={form.telefon} onChange={e => set("telefon", e.target.value)} placeholder="+49 123 456789"/>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div><label style={labelStyle}>Aktueller Wohnort</label>
-                  <input style={inputStyle} value={form.wohnort} onChange={e => set("wohnort", e.target.value)} placeholder="Berlin"/>
-                </div>
+              <div>
+                <label style={labelStyle}>Aktueller Wohnort</label>
+                <input style={inputStyle} value={form.wohnort} onChange={e => set("wohnort", e.target.value)} placeholder="Berlin"/>
               </div>
             </div>
           )}
@@ -264,14 +259,14 @@ export default function Registrieren() {
                 <label style={labelStyle}>Deutschkenntnisse *</label>
                 <select style={selectStyle} value={form.deutsch} onChange={e => set("deutsch", e.target.value)}>
                   <option value="">Bitte wählen</option>
-                  {["A1 â€“ Anfänger","A2 â€“ Grundlagen","B1 â€“ Mittelstufe","B2 â€“ Gute Kenntnisse","C1 â€“ Fortgeschritten","C2 â€“ Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
+                  {["A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Englischkenntnisse</label>
                 <select style={selectStyle} value={form.englisch} onChange={e => set("englisch", e.target.value)}>
                   <option value="">Bitte wählen</option>
-                  {["Keine","A1 â€“ Anfänger","A2 â€“ Grundlagen","B1 â€“ Mittelstufe","B2 â€“ Gute Kenntnisse","C1 â€“ Fortgeschritten","C2 â€“ Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
+                  {["Keine","A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
               <div>
@@ -395,5 +390,3 @@ export default function Registrieren() {
     </div>
   );
 }
-
-
