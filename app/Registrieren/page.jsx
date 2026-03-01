@@ -224,15 +224,7 @@ export default function Registrieren() {
                 <input style={inputStyle} value={form.telefon} onChange={e => set("telefon", e.target.value)} placeholder="+49 123 456789"/>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <label style={labelStyle}>Geburtsland *</label>
-                  <select style={selectStyle} value={form.geburtsland} onChange={e => set("geburtsland", e.target.value)}>
-                    <option value="">Bitte wählen</option>
-                    {["Deutschland","Indien","Pakistan","Nigeria","Kenia","Philippinen","Brasilien","Mexiko","Ukraine","Polen","Rumänien","Türkei","Sonstiges"].map(l => <option key={l} value={l}>{l}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={labelStyle}>Aktueller Wohnort</label>
+                <div><label style={labelStyle}>Aktueller Wohnort</label>
                   <input style={inputStyle} value={form.wohnort} onChange={e => set("wohnort", e.target.value)} placeholder="Berlin"/>
                 </div>
               </div>
@@ -403,4 +395,5 @@ export default function Registrieren() {
     </div>
   );
 }
+
 
