@@ -20,11 +20,11 @@ const faqs = [
   },
   {
     q: "Welche Qualifikationen haben die Fachkräfte?",
-    a: "Alle Fachkräfte auf KitaBridge sind ausgebildete Erzieherinnen, Kinderpflegerinnen, Sozialpädagoginnen oder Heilpädagoginnen mit nachgewiesenen Deutschkenntnissen."
+    a: "Alle Fachkräfte auf KitaBridge sind ausgebildete Erzieherinnen und Erzieher, Kinderpfleger, Sozialpädagogen oder Heilpädagogen mit nachgewiesenen Deutschkenntnissen."
   },
   {
     q: "Wie schnell finde ich eine passende Fachkraft?",
-    a: "Nach Ihrer Registrierung haben Sie sofort Zugang zu allen Profilen. Viele Kitas finden innerhalb weniger Tage passende Kandidatinnen."
+    a: "Nach Ihrer Registrierung haben Sie sofort Zugang zu allen Profilen. Viele Kitas finden innerhalb weniger Tage passende Kandidaten."
   },
   {
     q: "Zahle ich Provision wenn ich jemanden einstelle?",
@@ -48,11 +48,11 @@ export default function Home() {
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        .btn-primary { display: inline-block; padding: 14px 32px; border-radius: 50px; background: linear-gradient(135deg, ${NAVY}, ${BLUE}); color: white; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; box-shadow: 0 6px 24px rgba(26,63,111,0.28); font-family: 'DM Sans', sans-serif; border: none; cursor: pointer; }
+        .btn-primary { display: inline-block; padding: 14px 32px; border-radius: 50px; background: linear-gradient(135deg, #1A3F6F, #2471A3); color: white; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; box-shadow: 0 6px 24px rgba(26,63,111,0.28); font-family: 'DM Sans', sans-serif; border: none; cursor: pointer; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(26,63,111,0.36); }
-        .btn-secondary { display: inline-block; padding: 13px 32px; border-radius: 50px; background: transparent; color: ${NAVY}; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; border: 2px solid ${NAVY}; font-family: 'DM Sans', sans-serif; cursor: pointer; }
-        .btn-secondary:hover { background: ${NAVY}; color: white; }
-        .btn-green { display: inline-block; padding: 14px 32px; border-radius: 50px; background: linear-gradient(135deg, ${GREEN}, #27AE60); color: white; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; box-shadow: 0 6px 24px rgba(30,132,73,0.28); font-family: 'DM Sans', sans-serif; border: none; cursor: pointer; }
+        .btn-secondary { display: inline-block; padding: 13px 32px; border-radius: 50px; background: transparent; color: #1A3F6F; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; border: 2px solid #1A3F6F; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+        .btn-secondary:hover { background: #1A3F6F; color: white; }
+        .btn-green { display: inline-block; padding: 14px 32px; border-radius: 50px; background: linear-gradient(135deg, #1E8449, #27AE60); color: white; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; box-shadow: 0 6px 24px rgba(30,132,73,0.28); font-family: 'DM Sans', sans-serif; border: none; cursor: pointer; }
         .btn-green:hover { transform: translateY(-2px); }
         .card { background: white; border-radius: 20px; padding: 32px; border: 1px solid #E8EDF4; transition: all 0.3s; box-shadow: 0 4px 20px rgba(26,63,111,0.06); }
         .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(26,63,111,0.14); }
@@ -79,7 +79,7 @@ export default function Home() {
         display: "flex", alignItems: "center", justifyContent: "space-between"
       }}>
         <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, #1A3F6F, #2471A3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
               <path d="M4 21 Q14 6 24 21" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
               <line x1="2" y1="21" x2="26" y2="21" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
@@ -106,9 +106,9 @@ export default function Home() {
       </nav>
 
       {/* HERO */}
-      <section style={{ minHeight: "100vh", background: `linear-gradient(160deg, #F0F4F9 0%, #E8F4FD 50%, #EAF7EF 100%)`, display: "flex", alignItems: "center", padding: "100px 40px 60px", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: -100, right: -100, width: 500, height: 500, borderRadius: "50%", background: `radial-gradient(circle, rgba(36,113,163,0.08) 0%, transparent 70%)` }}/>
-        <div style={{ position: "absolute", bottom: -50, left: -50, width: 400, height: 400, borderRadius: "50%", background: `radial-gradient(circle, rgba(30,132,73,0.06) 0%, transparent 70%)` }}/>
+      <section style={{ minHeight: "100vh", background: "linear-gradient(160deg, #F0F4F9 0%, #E8F4FD 50%, #EAF7EF 100%)", display: "flex", alignItems: "center", padding: "100px 40px 60px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -100, right: -100, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(36,113,163,0.08) 0%, transparent 70%)" }}/>
+        <div style={{ position: "absolute", bottom: -50, left: -50, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(30,132,73,0.06) 0%, transparent 70%)" }}/>
         <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%" }}>
           <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}>
             <div>
@@ -117,8 +117,8 @@ export default function Home() {
                 <span style={{ fontSize: "0.78rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 1 }}>Die Plattform für Kita-Fachkräfte</span>
               </div>
               <h1 className="hero-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "3.4rem", fontWeight: 900, color: NAVY, lineHeight: 1.15, marginBottom: 24 }}>
-                Die Br�cke zwischen
-                <span style={{ color: GREEN }}>Fachkr�ften und Kitas.</span>
+                Die Brücke zwischen<br/>
+                <span style={{ color: GREEN }}>Fachkräften und Kitas.</span>
               </h1>
               <p style={{ fontSize: "1.1rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 36, maxWidth: 480 }}>
                 KitaBridge verbindet internationale Erziehungsfachkräfte mit Kitas und Krippen in Deutschland. Schnell, transparent und ohne versteckte Kosten.
@@ -127,8 +127,6 @@ export default function Home() {
                 <a href="/login" className="btn-primary">Fachkräfte finden</a>
                 <a href="/Registrieren" className="btn-green">Als Fachkraft bewerben</a>
               </div>
-
-              {/* Vertrauens-Badges statt falscher Zahlen */}
               <div style={{ display: "flex", gap: 20, marginTop: 40, flexWrap: "wrap" }}>
                 {[
                   { icon: "🔒", text: "DSGVO-konform" },
@@ -143,14 +141,13 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Demo Profil Karte */}
             <div className="hide-mobile" style={{ position: "relative" }}>
               <div style={{ background: "white", borderRadius: 24, padding: 32, boxShadow: "0 20px 60px rgba(26,63,111,0.15)", border: "1px solid #E8EDF4" }}>
                 <div style={{ background: "#EEF2FF", borderRadius: 10, padding: "6px 12px", fontSize: "0.72rem", fontWeight: 700, color: "#4F46E5", display: "inline-block", marginBottom: 16 }}>
                   Beispiel-Profil
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "1.2rem" }}>👩‍🍼</div>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg, #1E8449, #27AE60)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "1.2rem" }}>👩‍🍼</div>
                   <div>
                     <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.95rem" }}>Amara D.</div>
                     <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>Erzieherin - Frühkindliche Bildung</div>
@@ -182,12 +179,12 @@ export default function Home() {
           <div style={{ textAlign: "center", marginBottom: 60 }}>
             <div style={{ fontSize: "0.75rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Einfach und schnell</div>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.4rem", fontWeight: 800, color: NAVY, marginBottom: 16 }}>Wie KitaBridge funktioniert</h2>
-            <p style={{ color: "#6B7897", fontSize: "1rem", maxWidth: 500, margin: "0 auto" }}>In drei Schritten zur passenden Erzieherin</p>
+            <p style={{ color: "#6B7897", fontSize: "1rem", maxWidth: 500, margin: "0 auto" }}>In drei Schritten zur passenden Fachkraft</p>
           </div>
           <div className="cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
             {[
               { num: "01", title: "Profil erstellen", desc: "Fachkräfte registrieren sich kostenlos und erstellen ein detailliertes Profil mit Qualifikationen und Kita-Erfahrung.", icon: "📝" },
-              { num: "02", title: "Gefunden werden", desc: "Kitas und Krippen suchen nach passenden Kandidatinnen und kontaktieren sie direkt ohne Vermittler.", icon: "🔍" },
+              { num: "02", title: "Gefunden werden", desc: "Kitas und Krippen suchen nach passenden Fachkräften und kontaktieren sie direkt ohne Vermittler.", icon: "🔍" },
               { num: "03", title: "Direkt einstellen", desc: "Kein Vermittler, keine Provision. Sie kommunizieren direkt und stellen die beste Fachkraft ein.", icon: "🤝" },
             ].map(item => (
               <div key={item.num} className="card" style={{ textAlign: "center" }}>
@@ -208,7 +205,7 @@ export default function Home() {
             <div>
               <div style={{ fontSize: "0.75rem", fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Für Kitas und Krippen</div>
               <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.2rem", fontWeight: 800, color: NAVY, marginBottom: 20 }}>Ein Plan. Volle Kontrolle. Keine Provision.</h2>
-              <p style={{ color: "#6B7897", lineHeight: 1.8, marginBottom: 28 }}>Erhalten Sie direkten Zugang zu qualifizierten internationalen Erziehungsfachkräften. Suchen, filtern und kontaktieren Sie Kandidatinnen ohne Einschränkungen.</p>
+              <p style={{ color: "#6B7897", lineHeight: 1.8, marginBottom: 28 }}>Erhalten Sie direkten Zugang zu qualifizierten internationalen Fachkräften. Suchen, filtern und kontaktieren Sie passende Fachkräfte ohne Einschränkungen.</p>
               <div style={{ marginBottom: 32 }}>
                 {[
                   "Alle Fachkräfte-Profile einsehen",
@@ -229,7 +226,7 @@ export default function Home() {
               <a href="/Arbeitgeber" className="btn-primary">Jetzt registrieren – 299 EUR/Monat</a>
             </div>
             <div>
-              <div style={{ background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, borderRadius: 24, padding: 36, color: "white", position: "relative", overflow: "hidden" }}>
+              <div style={{ background: "linear-gradient(135deg, #1A3F6F, #2471A3)", borderRadius: 24, padding: 36, color: "white", position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }}/>
                 <div style={{ fontSize: "0.8rem", fontWeight: 700, opacity: 0.7, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Hauptplan</div>
                 <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "3rem", fontWeight: 700, marginBottom: 4 }}>299 EUR</div>
@@ -274,11 +271,11 @@ export default function Home() {
               <div style={{ fontSize: "0.75rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Für internationale Fachkräfte</div>
               <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.2rem", fontWeight: 800, color: NAVY, marginBottom: 20 }}>Dein Weg in die Kita beginnt hier</h2>
               <p style={{ color: "#6B7897", lineHeight: 1.8, marginBottom: 28 }}>
-                Ob Erzieherin, Kinderpflegerin oder Sozialpädagogin — erstelle kostenlos dein Profil und werde von Kitas in ganz Deutschland gefunden. Transparent, sicher und ohne versteckte Kosten.
+                Ob Erzieher, Kinderpfleger oder Sozialpädagoge – erstelle kostenlos dein Profil und werde von Kitas in ganz Deutschland gefunden. Transparent, sicher und ohne versteckte Kosten.
               </p>
               <div style={{ background: "#EAF7EF", borderRadius: 16, padding: 20, marginBottom: 28 }}>
                 <div style={{ fontWeight: 700, color: GREEN, marginBottom: 8, fontSize: "0.9rem" }}>Kostenlos für Fachkräfte</div>
-                <div style={{ color: "#444", fontSize: "0.88rem", lineHeight: 1.7 }}>Die Registrierung und alle Funktionen sind für Erzieherinnen und Kinderpflegerinnen komplett kostenlos. Immer.</div>
+                <div style={{ color: "#444", fontSize: "0.88rem", lineHeight: 1.7 }}>Die Registrierung und alle Funktionen sind für pädagogische Fachkräfte komplett kostenlos. Immer.</div>
               </div>
               <div style={{ marginBottom: 28 }}>
                 {["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kita-Leitung"].map(f => (
@@ -346,7 +343,7 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section style={{ padding: "100px 40px", background: `linear-gradient(135deg, ${NAVY} 0%, ${BLUE} 100%)` }}>
+      <section style={{ padding: "100px 40px", background: "linear-gradient(135deg, #1A3F6F 0%, #2471A3 100%)" }}>
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.6rem", fontWeight: 800, color: "white", marginBottom: 20 }}>Bereit loszulegen?</h2>
           <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "1.05rem", lineHeight: 1.75, marginBottom: 40 }}>Ob Kita oder Fachkraft – bei KitaBridge finden Sie sich. Schnell, direkt und ohne Provision.</p>
@@ -364,7 +361,7 @@ export default function Home() {
         </div>
         <p style={{ fontSize: "0.82rem", marginBottom: 20 }}>Die Plattform für internationale Kita-Fachkräfte in Deutschland.</p>
         <div style={{ marginBottom: 16 }}>
-            <a href="/kontakt" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>Kontakt</a>
+          <a href="/kontakt" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>Kontakt</a>
           <a href="/impressum" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>Impressum</a>
           <a href="/datenschutz" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>Datenschutz</a>
           <a href="/agb" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 12px", fontSize: "0.82rem" }}>AGB</a>
