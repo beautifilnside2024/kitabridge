@@ -1,17 +1,18 @@
 "use client";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
 const GREEN = "#1E8449";
 
 const STEPS = [
-  "Persoenliche Daten",
+  "Persönliche Daten",
   "Qualifikation",
   "Sprachkenntnisse",
   "Berufserfahrung",
-  "Verfuegbarkeit",
+  "Verfügbarkeit",
   "Abschluss"
 ];
 
@@ -29,11 +30,13 @@ const labelStyle = {
 const selectStyle = { ...inputStyle, cursor: "pointer" };
 
 export default function Registrieren() {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
-    vorname: "", nachname: "", email: "", telefon: "", geburtsland: "", wohnort: "",
+    vorname: "", nachname: "", email: "", passwort: "", telefon: "", wohnort: "",
     qualifikation: "", zusatzqualifikation: "", uniabschluss: "",
     deutsch: "", englisch: "", weitere_sprachen: "",
     erfahrung_jahre: "", kita_alter: [], beschreibung: "",
@@ -48,16 +51,44 @@ export default function Registrieren() {
     set(key, arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
   };
 
+  const handleWeiter = () => {
+    setError("");
+    if (step === 0) {
+      if (!form.vorname || !form.nachname || !form.email || !form.passwort) {
+        setError("Bitte fülle alle Pflichtfelder aus.");
+        return;
+      }
+      if (form.passwort.length < 6) {
+        setError("Das Passwort muss mindestens 6 Zeichen lang sein.");
+        return;
+      }
+    }
+    setStep(s => s + 1);
+  };
+
   const handleSubmit = async () => {
     if (!form.agb || !form.datenschutz) return;
     setLoading(true);
+    setError("");
 
-    const { error } = await supabase.from("fachkraefte").insert([{
+    // 1. Supabase Auth Account erstellen
+    const { error: authError } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.passwort,
+    });
+
+    if (authError && authError.message !== "User already registered") {
+      setError("Fehler bei der Registrierung: " + authError.message);
+      setLoading(false);
+      return;
+    }
+
+    // 2. Profil in Datenbank speichern
+    const { error: dbError } = await supabase.from("fachkraefte").insert([{
       vorname: form.vorname,
       nachname: form.nachname,
       email: form.email,
       telefon: form.telefon,
-      geburtsland: form.geburtsland,
       wohnort: form.wohnort,
       qualifikation: form.qualifikation,
       zusatzqualifikation: form.zusatzqualifikation,
@@ -74,52 +105,24 @@ export default function Registrieren() {
       status: "neu"
     }]);
 
-    if (error) {
+    if (dbError) {
+      setError("Fehler beim Speichern: " + dbError.message);
       setLoading(false);
-      alert("Fehler: " + error.message);
       return;
     }
 
-    // Bestaetigung an Fachkraft
+    // 3. Admin-Benachrichtigung
     await fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: form.email,
-        subject: "Deine Registrierung bei KitaBridge",
-        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto">
-          <div style="background:#1A3F6F;padding:24px 32px">
-            <h1 style="color:white;margin:0;font-size:22px">KitaBridge</h1>
-          </div>
-          <div style="padding:32px;background:#fff">
-            <h2 style="color:#1A3F6F">Hallo ${form.vorname}!</h2>
-            <p style="color:#444;line-height:1.7">Vielen Dank fuer deine Registrierung bei KitaBridge! Wir haben dein Profil erhalten und werden es innerhalb von <strong>24 Stunden</strong> pruefen.</p>
-            <div style="background:#EAF7EF;border-radius:12px;padding:20px;margin:24px 0">
-              <p style="color:#1E8449;font-weight:700;margin:0 0 12px">Naechste Schritte:</p>
-              <p style="color:#444;margin:0;line-height:1.8">
-                1. Wir pruefen dein Profil sorgfaeltig<br/>
-                2. Du erhaeltst eine E-Mail sobald dein Profil freigeschaltet ist<br/>
-                3. Kitas in ganz Deutschland koennen dich dann direkt kontaktieren
-              </p>
-            </div>
-            <div style="background:#F8FAFF;border-radius:12px;padding:20px;margin:24px 0">
-              <p style="color:#1A3F6F;font-weight:700;margin:0 0 12px">Deine Angaben:</p>
-              <table style="width:100%;font-size:14px">
-                <tr><td style="color:#9BA8C0;padding:4px 0">Name</td><td style="text-align:right">${form.vorname} ${form.nachname}</td></tr>
-                <tr><td style="color:#9BA8C0;padding:4px 0">Qualifikation</td><td style="text-align:right">${form.qualifikation}</td></tr>
-                <tr><td style="color:#9BA8C0;padding:4px 0">Deutschkenntnisse</td><td style="text-align:right">${form.deutsch}</td></tr>
-                <tr><td style="color:#9BA8C0;padding:4px 0">Verfuegbar ab</td><td style="text-align:right">${form.verfuegbar_ab}</td></tr>
-                <tr><td style="color:#9BA8C0;padding:4px 0">Arbeitszeit</td><td style="text-align:right">${form.arbeitszeit}</td></tr>
-              </table>
-            </div>
-            <p style="color:#444;line-height:1.7">Bei Fragen: <a href="mailto:kitabridge@protonmail.com" style="color:#2471A3">kitabridge@protonmail.com</a></p>
-            <p style="color:#444">Viele Gruesse,<br/><strong>Das KitaBridge-Team</strong></p>
-          </div>
-          <div style="background:#F8FAFF;padding:16px 32px;text-align:center">
-            <p style="color:#9BA8C0;font-size:12px;margin:0">KitaBridge - Heusenstammer Weg 69 - 63071 Offenbach am Main</p>
-          </div>
-        </div>`
-      })
+      body: JSON.stringify({ type: "fachkraft", data: form }),
+    });
+
+    // 4. Willkommens-E-Mail an Fachkraft
+    await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "willkommen_fachkraft", data: form }),
     });
 
     setLoading(false);
@@ -133,24 +136,27 @@ export default function Registrieren() {
       <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'DM Sans', sans-serif" }}>
         <div style={{ background: "white", borderRadius: 24, padding: 48, maxWidth: 500, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(26,63,111,0.12)" }}>
           <div style={{ fontSize: "4rem", marginBottom: 20 }}>🎉</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 16 }}>Registrierung erfolgreich!</h2>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 16 }}>Willkommen bei KitaBridge!</h2>
           <p style={{ color: "#6B7897", lineHeight: 1.7, marginBottom: 28 }}>Vielen Dank, {form.vorname}! Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden bei dir.</p>
           <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
-            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>📧 Bestätigungs-E-Mail gesendet!</div>
+            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>📧 Willkommens-E-Mail gesendet!</div>
             <div style={{ color: "#444", fontSize: "0.85rem", marginTop: 8, lineHeight: 1.7 }}>
               Wir haben eine E-Mail an <strong>{form.email}</strong> geschickt.<br/>
               Bitte prüfe auch deinen Spam-Ordner.
             </div>
           </div>
-          <div style={{ background: "#F8FAFF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
+          <div style={{ background: "#F8FAFF", borderRadius: 12, padding: 16, marginBottom: 28, textAlign: "left" }}>
             <div style={{ color: NAVY, fontWeight: 700, fontSize: "0.9rem", marginBottom: 8 }}>Nächste Schritte:</div>
-            <div style={{ color: "#444", fontSize: "0.85rem", lineHeight: 1.7 }}>
-              1. Wir prüfen dein Profil<br/>
+            <div style={{ color: "#444", fontSize: "0.85rem", lineHeight: 1.9 }}>
+              1. Wir prüfen dein Profil innerhalb von 24 Stunden<br/>
               2. Du erhältst eine Bestätigung per E-Mail<br/>
-              3. Kitas können dich direkt kontaktieren
+              3. Kitas in ganz Deutschland können dich direkt kontaktieren
             </div>
           </div>
-          <a href="/" style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, textDecoration: "none" }}>Zur Startseite</a>
+          <button onClick={() => router.push("/fachkraft/einstellungen")} style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", marginBottom: 12, width: "100%" }}>
+            Mein Profil ansehen →
+          </button>
+          <a href="/" style={{ display: "block", color: "#9BA8C0", fontSize: "0.88rem", textDecoration: "none" }}>Zurück zur Startseite</a>
         </div>
       </div>
     );
@@ -185,8 +191,9 @@ export default function Registrieren() {
 
         <div style={{ background: "white", borderRadius: 24, padding: 40, boxShadow: "0 8px 40px rgba(26,63,111,0.1)", border: "1px solid #E8EDF4" }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", color: NAVY, marginBottom: 8 }}>{STEPS[step]}</h2>
-          <p style={{ color: "#9BA8C0", fontSize: "0.85rem", marginBottom: 28 }}>Bitte fülle alle Felder aus</p>
+          <p style={{ color: "#9BA8C0", fontSize: "0.85rem", marginBottom: 28 }}>Bitte fülle alle Pflichtfelder aus</p>
 
+          {/* SCHRITT 1 - Persönliche Daten */}
           {step === 0 && (
             <div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
@@ -200,20 +207,17 @@ export default function Registrieren() {
                 </div>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>E-Mail Adresse *</label>
+                <label style={labelStyle}>E-Mail-Adresse *</label>
                 <input style={inputStyle} type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="maria@example.com"/>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Telefonnummer</label>
-                <input style={inputStyle} value={form.telefon} onChange={e => set("telefon", e.target.value)} placeholder="+49 123 456789"/>
+                <label style={labelStyle}>Passwort * (mind. 6 Zeichen)</label>
+                <input style={inputStyle} type="password" value={form.passwort} onChange={e => set("passwort", e.target.value)} placeholder="••••••••"/>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 <div>
-                  <label style={labelStyle}>Geburtsland *</label>
-                  <select style={selectStyle} value={form.geburtsland} onChange={e => set("geburtsland", e.target.value)}>
-                    <option value="">Bitte wählen</option>
-                    {["Deutschland","Indien","Pakistan","Nigeria","Kenia","Philippinen","Brasilien","Mexiko","Ukraine","Polen","Rumänien","Türkei","Sonstiges"].map(l => <option key={l} value={l}>{l}</option>)}
-                  </select>
+                  <label style={labelStyle}>Telefonnummer</label>
+                  <input style={inputStyle} value={form.telefon} onChange={e => set("telefon", e.target.value)} placeholder="+49 123 456789"/>
                 </div>
                 <div>
                   <label style={labelStyle}>Aktueller Wohnort</label>
@@ -223,6 +227,7 @@ export default function Registrieren() {
             </div>
           )}
 
+          {/* SCHRITT 2 - Qualifikation */}
           {step === 1 && (
             <div>
               <div style={{ marginBottom: 16 }}>
@@ -250,6 +255,7 @@ export default function Registrieren() {
             </div>
           )}
 
+          {/* SCHRITT 3 - Sprachkenntnisse */}
           {step === 2 && (
             <div>
               <div style={{ marginBottom: 16 }}>
@@ -262,8 +268,8 @@ export default function Registrieren() {
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Englischkenntnisse</label>
                 <select style={selectStyle} value={form.englisch} onChange={e => set("englisch", e.target.value)}>
-                  <option value="">Bitte wählen</option>
-                  {["Keine","A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
+                  <option value="">Keine</option>
+                  {["A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
               <div>
@@ -276,6 +282,7 @@ export default function Registrieren() {
             </div>
           )}
 
+          {/* SCHRITT 4 - Berufserfahrung */}
           {step === 3 && (
             <div>
               <div style={{ marginBottom: 16 }}>
@@ -303,6 +310,7 @@ export default function Registrieren() {
             </div>
           )}
 
+          {/* SCHRITT 5 - Verfügbarkeit */}
           {step === 4 && (
             <div>
               <div style={{ marginBottom: 16 }}>
@@ -330,6 +338,7 @@ export default function Registrieren() {
             </div>
           )}
 
+          {/* SCHRITT 6 - Abschluss */}
           {step === 5 && (
             <div>
               <div style={{ background: "#F8FAFF", borderRadius: 16, padding: 20, marginBottom: 24 }}>
@@ -338,7 +347,7 @@ export default function Registrieren() {
                   ["Name", `${form.vorname} ${form.nachname}`],
                   ["E-Mail", form.email],
                   ["Qualifikation", form.qualifikation],
-                  ["Deutsch", form.deutsch],
+                  ["Deutschkenntnisse", form.deutsch],
                   ["Erfahrung", form.erfahrung_jahre],
                   ["Verfügbar ab", form.verfuegbar_ab],
                   ["Arbeitszeit", form.arbeitszeit],
@@ -360,6 +369,17 @@ export default function Registrieren() {
                   <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich habe die <a href="/datenschutz" style={{ color: BLUE }}>Datenschutzerklärung</a> gelesen *</span>
                 </label>
               </div>
+              {error && (
+                <div style={{ padding: "12px 16px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.88rem", marginBottom: 16 }}>
+                  ⚠️ {error}
+                </div>
+              )}
+            </div>
+          )}
+
+          {error && step < 5 && (
+            <div style={{ marginTop: 16, padding: "12px 16px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.88rem" }}>
+              ⚠️ {error}
             </div>
           )}
 
@@ -370,7 +390,7 @@ export default function Registrieren() {
               </button>
             ) : <div/>}
             {step < STEPS.length - 1 ? (
-              <button onClick={() => setStep(s => s + 1)} style={{ padding: "12px 28px", borderRadius: 50, border: "none", background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 4px 16px rgba(26,63,111,0.28)" }}>
+              <button onClick={handleWeiter} style={{ padding: "12px 28px", borderRadius: 50, border: "none", background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 4px 16px rgba(26,63,111,0.28)" }}>
                 Weiter
               </button>
             ) : (
