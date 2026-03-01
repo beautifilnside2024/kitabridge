@@ -1,302 +1,386 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 
 const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
 const GREEN = "#1E8449";
 
+const STEPS = [
+  "Persoenliche Daten",
+  "Qualifikation",
+  "Sprachkenntnisse",
+  "Berufserfahrung",
+  "Verfuegbarkeit",
+  "Abschluss"
+];
+
 const inputStyle = {
-  width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E2E8F0",
-  fontSize: "0.9rem", outline: "none", fontFamily: "'DM Sans', sans-serif",
+  width: "100%", padding: "12px 16px", borderRadius: 10, border: "1.5px solid #E2E8F0",
+  fontSize: "0.95rem", outline: "none", fontFamily: "'DM Sans', sans-serif",
   color: "#1a1a2e", background: "white", marginBottom: 4
 };
 
-const selectStyle = { ...inputStyle, cursor: "pointer" };
 const labelStyle = {
-  display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0",
-  textTransform: "uppercase", marginBottom: 6
+  display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#4A5568",
+  marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5
 };
 
-export default function FachkraftEinstellungen() {
-  const router = useRouter();
-  const [fachkraft, setFachkraft] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [form, setForm] = useState({});
+const selectStyle = { ...inputStyle, cursor: "pointer" };
 
-  useEffect(() => {
-    loadProfil();
-  }, []);
-
-  const loadProfil = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      router.push("/login");
-      return;
-    }
-
-    const { data } = await supabase
-      .from("fachkraefte")
-      .select("*")
-      .eq("email", session.user.email)
-      .single();
-
-    if (!data) {
-      router.push("/dashboard");
-      return;
-    }
-
-    setFachkraft(data);
-    setForm(data);
-    setLoading(false);
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    const { error } = await supabase
-      .from("fachkraefte")
-      .update({
-        vorname: form.vorname,
-        nachname: form.nachname,
-        telefon: form.telefon,
-        wohnort: form.wohnort,
-        qualifikation: form.qualifikation,
-        deutsch: form.deutsch,
-        englisch: form.englisch,
-        weitere_sprachen: form.weitere_sprachen,
-        erfahrung_jahre: form.erfahrung_jahre,
-        beschreibung: form.beschreibung,
-        verfuegbar_ab: form.verfuegbar_ab,
-        arbeitszeit: form.arbeitszeit,
-        bundesland: form.bundesland,
-      })
-      .eq("email", fachkraft.email);
-
-    setSaving(false);
-    if (error) {
-      alert("Fehler beim Speichern: " + error.message);
-    } else {
-      setFachkraft({ ...fachkraft, ...form });
-      setEditMode(false);
-      alert("Profil erfolgreich gespeichert!");
-    }
-  };
+export default function Registrieren() {
+  const [step, setStep] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    vorname: "", nachname: "", email: "", telefon: "", geburtsland: "", wohnort: "",
+    qualifikation: "", zusatzqualifikation: "", uniabschluss: "",
+    deutsch: "", englisch: "", weitere_sprachen: "",
+    erfahrung_jahre: "", kita_alter: [], beschreibung: "",
+    verfuegbar_ab: "", arbeitszeit: "", bundesland: "",
+    agb: false, datenschutz: false
+  });
 
   const set = (key, value) => setForm(f => ({ ...f, [key]: value }));
 
-  const handleDeleteAccount = async () => {
-    const bestaetigung = window.confirm(
-      "Bist du sicher? Dein Account und alle deine Daten werden unwiderruflich gelöscht."
-    );
-    if (!bestaetigung) return;
-
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-
-    const res = await fetch("/api/account/delete", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: session.user.email, rolle: "fachkraft" }),
-    });
-
-    if (res.ok) {
-      await supabase.auth.signOut();
-      alert("Dein Account wurde erfolgreich gelöscht.");
-      router.push("/");
-    } else {
-      alert("Fehler beim Löschen. Bitte kontaktiere uns unter kitabridge@protonmail.com");
-    }
+  const toggleArr = (key, val) => {
+    const arr = form[key];
+    set(key, arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
   };
 
-  if (loading) {
+  const handleSubmit = async () => {
+    if (!form.agb || !form.datenschutz) return;
+    setLoading(true);
+
+    const { error } = await supabase.from("fachkraefte").insert([{
+      vorname: form.vorname,
+      nachname: form.nachname,
+      email: form.email,
+      telefon: form.telefon,
+      geburtsland: form.geburtsland,
+      wohnort: form.wohnort,
+      qualifikation: form.qualifikation,
+      zusatzqualifikation: form.zusatzqualifikation,
+      uniabschluss: form.uniabschluss,
+      deutsch: form.deutsch,
+      englisch: form.englisch,
+      weitere_sprachen: form.weitere_sprachen,
+      erfahrung_jahre: form.erfahrung_jahre,
+      kita_alter: form.kita_alter,
+      beschreibung: form.beschreibung,
+      verfuegbar_ab: form.verfuegbar_ab,
+      arbeitszeit: form.arbeitszeit,
+      bundesland: form.bundesland,
+      status: "neu"
+    }]);
+
+    if (error) {
+      setLoading(false);
+      alert("Fehler: " + error.message);
+      return;
+    }
+
+    // Bestaetigung an Fachkraft
+    await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to: form.email,
+        subject: "Deine Registrierung bei KitaBridge",
+        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto">
+          <div style="background:#1A3F6F;padding:24px 32px">
+            <h1 style="color:white;margin:0;font-size:22px">KitaBridge</h1>
+          </div>
+          <div style="padding:32px;background:#fff">
+            <h2 style="color:#1A3F6F">Hallo ${form.vorname}!</h2>
+            <p style="color:#444;line-height:1.7">Vielen Dank fuer deine Registrierung bei KitaBridge! Wir haben dein Profil erhalten und werden es innerhalb von <strong>24 Stunden</strong> pruefen.</p>
+            <div style="background:#EAF7EF;border-radius:12px;padding:20px;margin:24px 0">
+              <p style="color:#1E8449;font-weight:700;margin:0 0 12px">Naechste Schritte:</p>
+              <p style="color:#444;margin:0;line-height:1.8">
+                1. Wir pruefen dein Profil sorgfaeltig<br/>
+                2. Du erhaeltst eine E-Mail sobald dein Profil freigeschaltet ist<br/>
+                3. Kitas in ganz Deutschland koennen dich dann direkt kontaktieren
+              </p>
+            </div>
+            <div style="background:#F8FAFF;border-radius:12px;padding:20px;margin:24px 0">
+              <p style="color:#1A3F6F;font-weight:700;margin:0 0 12px">Deine Angaben:</p>
+              <table style="width:100%;font-size:14px">
+                <tr><td style="color:#9BA8C0;padding:4px 0">Name</td><td style="text-align:right">${form.vorname} ${form.nachname}</td></tr>
+                <tr><td style="color:#9BA8C0;padding:4px 0">Qualifikation</td><td style="text-align:right">${form.qualifikation}</td></tr>
+                <tr><td style="color:#9BA8C0;padding:4px 0">Deutschkenntnisse</td><td style="text-align:right">${form.deutsch}</td></tr>
+                <tr><td style="color:#9BA8C0;padding:4px 0">Verfuegbar ab</td><td style="text-align:right">${form.verfuegbar_ab}</td></tr>
+                <tr><td style="color:#9BA8C0;padding:4px 0">Arbeitszeit</td><td style="text-align:right">${form.arbeitszeit}</td></tr>
+              </table>
+            </div>
+            <p style="color:#444;line-height:1.7">Bei Fragen: <a href="mailto:kitabridge@protonmail.com" style="color:#2471A3">kitabridge@protonmail.com</a></p>
+            <p style="color:#444">Viele Gruesse,<br/><strong>Das KitaBridge-Team</strong></p>
+          </div>
+          <div style="background:#F8FAFF;padding:16px 32px;text-align:center">
+            <p style="color:#9BA8C0;font-size:12px;margin:0">KitaBridge - Heusenstammer Weg 69 - 63071 Offenbach am Main</p>
+          </div>
+        </div>`
+      })
+    });
+
+    setLoading(false);
+    setSubmitted(true);
+  };
+
+  const progress = ((step + 1) / STEPS.length) * 100;
+
+  if (submitted) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F0F4F9", fontFamily: "'DM Sans', sans-serif" }}>
-        <div style={{ color: NAVY }}>Lädt...</div>
+      <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'DM Sans', sans-serif" }}>
+        <div style={{ background: "white", borderRadius: 24, padding: 48, maxWidth: 500, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(26,63,111,0.12)" }}>
+          <div style={{ fontSize: "4rem", marginBottom: 20 }}>🎉</div>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 16 }}>Registrierung erfolgreich!</h2>
+          <p style={{ color: "#6B7897", lineHeight: 1.7, marginBottom: 28 }}>Vielen Dank, {form.vorname}! Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden bei dir.</p>
+          <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
+            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>📧 Bestätigungs-E-Mail gesendet!</div>
+            <div style={{ color: "#444", fontSize: "0.85rem", marginTop: 8, lineHeight: 1.7 }}>
+              Wir haben eine E-Mail an <strong>{form.email}</strong> geschickt.<br/>
+              Bitte prüfe auch deinen Spam-Ordner.
+            </div>
+          </div>
+          <div style={{ background: "#F8FAFF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
+            <div style={{ color: NAVY, fontWeight: 700, fontSize: "0.9rem", marginBottom: 8 }}>Nächste Schritte:</div>
+            <div style={{ color: "#444", fontSize: "0.85rem", lineHeight: 1.7 }}>
+              1. Wir prüfen dein Profil<br/>
+              2. Du erhältst eine Bestätigung per E-Mail<br/>
+              3. Kitas können dich direkt kontaktieren
+            </div>
+          </div>
+          <a href="/" style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, textDecoration: "none" }}>Zur Startseite</a>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F0F4F9", fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap'); * { box-sizing: border-box; }`}</style>
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", fontFamily: "'DM Sans', sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap'); * { box-sizing: border-box; } input:focus, select:focus, textarea:focus { border-color: ${BLUE} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.1); }`}</style>
 
-      <div style={{ background: NAVY, padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
-        <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 700 }}>
-          <span style={{ color: "white" }}>Kita</span><span style={{ color: "#4ADE80" }}>Bridge</span>
+      <div style={{ background: "white", borderBottom: "1px solid #E8EDF4", padding: "16px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 700 }}>
+          <span style={{ color: NAVY }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
         </a>
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem" }}>{fachkraft?.vorname} {fachkraft?.nachname}</span>
-          <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "white", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.85rem", fontFamily: "'DM Sans', sans-serif" }}>
-            Ausloggen
-          </button>
-        </div>
+        <div style={{ fontSize: "0.85rem", color: "#6B7897" }}>Schritt {step + 1} von {STEPS.length}</div>
       </div>
 
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: "40px 24px" }}>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 8 }}>
-          Willkommen, {fachkraft?.vorname}! 👋
-        </h1>
-        <p style={{ color: "#9BA8C0", fontSize: "0.9rem", marginBottom: 32 }}>Hier kannst du dein Profil verwalten.</p>
-
-        {/* Status Banner */}
-        <div style={{ background: fachkraft?.status === "bestaetigt" ? "#EAF7EF" : "#FFF7ED", border: `1px solid ${fachkraft?.status === "bestaetigt" ? "#BBF7D0" : "#FED7AA"}`, borderRadius: 16, padding: 16, marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: "1.2rem" }}>{fachkraft?.status === "bestaetigt" ? "✅" : "⏳"}</span>
-          <span style={{ color: fachkraft?.status === "bestaetigt" ? GREEN : "#92400E", fontWeight: 700, fontSize: "0.9rem" }}>
-            {fachkraft?.status === "bestaetigt" ? "Profil freigegeben – Kitas können dich kontaktieren!" : "Profil wird geprüft – wir melden uns innerhalb von 24 Stunden."}
-          </span>
+      <div style={{ maxWidth: 680, margin: "0 auto", padding: "40px 24px" }}>
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: "0.8rem", fontWeight: 700, color: NAVY }}>{STEPS[step]}</span>
+            <span style={{ fontSize: "0.8rem", color: "#9BA8C0" }}>{Math.round(progress)}%</span>
+          </div>
+          <div style={{ height: 6, background: "#E8EDF4", borderRadius: 10 }}>
+            <div style={{ height: "100%", borderRadius: 10, background: `linear-gradient(90deg, ${NAVY}, ${BLUE})`, width: `${progress}%`, transition: "width 0.4s" }}/>
+          </div>
+          <div style={{ display: "flex", gap: 6, marginTop: 12 }}>
+            {STEPS.map((s, i) => (
+              <div key={s} style={{ flex: 1, height: 3, borderRadius: 10, background: i <= step ? NAVY : "#E8EDF4", transition: "background 0.3s" }}/>
+            ))}
+          </div>
         </div>
 
-        {/* Profil */}
-        <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 2px 12px rgba(26,63,111,0.08)", marginBottom: 24 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", color: NAVY, margin: 0 }}>Mein Profil</h2>
-            {!editMode ? (
-              <button onClick={() => setEditMode(true)} style={{ background: NAVY, color: "white", border: "none", padding: "8px 20px", borderRadius: 8, cursor: "pointer", fontSize: "0.85rem", fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
-                ✏️ Bearbeiten
-              </button>
-            ) : (
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => { setEditMode(false); setForm(fachkraft); }} style={{ background: "transparent", color: NAVY, border: `1px solid ${NAVY}`, padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.85rem", fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
-                  Abbrechen
-                </button>
-                <button onClick={handleSave} disabled={saving} style={{ background: GREEN, color: "white", border: "none", padding: "8px 20px", borderRadius: 8, cursor: "pointer", fontSize: "0.85rem", fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
-                  {saving ? "Speichert..." : "💾 Speichern"}
-                </button>
-              </div>
-            )}
-          </div>
+        <div style={{ background: "white", borderRadius: 24, padding: 40, boxShadow: "0 8px 40px rgba(26,63,111,0.1)", border: "1px solid #E8EDF4" }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", color: NAVY, marginBottom: 8 }}>{STEPS[step]}</h2>
+          <p style={{ color: "#9BA8C0", fontSize: "0.85rem", marginBottom: 28 }}>Bitte fülle alle Felder aus</p>
 
-          {!editMode ? (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
-              {[
-                ["Name", `${fachkraft?.vorname} ${fachkraft?.nachname}`],
-                ["E-Mail", fachkraft?.email],
-                ["Telefon", fachkraft?.telefon],
-                ["Wohnort", fachkraft?.wohnort],
-                ["Qualifikation", fachkraft?.qualifikation],
-                ["Deutsch", fachkraft?.deutsch],
-                ["Englisch", fachkraft?.englisch],
-                ["Weitere Sprachen", fachkraft?.weitere_sprachen],
-                ["Erfahrung", fachkraft?.erfahrung_jahre],
-                ["Verfügbar ab", fachkraft?.verfuegbar_ab],
-                ["Arbeitszeit", fachkraft?.arbeitszeit],
-                ["Bundesland", fachkraft?.bundesland],
-              ].map(([k, v]) => v ? (
-                <div key={k} style={{ padding: "12px 0", borderBottom: "1px solid #F0F4F9" }}>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", textTransform: "uppercase", marginBottom: 4 }}>{k}</div>
-                  <div style={{ color: NAVY, fontWeight: 600, fontSize: "0.92rem" }}>{v}</div>
-                </div>
-              ) : null)}
-              {fachkraft?.beschreibung && (
-                <div style={{ padding: "12px 0", borderBottom: "1px solid #F0F4F9", gridColumn: "1/-1" }}>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", textTransform: "uppercase", marginBottom: 4 }}>Beschreibung</div>
-                  <div style={{ color: NAVY, fontWeight: 600, fontSize: "0.92rem" }}>{fachkraft?.beschreibung}</div>
-                </div>
-              )}
-            </div>
-          ) : (
+          {step === 0 && (
             <div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
                 <div>
-                  <label style={labelStyle}>Vorname</label>
-                  <input style={inputStyle} value={form.vorname || ""} onChange={e => set("vorname", e.target.value)}/>
+                  <label style={labelStyle}>Vorname *</label>
+                  <input style={inputStyle} value={form.vorname} onChange={e => set("vorname", e.target.value)} placeholder="Maria"/>
                 </div>
                 <div>
-                  <label style={labelStyle}>Nachname</label>
-                  <input style={inputStyle} value={form.nachname || ""} onChange={e => set("nachname", e.target.value)}/>
-                </div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-                <div>
-                  <label style={labelStyle}>Telefon</label>
-                  <input style={inputStyle} value={form.telefon || ""} onChange={e => set("telefon", e.target.value)}/>
-                </div>
-                <div>
-                  <label style={labelStyle}>Wohnort</label>
-                  <input style={inputStyle} value={form.wohnort || ""} onChange={e => set("wohnort", e.target.value)}/>
+                  <label style={labelStyle}>Nachname *</label>
+                  <input style={inputStyle} value={form.nachname} onChange={e => set("nachname", e.target.value)} placeholder="Mustermann"/>
                 </div>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Qualifikation</label>
-                <select style={selectStyle} value={form.qualifikation || ""} onChange={e => set("qualifikation", e.target.value)}>
+                <label style={labelStyle}>E-Mail Adresse *</label>
+                <input style={inputStyle} type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="maria@example.com"/>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Telefonnummer</label>
+                <input style={inputStyle} value={form.telefon} onChange={e => set("telefon", e.target.value)} placeholder="+49 123 456789"/>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div>
+                  <label style={labelStyle}>Geburtsland *</label>
+                  <select style={selectStyle} value={form.geburtsland} onChange={e => set("geburtsland", e.target.value)}>
+                    <option value="">Bitte wählen</option>
+                    {["Deutschland","Indien","Pakistan","Nigeria","Kenia","Philippinen","Brasilien","Mexiko","Ukraine","Polen","Rumänien","Türkei","Sonstiges"].map(l => <option key={l} value={l}>{l}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>Aktueller Wohnort</label>
+                  <input style={inputStyle} value={form.wohnort} onChange={e => set("wohnort", e.target.value)} placeholder="Berlin"/>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 1 && (
+            <div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Berufsabschluss *</label>
+                <select style={selectStyle} value={form.qualifikation} onChange={e => set("qualifikation", e.target.value)}>
                   <option value="">Bitte wählen</option>
                   {["Staatlich anerkannte Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kindheitspädagogin / Kindheitspädagoge","Sonstige pädagogische Ausbildung"].map(q => <option key={q} value={q}>{q}</option>)}
                 </select>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-                <div>
-                  <label style={labelStyle}>Deutschkenntnisse</label>
-                  <select style={selectStyle} value={form.deutsch || ""} onChange={e => set("deutsch", e.target.value)}>
-                    <option value="">Bitte wählen</option>
-                    {["A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={labelStyle}>Englischkenntnisse</label>
-                  <select style={selectStyle} value={form.englisch || ""} onChange={e => set("englisch", e.target.value)}>
-                    <option value="">Keine</option>
-                    {["A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
-                  </select>
+              <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Zusatzqualifikationen</label>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  {["Montessori Zertifikat","Waldorf Ausbildung","Sprachförderung","Inklusionspädagogik","Musikpädagogik","Erste Hilfe Kind"].map(z => (
+                    <label key={z} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #E2E8F0", background: form.zusatzqualifikation.includes(z) ? "#EAF7EF" : "white" }}>
+                      <input type="checkbox" checked={form.zusatzqualifikation.includes(z)} onChange={() => set("zusatzqualifikation", form.zusatzqualifikation.includes(z) ? form.zusatzqualifikation.replace(z, "").trim() : (form.zusatzqualifikation + " " + z).trim())} style={{ accentColor: GREEN }}/>
+                      {z}
+                    </label>
+                  ))}
                 </div>
               </div>
+              <div>
+                <label style={labelStyle}>Hochschulabschluss (falls vorhanden)</label>
+                <input style={inputStyle} value={form.uniabschluss} onChange={e => set("uniabschluss", e.target.value)} placeholder="z.B. Bachelor Pädagogik"/>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div>
               <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Deutschkenntnisse *</label>
+                <select style={selectStyle} value={form.deutsch} onChange={e => set("deutsch", e.target.value)}>
+                  <option value="">Bitte wählen</option>
+                  {["A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Englischkenntnisse</label>
+                <select style={selectStyle} value={form.englisch} onChange={e => set("englisch", e.target.value)}>
+                  <option value="">Bitte wählen</option>
+                  {["Keine","A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+              <div>
                 <label style={labelStyle}>Weitere Sprachen</label>
-                <input style={inputStyle} value={form.weitere_sprachen || ""} onChange={e => set("weitere_sprachen", e.target.value)} placeholder="z.B. Französisch B2"/>
+                <input style={inputStyle} value={form.weitere_sprachen} onChange={e => set("weitere_sprachen", e.target.value)} placeholder="z.B. Französisch B2, Arabisch Muttersprache"/>
               </div>
+              <div style={{ marginTop: 20, background: "#F0F4F9", borderRadius: 12, padding: 16, fontSize: "0.85rem", color: "#6B7897" }}>
+                Hinweis: Mindestens Deutschkenntnisse auf B1-Niveau sind erforderlich.
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Berufserfahrung</label>
-                <select style={selectStyle} value={form.erfahrung_jahre || ""} onChange={e => set("erfahrung_jahre", e.target.value)}>
+                <label style={labelStyle}>Jahre Berufserfahrung in der Kita *</label>
+                <select style={selectStyle} value={form.erfahrung_jahre} onChange={e => set("erfahrung_jahre", e.target.value)}>
                   <option value="">Bitte wählen</option>
                   {["Berufseinsteiger (0-1 Jahre)","1-2 Jahre","2-5 Jahre","5-10 Jahre","Mehr als 10 Jahre"].map(j => <option key={j} value={j}>{j}</option>)}
                 </select>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-                <div>
-                  <label style={labelStyle}>Verfügbar ab</label>
-                  <input style={inputStyle} type="date" value={form.verfuegbar_ab || ""} onChange={e => set("verfuegbar_ab", e.target.value)}/>
-                </div>
-                <div>
-                  <label style={labelStyle}>Arbeitszeit</label>
-                  <select style={selectStyle} value={form.arbeitszeit || ""} onChange={e => set("arbeitszeit", e.target.value)}>
-                    <option value="">Bitte wählen</option>
-                    {["Vollzeit (38-40h)","Teilzeit (20-30h)","Minijob","Vertretung / Aushilfe"].map(a => <option key={a} value={a}>{a}</option>)}
-                  </select>
+              <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Erfahrung mit Altersgruppen</label>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  {["Krippe (0-3 Jahre)","Kindergarten (3-6 Jahre)","Hort (6-12 Jahre)","Integrationskita","Familiengruppen","Ganztagesbetreuung"].map(a => (
+                    <label key={a} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #E2E8F0", background: form.kita_alter.includes(a) ? "#EAF7EF" : "white" }}>
+                      <input type="checkbox" checked={form.kita_alter.includes(a)} onChange={() => toggleArr("kita_alter", a)} style={{ accentColor: GREEN }}/>
+                      {a}
+                    </label>
+                  ))}
                 </div>
               </div>
+              <div>
+                <label style={labelStyle}>Kurze Beschreibung deiner Erfahrung</label>
+                <textarea style={{ ...inputStyle, height: 100, resize: "vertical" }} value={form.beschreibung} onChange={e => set("beschreibung", e.target.value)} placeholder="Beschreibe kurz deine bisherige Erfahrung in der Kita..."/>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div>
               <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Verfügbar ab *</label>
+                <input style={inputStyle} type="date" value={form.verfuegbar_ab} onChange={e => set("verfuegbar_ab", e.target.value)}/>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={labelStyle}>Gewünschte Arbeitszeit *</label>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  {["Vollzeit (38-40h)","Teilzeit (20-30h)","Minijob","Vertretung / Aushilfe"].map(a => (
+                    <label key={a} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "12px 16px", borderRadius: 8, border: `1.5px solid ${form.arbeitszeit === a ? BLUE : "#E2E8F0"}`, background: form.arbeitszeit === a ? "#EBF4FF" : "white" }}>
+                      <input type="radio" name="arbeitszeit" value={a} checked={form.arbeitszeit === a} onChange={() => set("arbeitszeit", a)} style={{ accentColor: BLUE }}/>
+                      {a}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
                 <label style={labelStyle}>Gewünschtes Bundesland</label>
-                <select style={selectStyle} value={form.bundesland || ""} onChange={e => set("bundesland", e.target.value)}>
+                <select style={selectStyle} value={form.bundesland} onChange={e => set("bundesland", e.target.value)}>
                   <option value="">Egal / Flexibel</option>
                   {["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}
                 </select>
               </div>
-              <div>
-                <label style={labelStyle}>Beschreibung</label>
-                <textarea style={{ ...inputStyle, height: 100, resize: "vertical" }} value={form.beschreibung || ""} onChange={e => set("beschreibung", e.target.value)} placeholder="Kurze Beschreibung deiner Erfahrung..."/>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div>
+              <div style={{ background: "#F8FAFF", borderRadius: 16, padding: 20, marginBottom: 24 }}>
+                <h3 style={{ color: NAVY, fontSize: "0.95rem", fontWeight: 700, marginBottom: 12 }}>Zusammenfassung</h3>
+                {[
+                  ["Name", `${form.vorname} ${form.nachname}`],
+                  ["E-Mail", form.email],
+                  ["Qualifikation", form.qualifikation],
+                  ["Deutsch", form.deutsch],
+                  ["Erfahrung", form.erfahrung_jahre],
+                  ["Verfügbar ab", form.verfuegbar_ab],
+                  ["Arbeitszeit", form.arbeitszeit],
+                  ["Bundesland", form.bundesland || "Flexibel"],
+                ].map(([k, v]) => v ? (
+                  <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #E8EDF4", fontSize: "0.85rem" }}>
+                    <span style={{ color: "#9BA8C0", fontWeight: 600 }}>{k}</span>
+                    <span style={{ color: NAVY }}>{v}</span>
+                  </div>
+                ) : null)}
+              </div>
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", marginBottom: 12 }}>
+                  <input type="checkbox" checked={form.agb} onChange={e => set("agb", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY }}/>
+                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich stimme den <a href="/agb" style={{ color: BLUE }}>AGB</a> zu *</span>
+                </label>
+                <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
+                  <input type="checkbox" checked={form.datenschutz} onChange={e => set("datenschutz", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY }}/>
+                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich habe die <a href="/datenschutz" style={{ color: BLUE }}>Datenschutzerklärung</a> gelesen *</span>
+                </label>
               </div>
             </div>
           )}
-        </div>
 
-        {/* Account löschen */}
-        <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", color: NAVY, marginBottom: 20 }}>Konto-Einstellungen</h2>
-          <div style={{ padding: 20, background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 12 }}>
-            <div style={{ fontWeight: 700, color: "#9B1C1C", marginBottom: 6, fontSize: "0.95rem" }}>⚠️ Account löschen</div>
-            <div style={{ color: "#7F1D1D", fontSize: "0.84rem", marginBottom: 14 }}>
-              Dein Account und alle deine Daten werden unwiderruflich gelöscht.
-            </div>
-            <button onClick={handleDeleteAccount} style={{ background: "#DC2626", color: "white", border: "none", padding: "10px 20px", borderRadius: 8, fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
-              Account unwiderruflich löschen
-            </button>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 32, gap: 12 }}>
+            {step > 0 ? (
+              <button onClick={() => setStep(s => s - 1)} style={{ padding: "12px 28px", borderRadius: 50, border: `2px solid ${NAVY}`, background: "transparent", color: NAVY, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
+                Zurück
+              </button>
+            ) : <div/>}
+            {step < STEPS.length - 1 ? (
+              <button onClick={() => setStep(s => s + 1)} style={{ padding: "12px 28px", borderRadius: 50, border: "none", background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 4px 16px rgba(26,63,111,0.28)" }}>
+                Weiter
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={!form.agb || !form.datenschutz || loading}
+                style={{ padding: "12px 28px", borderRadius: 50, border: "none", background: form.agb && form.datenschutz ? `linear-gradient(135deg, ${GREEN}, #27AE60)` : "#ccc", color: "white", fontWeight: 700, cursor: form.agb && form.datenschutz ? "pointer" : "not-allowed", fontFamily: "'DM Sans', sans-serif" }}>
+                {loading ? "Wird gespeichert..." : "Registrierung abschließen"}
+              </button>
+            )}
           </div>
         </div>
       </div>
