@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } = from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
