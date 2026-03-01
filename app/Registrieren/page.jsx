@@ -7,11 +7,11 @@ const BLUE = "#2471A3";
 const GREEN = "#1E8449";
 
 const STEPS = [
-  "Persoenliche Daten",
+  "Persönliche Daten",
   "Qualifikation",
   "Sprachkenntnisse",
   "Berufserfahrung",
-  "Verfuegbarkeit",
+  "Verfügbarkeit",
   "Abschluss"
 ];
 
@@ -403,3 +403,4 @@ export default function Registrieren() {
     </div>
   );
 }
+
