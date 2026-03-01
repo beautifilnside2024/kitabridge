@@ -94,7 +94,7 @@ export default function Dashboard() {
     );
   }
 
-  const isAktiv = arbeitgeber?.status === "aktiv";
+  const isAktiv = arbeitgeber?.status === "aktiv" || arbeitgeber?.status === "bestaetigt";
 
   return (
     <div style={{ minHeight: "100vh", background: "#F0F4F9", fontFamily: "'DM Sans', sans-serif" }}>
