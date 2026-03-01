@@ -117,8 +117,8 @@ export default function Home() {
                 <span style={{ fontSize: "0.78rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 1 }}>Die Plattform f√ºr Kita-Fachkr√§fte</span>
               </div>
               <h1 className="hero-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "3.4rem", fontWeight: 900, color: NAVY, lineHeight: 1.15, marginBottom: 24 }}>
-                Qualifizierte Erzieherinnen.<br/>
-                <span style={{ color: GREEN }}>Direkt. Ohne Provision.</span>
+                Die Br¸cke zwischen
+                <span style={{ color: GREEN }}>Fachkr‰ften und Kitas.</span>
               </h1>
               <p style={{ fontSize: "1.1rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 36, maxWidth: 480 }}>
                 KitaBridge verbindet internationale Erziehungsfachkr√§fte mit Kitas und Krippen in Deutschland. Schnell, transparent und ohne versteckte Kosten.
