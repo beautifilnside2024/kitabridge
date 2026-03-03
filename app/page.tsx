@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
@@ -18,6 +19,7 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -31,11 +33,11 @@ export default function Home() {
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        .btn-primary { display: inline-block; padding: 14px 32px; border-radius: 50px; background: linear-gradient(135deg, #1A3F6F, #2471A3); color: white; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; box-shadow: 0 6px 24px rgba(26,63,111,0.28); font-family: 'DM Sans', sans-serif; border: none; cursor: pointer; }
+        .btn-primary { display: inline-block; padding: 14px 32px; border-radius: 50px; background: linear-gradient(135deg, #1A3F6F, #2471A3); color: white; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; box-shadow: 0 6px 24px rgba(26,63,111,0.28); font-family: 'DM Sans', sans-serif; border: none; cursor: pointer; position: relative; z-index: 2; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(26,63,111,0.36); }
         .btn-secondary { display: inline-block; padding: 13px 32px; border-radius: 50px; background: transparent; color: #1A3F6F; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; border: 2px solid #1A3F6F; font-family: 'DM Sans', sans-serif; cursor: pointer; }
         .btn-secondary:hover { background: #1A3F6F; color: white; }
-        .btn-green { display: inline-block; padding: 14px 32px; border-radius: 50px; background: linear-gradient(135deg, #1E8449, #27AE60); color: white; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; box-shadow: 0 6px 24px rgba(30,132,73,0.28); font-family: 'DM Sans', sans-serif; border: none; cursor: pointer; }
+        .btn-green { display: inline-block; padding: 14px 32px; border-radius: 50px; background: linear-gradient(135deg, #1E8449, #27AE60); color: white; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; box-shadow: 0 6px 24px rgba(30,132,73,0.28); font-family: 'DM Sans', sans-serif; border: none; cursor: pointer; position: relative; z-index: 2; }
         .btn-green:hover { transform: translateY(-2px); }
         .card { background: white; border-radius: 20px; padding: 32px; border: 1px solid #E8EDF4; transition: all 0.3s; box-shadow: 0 4px 20px rgba(26,63,111,0.06); }
         .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(26,63,111,0.14); }
@@ -58,12 +60,11 @@ export default function Home() {
           .cta-section { padding: 60px 20px !important; }
           .cta-title { font-size: 1.8rem !important; }
           .footer-pad { padding: 32px 20px !important; }
-          .nav-pad { padding: 0 20px !important; }
           .price-box { padding: 24px !important; }
           .price-num { font-size: 2.2rem !important; }
           .hero-badges { gap: 12px !important; }
           .hero-btns { flex-direction: column !important; }
-          .hero-btns a { text-align: center !important; }
+          .hero-btns a, .hero-btns button { text-align: center !important; width: 100% !important; }
           .cta-btns { flex-direction: column !important; align-items: center !important; }
           .cta-btns a { text-align: center !important; width: 100% !important; max-width: 280px !important; }
         }
@@ -82,7 +83,7 @@ export default function Home() {
         borderBottom: scrolled ? "1px solid #E8EDF4" : "none",
         transition: "all 0.3s", height: 68,
         display: "flex", alignItems: "center", justifyContent: "space-between"
-      }} className="nav-pad" style2={{ padding: "0 40px" }}>
+      }}>
         <div style={{ maxWidth: 1200, width: "100%", margin: "0 auto", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, #1A3F6F, #2471A3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -112,7 +113,6 @@ export default function Home() {
             <a href="/Arbeitgeber" className="btn-primary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>Jetzt starten</a>
           </div>
 
-          {/* Hamburger */}
           <button
             className="hamburger"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -137,9 +137,7 @@ export default function Home() {
       </div>
 
       {/* HERO */}
-      <section className="hero-section" style={{ minHeight: "100vh", background: "linear-gradient(160deg, #F0F4F9 0%, #E8F4FD 50%, #EAF7EF 100%)", display: "flex", alignItems: "center", padding: "100px 40px 60px", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: -100, right: -100, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(36,113,163,0.08) 0%, transparent 70%)" }}/>
-        <div style={{ position: "absolute", bottom: -50, left: -50, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(30,132,73,0.06) 0%, transparent 70%)" }}/>
+      <section className="hero-section" style={{ minHeight: "100vh", background: "linear-gradient(160deg, #F0F4F9 0%, #E8F4FD 50%, #EAF7EF 100%)", display: "flex", alignItems: "center", padding: "100px 40px 60px", position: "relative" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%" }}>
           <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}>
             <div>
@@ -155,8 +153,8 @@ export default function Home() {
                 KitaBridge verbindet internationale Erziehungsfachkräfte mit Kitas und Krippen in Deutschland. Schnell, transparent und ohne versteckte Kosten.
               </p>
               <div className="hero-btns" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                <a href="/login" className="btn-primary">Fachkräfte finden</a>
-                <a href="/Registrieren" className="btn-green">Als Fachkraft bewerben</a>
+                <button onClick={() => router.push("/login")} className="btn-primary">Fachkräfte finden</button>
+                <button onClick={() => router.push("/Registrieren")} className="btn-green">Als Fachkraft bewerben</button>
               </div>
               <div className="hero-badges" style={{ display: "flex", gap: 20, marginTop: 40, flexWrap: "wrap" }}>
                 {[{ icon: "🔒", text: "DSGVO-konform" }, { icon: "💳", text: "Monatlich kündbar" }, { icon: "🚀", text: "Sofort starten" }].map(b => (
@@ -185,9 +183,9 @@ export default function Home() {
                     <span style={{ color: NAVY, fontWeight: 500 }}>{v}</span>
                   </div>
                 ))}
-                <a href="/Arbeitgeber" className="btn-primary" style={{ width: "100%", marginTop: 20, textAlign: "center", display: "block" }}>
+                <button onClick={() => router.push("/Arbeitgeber")} className="btn-primary" style={{ width: "100%", marginTop: 20, textAlign: "center", display: "block" }}>
                   Jetzt registrieren um Profile zu sehen →
-                </a>
+                </button>
               </div>
               <div style={{ position: "absolute", top: -20, right: -20, background: "white", borderRadius: 16, padding: "12px 18px", boxShadow: "0 8px 24px rgba(0,0,0,0.1)", border: "1px solid #E8EDF4" }}>
                 <div style={{ fontSize: "0.75rem", color: "#9BA8C0", marginBottom: 2 }}>Neue Anfrage</div>
@@ -244,8 +242,7 @@ export default function Home() {
               <a href="/Arbeitgeber" className="btn-primary">Jetzt registrieren – 299 EUR/Monat</a>
             </div>
             <div>
-              <div className="price-box" style={{ background: "linear-gradient(135deg, #1A3F6F, #2471A3)", borderRadius: 24, padding: 36, color: "white", position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }}/>
+              <div className="price-box" style={{ background: "linear-gradient(135deg, #1A3F6F, #2471A3)", borderRadius: 24, padding: 36, color: "white", position: "relative", overflow: "visible" }}>
                 <div style={{ fontSize: "0.8rem", fontWeight: 700, opacity: 0.7, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Hauptplan</div>
                 <div className="price-num" style={{ fontFamily: "'Playfair Display', serif", fontSize: "3rem", fontWeight: 700, marginBottom: 4 }}>299 EUR</div>
                 <div style={{ opacity: 0.7, fontSize: "0.85rem", marginBottom: 28 }}>pro Monat, zzgl. MwSt.</div>
@@ -366,8 +363,8 @@ export default function Home() {
           <h2 className="cta-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.6rem", fontWeight: 800, color: "white", marginBottom: 20 }}>Bereit loszulegen?</h2>
           <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "1.05rem", lineHeight: 1.75, marginBottom: 40 }}>Ob Kita oder Fachkraft – bei KitaBridge finden Sie sich. Schnell, direkt und ohne Provision.</p>
           <div className="cta-btns" style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href="/Arbeitgeber" style={{ padding: "14px 32px", borderRadius: 50, background: "white", color: NAVY, fontWeight: 700, fontSize: "0.95rem", textDecoration: "none" }}>Fachkräfte finden</a>
-            <a href="/Registrieren" style={{ padding: "14px 32px", borderRadius: 50, background: "rgba(255,255,255,0.15)", color: "white", fontWeight: 700, fontSize: "0.95rem", textDecoration: "none", border: "2px solid rgba(255,255,255,0.4)" }}>Als Fachkraft bewerben</a>
+            <a href="/login" className="btn-primary" style={{ background: "linear-gradient(135deg, #1A3F6F, #2471A3)" }}>Fachkräfte finden</a>
+            <a href="/Registrieren" className="btn-green">Als Fachkraft bewerben</a>
           </div>
         </div>
       </section>
@@ -383,7 +380,7 @@ export default function Home() {
             <a key={label} href={href} style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 8px", fontSize: "0.82rem" }}>{label}</a>
           ))}
         </div>
-        <p style={{ fontSize: "0.78rem", opacity: 0.5 }}>© 2026 KitaBridge – DSGVO-konform</p>
+        <p style={{ fontSize: "0.78rem", opacity: 0.5 }}>© 2026 KitaBridge · DSGVO-konform</p>
       </footer>
     </div>
   );

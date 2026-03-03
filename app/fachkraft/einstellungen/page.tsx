@@ -77,7 +77,7 @@ export default function Home() {
 
       {/* NAV */}
       <nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+        position: "sticky", top: 0, left: 0, right: 0, zIndex: 10,
         background: scrolled ? "rgba(255,255,255,0.96)" : "transparent",
         backdropFilter: scrolled ? "blur(12px)" : "none",
         borderBottom: scrolled ? "1px solid #E8EDF4" : "none",
@@ -137,7 +137,7 @@ export default function Home() {
       </div>
 
       {/* HERO */}
-      <section className="hero-section" style={{ minHeight: "100vh", background: "linear-gradient(160deg, #F0F4F9 0%, #E8F4FD 50%, #EAF7EF 100%)", display: "flex", alignItems: "center", padding: "100px 40px 60px", position: "relative" }}>
+      <section className="hero-section" style={{ minHeight: "100vh", background: "linear-gradient(160deg, #F0F4F9 0%, #E8F4FD 50%, #EAF7EF 100%)", display: "flex", alignItems: "center", padding: "140px 40px 60px", position: "relative" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%" }}>
           <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}>
             <div>
