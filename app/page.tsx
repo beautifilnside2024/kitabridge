@@ -112,7 +112,7 @@ const translations = {
       startMobile: "Start",
     },
     hero: {
-      badge: "The Platform for Childcare Professionals",
+      badge: "The platform for Daycare Centers & Childcare Professionals",
       title1: "The bridge between",
       title2: "professionals and daycares.",
       desc: "KitaBridge connects international childcare professionals with daycare centers in Germany. Fast, transparent and without hidden costs.",
