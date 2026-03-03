@@ -298,7 +298,7 @@ export default function Home() {
           <div className="nav-btns" style={{ display: "flex", gap: 10, alignItems: "center" }}>
             {/* Language Switcher */}
             <div style={{ display: "flex", gap: 4, marginRight: 8 }}>
-              <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}><img src="flagcdn.com/w20/de.png" width="18" height="12" alt="DE" style={{borderRadius:2,display:"inline-block"}}/>DE" style={{borderRadius:2}}/>DE</button>
+              <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}><img src="flagcdn.com/w20/de.png" width="18" height="12" alt="DE" style={{borderRadius:2,display:"inline-block"}}/>DE"
               <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}><img src="https://flagcdn.com/w20/gb.png" width="20" alt="EN" style={{borderRadius:2}}/>EN</button>
             </div>
             <a href="/login" className="btn-secondary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>{t.nav.login}</a>
