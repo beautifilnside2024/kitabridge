@@ -1,176 +1,55 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-
-const NAVY = "#1A3F6F";
-const BLUE = "#2471A3";
-const GREEN = "#1E8449";
-
-const translations = {
-  de: {
-    subtitle: "Login für Arbeitgeber & Fachkräfte",
-    emailLabel: "E-Mail",
-    emailPlaceholder: "ihre@email.de",
-    passwordLabel: "Passwort",
-    forgotPassword: "Passwort vergessen?",
-    loginBtn: "Einloggen",
-    loginLoading: "Einloggen...",
-    errorEmpty: "Bitte alle Felder ausfüllen",
-    errorWrong: "E-Mail oder Passwort falsch",
-    employerText: "Arbeitgeber?",
-    registerNow: "Jetzt registrieren",
-    proText: "Fachkraft?",
-  },
-  en: {
-    subtitle: "Login for Employers & Professionals",
-    emailLabel: "Email",
-    emailPlaceholder: "your@email.com",
-    passwordLabel: "Password",
-    forgotPassword: "Forgot password?",
-    loginBtn: "Log in",
-    loginLoading: "Logging in...",
-    errorEmpty: "Please fill in all fields",
-    errorWrong: "Email or password incorrect",
-    employerText: "Employer?",
-    registerNow: "Register now",
-    proText: "Professional?",
-  },
-};
-
-const inputStyle = {
-  width: "100%", padding: "14px 16px", borderRadius: 12, border: "1.5px solid rgba(255,255,255,0.15)",
-  fontSize: "0.95rem", outline: "none", fontFamily: "'DM Sans', sans-serif",
-  color: "white", background: "rgba(255,255,255,0.08)", marginBottom: 4, boxSizing: "border-box" 
-};
-
-export default function Login() {
+import { useRouter } from "next/navigation";
+export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [passwort, setPasswort] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [lang, setLang] = useState("de");
-  const t = translations[lang];
-
-  const handleLogin = async () => {
-    if (!email || !passwort) {
-      setError(t.errorEmpty);
-      return;
-    }
-    setLoading(true);
-    setError("");
-
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password: passwort
-    });
-
-    if (authError) {
-      setLoading(false);
-      setError(t.errorWrong);
-      return;
-    }
-
-    const { data: arbeitgeber } = await supabase
-      .from("arbeitgeber")
-      .select("id")
-      .eq("email", email)
-      .single();
-
-    if (arbeitgeber) {
-      window.location.href = "/dashboard";
-    } else {
-      window.location.href = "/fachkraft/einstellungen";
-    }
+  const handleLogin = async (e) => {
+    e.preventDefault(); setLoading(true); setError("");
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError) { setError("E-Mail oder Passwort falsch."); setLoading(false); return; }
+    const { data: fk } = await supabase.from("fachkraefte").select("id").eq("email", data.user.email).single();
+    if (fk) { router.push("/fachkraft/einstellungen"); return; }
+    const { data: ei } = await supabase.from("einrichtungen").select("id").eq("email", data.user.email).single();
+    if (ei) { router.push("/einrichtung/dashboard"); return; }
+    router.push("/");
   };
-
   return (
-    <div style={{ minHeight: "100vh", background: `linear-gradient(135deg, ${NAVY} 0%, #0F2340 100%)`,
-      display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px", fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-        * { box-sizing: border-box; }
-        input::placeholder { color: rgba(255,255,255,0.3); }
-        .lang-btn { background: none; border: 1.5px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.8rem; font-weight: 700; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 6px; transition: all 0.2s; color: rgba(255,255,255,0.5); }
-        .lang-btn:hover { border-color: rgba(255,255,255,0.4); }
-        .lang-btn.active { border-color: #4ADE80; color: #4ADE80; }
-        .flag-img { width: 20px; height: 14px; border-radius: 2px; object-fit: cover; }
-        @media (max-width: 480px) {
-          .login-box { padding: 28px 20px !important; border-radius: 18px !important; }
-          .login-logo { font-size: 1.6rem !important; }
-        }
-      `}</style>
-
-      <div style={{ width: "100%", maxWidth: 420 }}>
-
-        {/* Lang switcher */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 24, gap: 6 }}>
-          <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}>
-            <img className="flag-img" src="https://flagcdn.com/w20/de.png" alt="DE" /> DE
-          </button>
-          <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}>
-            <img className="flag-img" src="https://flagcdn.com/w20/gb.png" alt="EN" /> EN
-          </button>
-        </div>
-
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700 }} className="login-logo">
-            <span style={{ color: "white" }}>Kita</span><span style={{ color: "#4ADE80" }}>Bridge</span>
+    <div style={{ minHeight:"100vh", background:"linear-gradient(135deg,#F0F4F9,#E8EEF8)", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"sans-serif", padding:"24px 16px" }}>
+      <div style={{ width:"100%", maxWidth:420 }}>
+        <div style={{ textAlign:"center", marginBottom:32 }}>
+          <a href="/" style={{ textDecoration:"none", fontSize:"1.8rem", fontWeight:800 }}>
+            <span style={{ color:"#1A3F6F" }}>Kita</span><span style={{ color:"#1E8449" }}>Bridge</span>
           </a>
-          <p style={{ color: "rgba(255,255,255,0.5)", marginTop: 8, fontSize: "0.9rem" }}>{t.subtitle}</p>
         </div>
-
-        <div className="login-box" style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 24, padding: 40 }}>
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>{t.emailLabel}</label>
-            <input
-              style={inputStyle}
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder={t.emailPlaceholder}
-              onKeyDown={e => e.key === "Enter" && handleLogin()}
-            />
-          </div>
-          <div style={{ marginBottom: 8 }}>
-            <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>{t.passwordLabel}</label>
-            <input
-              style={inputStyle}
-              type="password"
-              value={passwort}
-              onChange={e => setPasswort(e.target.value)}
-              placeholder="••••••••"
-              onKeyDown={e => e.key === "Enter" && handleLogin()}
-            />
-          </div>
-
-          <div style={{ textAlign: "right", marginBottom: 20 }}>
-            <a href="/passwort-vergessen" style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.82rem", textDecoration: "none" }}>
-              {t.forgotPassword}
-            </a>
-          </div>
-
-          {error && (
-            <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 10, padding: "10px 14px", marginBottom: 16, color: "#FCA5A5", fontSize: "0.85rem" }}>
-              {error}
+        <div style={{ background:"white", borderRadius:24, padding:"36px 32px", boxShadow:"0 4px 32px rgba(26,63,111,0.12)" }}>
+          <h1 style={{ fontSize:"1.5rem", color:"#1A3F6F", marginBottom:28 }}>Einloggen</h1>
+          {error && <div style={{ marginBottom:16, padding:"12px 16px", background:"#FFF5F5", borderRadius:10, color:"#9B1C1C" }}>{error}</div>}
+          <form onSubmit={handleLogin}>
+            <div style={{ marginBottom:16 }}>
+              <label style={{ display:"block", fontSize:"0.75rem", fontWeight:700, color:"#9BA8C0", marginBottom:6 }}>E-MAIL</label>
+              <input type="email" required value={email} onChange={e => setEmail(e.target.value)} style={{ width:"100%", padding:"12px 16px", border:"1.5px solid #D1DAE8", borderRadius:12, fontSize:"0.95rem", boxSizing:"border-box" }} />
             </div>
-          )}
-
-          <button
-            onClick={handleLogin}
-            disabled={loading}
-            style={{ width: "100%", padding: "14px", borderRadius: 12, border: "none", background: `linear-gradient(135deg, ${BLUE}, #1A5C8A)`, color: "white", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
-            {loading ? t.loginLoading : t.loginBtn}
-          </button>
-
-          <div style={{ textAlign: "center", marginTop: 20, fontSize: "0.85rem", color: "rgba(255,255,255,0.4)" }}>
-            {t.employerText}{" "}
-            <a href="/Arbeitgeber" style={{ color: "#4ADE80", textDecoration: "none", fontWeight: 600 }}>{t.registerNow}</a>
-          </div>
-          <div style={{ textAlign: "center", marginTop: 10, fontSize: "0.85rem", color: "rgba(255,255,255,0.4)" }}>
-            {t.proText}{" "}
-            <a href="/Registrieren" style={{ color: "#4ADE80", textDecoration: "none", fontWeight: 600 }}>{t.registerNow}</a>
+            <div style={{ marginBottom:24 }}>
+              <label style={{ display:"block", fontSize:"0.75rem", fontWeight:700, color:"#9BA8C0", marginBottom:6 }}>PASSWORT</label>
+              <input type="password" required value={password} onChange={e => setPassword(e.target.value)} style={{ width:"100%", padding:"12px 16px", border:"1.5px solid #D1DAE8", borderRadius:12, fontSize:"0.95rem", boxSizing:"border-box" }} />
+            </div>
+            <button type="submit" disabled={loading} style={{ width:"100%", padding:"14px", background:loading?"#9BA8C0":"#1A3F6F", color:"white", border:"none", borderRadius:12, fontWeight:700, fontSize:"1rem", cursor:loading?"not-allowed":"pointer" }}>
+              {loading ? "Wird eingeloggt..." : "Einloggen"}
+            </button>
+          </form>
+          <div style={{ marginTop:20, textAlign:"center" }}>
+            <a href="/passwort-vergessen" style={{ color:"#2471A3", fontSize:"0.85rem", textDecoration:"none" }}>Passwort vergessen?</a>
           </div>
         </div>
+        <p style={{ textAlign:"center", marginTop:20, color:"#9BA8C0", fontSize:"0.85rem" }}>
+          Noch kein Konto?{" "}
+          <a href="/Registrieren" style={{ color:"#2471A3", fontWeight:600, textDecoration:"none" }}>Jetzt registrieren</a>
+        </p>
       </div>
     </div>
   );
