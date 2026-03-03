@@ -298,8 +298,8 @@ export default function Home() {
           <div className="nav-btns" style={{ display: "flex", gap: 10, alignItems: "center" }}>
             {/* Language Switcher */}
             <div style={{ display: "flex", gap: 4, marginRight: 8 }}>
-              <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}>🇩🇪 DE</button>
-              <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}>🇬🇧 EN</button>
+              <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}><img src="https://flagcdn.com/w20/de.png" width="20" alt="DE" style={{borderRadius:2}}/>DE</button>
+              <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}><img src="https://flagcdn.com/w20/gb.png" width="20" alt="EN" style={{borderRadius:2}}/>EN</button>
             </div>
             <a href="/login" className="btn-secondary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>{t.nav.login}</a>
             <a href="/Arbeitgeber" className="btn-primary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>{t.nav.start}</a>
@@ -319,8 +319,8 @@ export default function Home() {
       {/* Mobile Menu */}
       <div className={`mobile-menu${menuOpen ? " open" : ""}`}>
         <div style={{ display: "flex", gap: 8, paddingBottom: 12, borderBottom: "1px solid #E8EDF4" }}>
-          <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}>🇩🇪 DE</button>
-          <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}>🇬🇧 EN</button>
+          <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}><img src="https://flagcdn.com/w20/de.png" width="20" alt="DE" style={{borderRadius:2}}/>DE</button>
+          <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}><img src="https://flagcdn.com/w20/gb.png" width="20" alt="EN" style={{borderRadius:2}}/>EN</button>
         </div>
         <a href="#wie-es-funktioniert" onClick={() => setMenuOpen(false)} style={{ color: NAVY, textDecoration: "none", fontWeight: 600, padding: "8px 0" }}>{t.nav.howItWorks}</a>
         <a href="#fuer-kitas" onClick={() => setMenuOpen(false)} style={{ color: NAVY, textDecoration: "none", fontWeight: 600, padding: "8px 0" }}>{t.nav.forKitas}</a>
@@ -556,6 +556,21 @@ export default function Home() {
           <span style={{ color: "white" }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
         </div>
         <p style={{ fontSize: "0.82rem", marginBottom: 20 }}>{t.footer.desc}</p>
+        {/* Social Media */}
+        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 24 }}>
+          <a href="https://www.instagram.com/kitabridge" target="_blank" rel="noopener noreferrer" style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="white" strokeWidth="2" fill="none"/>
+              <circle cx="12" cy="12" r="4" stroke="white" strokeWidth="2" fill="none"/>
+              <circle cx="17.5" cy="6.5" r="1.5" fill="white"/>
+            </svg>
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=61586408009889" target="_blank" rel="noopener noreferrer" style={{ width: 40, height: 40, borderRadius: 10, background: "#1877F2", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            </svg>
+          </a>
+        </div>
         <div style={{ marginBottom: 16, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 4 }}>
           {t.footer.links.map(([label, href]) => (
             <a key={label} href={href} style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", margin: "0 8px", fontSize: "0.82rem" }}>{label}</a>
