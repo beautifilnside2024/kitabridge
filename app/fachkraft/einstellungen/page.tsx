@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
@@ -18,6 +19,7 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -62,7 +64,7 @@ export default function Home() {
           .price-num { font-size: 2.2rem !important; }
           .hero-badges { gap: 12px !important; }
           .hero-btns { flex-direction: column !important; }
-          .hero-btns a { text-align: center !important; }
+          .hero-btns a, .hero-btns button { text-align: center !important; width: 100% !important; }
           .cta-btns { flex-direction: column !important; align-items: center !important; }
           .cta-btns a { text-align: center !important; width: 100% !important; max-width: 280px !important; }
         }
@@ -135,8 +137,7 @@ export default function Home() {
       </div>
 
       {/* HERO */}
-      <section className="hero-section" style={{ minHeight: "100vh", background: "linear-gradient(160deg, #F0F4F9 0%, #E8F4FD 50%, #EAF7EF 100%)", display: "flex", alignItems: "center", padding: "100px 40px 60px", position: "relative", overflow: "hidden" }}>
-        
+      <section className="hero-section" style={{ minHeight: "100vh", background: "linear-gradient(160deg, #F0F4F9 0%, #E8F4FD 50%, #EAF7EF 100%)", display: "flex", alignItems: "center", padding: "100px 40px 60px", position: "relative" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%" }}>
           <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}>
             <div>
@@ -151,9 +152,9 @@ export default function Home() {
               <p style={{ fontSize: "1.05rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 36, maxWidth: 480 }}>
                 KitaBridge verbindet internationale Erziehungsfachkräfte mit Kitas und Krippen in Deutschland. Schnell, transparent und ohne versteckte Kosten.
               </p>
-              <div className="hero-btns" style={{ display: "flex", gap: 16, flexWrap: "wrap", position: "relative", zIndex: 10 }}>
-               <button onClick={() => window.location.href = "/login"} className="btn-primary">Fachkräfte finden</button>
-                <a href="/Registrieren" className="btn-green">Als Fachkraft bewerben</a>
+              <div className="hero-btns" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                <button onClick={() => router.push("/login")} className="btn-primary">Fachkräfte finden</button>
+                <button onClick={() => router.push("/Registrieren")} className="btn-green">Als Fachkraft bewerben</button>
               </div>
               <div className="hero-badges" style={{ display: "flex", gap: 20, marginTop: 40, flexWrap: "wrap" }}>
                 {[{ icon: "🔒", text: "DSGVO-konform" }, { icon: "💳", text: "Monatlich kündbar" }, { icon: "🚀", text: "Sofort starten" }].map(b => (
@@ -182,9 +183,9 @@ export default function Home() {
                     <span style={{ color: NAVY, fontWeight: 500 }}>{v}</span>
                   </div>
                 ))}
-                <a href="/Arbeitgeber" className="btn-primary" style={{ width: "100%", marginTop: 20, textAlign: "center", display: "block" }}>
+                <button onClick={() => router.push("/Arbeitgeber")} className="btn-primary" style={{ width: "100%", marginTop: 20, textAlign: "center", display: "block" }}>
                   Jetzt registrieren um Profile zu sehen →
-                </a>
+                </button>
               </div>
               <div style={{ position: "absolute", top: -20, right: -20, background: "white", borderRadius: 16, padding: "12px 18px", boxShadow: "0 8px 24px rgba(0,0,0,0.1)", border: "1px solid #E8EDF4" }}>
                 <div style={{ fontSize: "0.75rem", color: "#9BA8C0", marginBottom: 2 }}>Neue Anfrage</div>
@@ -242,7 +243,6 @@ export default function Home() {
             </div>
             <div>
               <div className="price-box" style={{ background: "linear-gradient(135deg, #1A3F6F, #2471A3)", borderRadius: 24, padding: 36, color: "white", position: "relative", overflow: "visible" }}>
-                <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }}/>
                 <div style={{ fontSize: "0.8rem", fontWeight: 700, opacity: 0.7, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Hauptplan</div>
                 <div className="price-num" style={{ fontFamily: "'Playfair Display', serif", fontSize: "3rem", fontWeight: 700, marginBottom: 4 }}>299 EUR</div>
                 <div style={{ opacity: 0.7, fontSize: "0.85rem", marginBottom: 28 }}>pro Monat, zzgl. MwSt.</div>
@@ -363,8 +363,8 @@ export default function Home() {
           <h2 className="cta-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.6rem", fontWeight: 800, color: "white", marginBottom: 20 }}>Bereit loszulegen?</h2>
           <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "1.05rem", lineHeight: 1.75, marginBottom: 40 }}>Ob Kita oder Fachkraft – bei KitaBridge finden Sie sich. Schnell, direkt und ohne Provision.</p>
           <div className="cta-btns" style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href="/login" style={{ padding: "14px 32px", borderRadius: 50, background: "white", color: NAVY, fontWeight: 700, fontSize: "0.95rem", textDecoration: "none" }}>Fachkräfte finden</a>
-            <a href="/Registrieren" style={{ padding: "14px 32px", borderRadius: 50, background: "rgba(255,255,255,0.15)", color: "white", fontWeight: 700, fontSize: "0.95rem", textDecoration: "none", border: "2px solid rgba(255,255,255,0.4)" }}>Als Fachkraft bewerben</a>
+            <a href="/login" className="btn-primary" style={{ background: "linear-gradient(135deg, #1A3F6F, #2471A3)" }}>Fachkräfte finden</a>
+            <a href="/Registrieren" className="btn-green">Als Fachkraft bewerben</a>
           </div>
         </div>
       </section>
