@@ -7,19 +7,14 @@ const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
 const GREEN = "#1E8449";
 
-const STEPS = ["Einrichtung", "Adresse", "Ansprechpartner", "Stellen", "Plan", "Passwort", "Abschluss"];
+const STEPS = ["Einrichtung","Adresse","Ansprechpartner","Stellen","Plan","Passwort","Abschluss"];
 
 const inputStyle = {
   width: "100%", padding: "12px 16px", borderRadius: 10, border: "1.5px solid #E2E8F0",
   fontSize: "0.95rem", outline: "none", fontFamily: "'DM Sans', sans-serif",
-  color: "#1a1a2e", background: "white", marginBottom: 4
+  color: "#1a1a2e", background: "white", marginBottom: 4, boxSizing: "border-box"
 };
-
-const labelStyle = {
-  display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#4A5568",
-  marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5
-};
-
+const labelStyle = { display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#4A5568", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 };
 const selectStyle = { ...inputStyle, cursor: "pointer" };
 
 export default function Arbeitgeber() {
@@ -36,7 +31,6 @@ export default function Arbeitgeber() {
   });
 
   const set = (key, value) => setForm(f => ({ ...f, [key]: value }));
-
   const toggleArr = (key, val) => {
     const arr = form[key];
     set(key, arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
@@ -44,78 +38,34 @@ export default function Arbeitgeber() {
 
   const handleSubmit = async () => {
     if (!form.agb || !form.datenschutz) return;
-    if (form.passwort !== form.passwort2) {
-      alert("Passwörter stimmen nicht überein!");
-      return;
-    }
-    if (form.passwort.length < 6) {
-      alert("Passwort muss mindestens 6 Zeichen lang sein!");
-      return;
-    }
+    if (form.passwort !== form.passwort2) { alert("Passwörter stimmen nicht überein!"); return; }
+    if (form.passwort.length < 6) { alert("Passwort muss mindestens 6 Zeichen lang sein!"); return; }
     setLoading(true);
 
-    // 1. Supabase Auth Account erstellen
     const { error: authError } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.passwort,
-      options: {
-        data: { role: "arbeitgeber", einrichtung_name: form.einrichtung_name }
-      }
+      email: form.email, password: form.passwort,
+      options: { data: { role: "arbeitgeber", einrichtung_name: form.einrichtung_name } }
     });
 
     if (authError && authError.message !== "User already registered") {
-      setLoading(false);
-      alert("Fehler: " + authError.message);
-      return;
+      setLoading(false); alert("Fehler: " + authError.message); return;
     }
 
-    // 2. Arbeitgeber in Datenbank speichern
-    const { data: insertedData, error } = await supabase
-      .from("arbeitgeber")
-      .insert([{
-        einrichtung_name: form.einrichtung_name,
-        einrichtungstyp: form.einrichtungstyp,
-        traeger: form.traeger,
-        beschreibung: form.beschreibung,
-        strasse: form.strasse,
-        hausnummer: form.hausnummer,
-        plz: form.plz,
-        ort: form.ort,
-        bundesland: form.bundesland,
-        ansprech_name: form.ansprech_name,
-        ansprech_rolle: form.ansprech_rolle,
-        email: form.email,
-        telefon: form.telefon,
-        stellen_anzahl: form.stellen_anzahl,
-        fachrichtungen: form.fachrichtungen,
-        positionen: form.positionen,
-        addons: form.addons,
-        status: "neu"
-      }])
-      .select()
-      .single();
+    const { data: insertedData, error } = await supabase.from("arbeitgeber").insert([{
+      einrichtung_name: form.einrichtung_name, einrichtungstyp: form.einrichtungstyp,
+      traeger: form.traeger, beschreibung: form.beschreibung,
+      strasse: form.strasse, hausnummer: form.hausnummer, plz: form.plz, ort: form.ort,
+      bundesland: form.bundesland, ansprech_name: form.ansprech_name,
+      ansprech_rolle: form.ansprech_rolle, email: form.email, telefon: form.telefon,
+      stellen_anzahl: form.stellen_anzahl, fachrichtungen: form.fachrichtungen,
+      positionen: form.positionen, addons: form.addons, status: "neu"
+    }]).select().single();
 
-    if (error) {
-      setLoading(false);
-      alert("Fehler: " + error.message);
-      return;
-    }
+    if (error) { setLoading(false); alert("Fehler: " + error.message); return; }
 
-    // 3. Admin-Benachrichtigung senden
-    await fetch("/api/send-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "arbeitgeber", data: form }),
-    });
+    await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "arbeitgeber", data: form }) });
+    await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "willkommen_arbeitgeber", data: { ...form, id: insertedData.id } }) });
 
-    // 4. Willkommens-E-Mail an Arbeitgeber senden
-    await fetch("/api/send-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "willkommen_arbeitgeber", data: { ...form, id: insertedData.id } }),
-    });
-
-    // 5. Arbeitgeber-Daten für Bezahlseite in URL-Parameter übergeben
     setLoading(false);
     router.push(`/bezahlung?id=${insertedData.id}&email=${encodeURIComponent(form.email)}&name=${encodeURIComponent(form.einrichtung_name)}`);
   };
@@ -124,17 +74,33 @@ export default function Arbeitgeber() {
 
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap'); * { box-sizing: border-box; } input:focus, select:focus, textarea:focus { border-color: ${BLUE} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.1); }`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { border-color: ${BLUE} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.1); }
+        @media (max-width: 600px) {
+          .ag-header { padding: 14px 16px !important; }
+          .ag-container { padding: 24px 16px !important; }
+          .ag-card { padding: 24px 18px !important; }
+          .two-col-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+          .three-one-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+          .one-two-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+          .checkbox-grid { grid-template-columns: 1fr !important; }
+          .nav-btns-row { flex-direction: column !important; gap: 10px !important; }
+          .nav-btns-row button { width: 100% !important; }
+          .price-num { font-size: 2.2rem !important; }
+        }
+      `}</style>
 
-      <div style={{ background: "white", borderBottom: "1px solid #E8EDF4", padding: "16px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div className="ag-header" style={{ background: "white", borderBottom: "1px solid #E8EDF4", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 700 }}>
           <span style={{ color: NAVY }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
         </a>
         <div style={{ fontSize: "0.85rem", color: "#6B7897" }}>Schritt {step + 1} von {STEPS.length}</div>
       </div>
 
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "40px 24px" }}>
-        <div style={{ marginBottom: 32 }}>
+      <div className="ag-container" style={{ maxWidth: 680, margin: "0 auto", padding: "32px 20px" }}>
+        <div style={{ marginBottom: 28 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
             <span style={{ fontSize: "0.8rem", fontWeight: 700, color: NAVY }}>{STEPS[step]}</span>
             <span style={{ fontSize: "0.8rem", color: "#9BA8C0" }}>{Math.round(progress)}%</span>
@@ -149,7 +115,7 @@ export default function Arbeitgeber() {
           </div>
         </div>
 
-        <div style={{ background: "white", borderRadius: 24, padding: 40, boxShadow: "0 8px 40px rgba(26,63,111,0.1)", border: "1px solid #E8EDF4" }}>
+        <div className="ag-card" style={{ background: "white", borderRadius: 24, padding: 36, boxShadow: "0 8px 40px rgba(26,63,111,0.1)", border: "1px solid #E8EDF4" }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", color: NAVY, marginBottom: 8 }}>{STEPS[step]}</h2>
           <p style={{ color: "#9BA8C0", fontSize: "0.85rem", marginBottom: 28 }}>Bitte fülle alle Felder aus</p>
 
@@ -182,7 +148,7 @@ export default function Arbeitgeber() {
 
           {step === 1 && (
             <div>
-              <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div className="three-one-grid" style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 16, marginBottom: 16 }}>
                 <div>
                   <label style={labelStyle}>Straße *</label>
                   <input style={inputStyle} value={form.strasse} onChange={e => set("strasse", e.target.value)} placeholder="Musterstraße"/>
@@ -192,7 +158,7 @@ export default function Arbeitgeber() {
                   <input style={inputStyle} value={form.hausnummer} onChange={e => set("hausnummer", e.target.value)} placeholder="12a"/>
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 16, marginBottom: 16 }}>
+              <div className="one-two-grid" style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 16, marginBottom: 16 }}>
                 <div>
                   <label style={labelStyle}>PLZ *</label>
                   <input style={inputStyle} value={form.plz} onChange={e => set("plz", e.target.value)} placeholder="10115"/>
@@ -247,7 +213,7 @@ export default function Arbeitgeber() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Gesuchte Berufe</label>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div className="checkbox-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kita-Leitung","Praktikant / FSJ"].map(f => (
                     <label key={f} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #E2E8F0", background: form.fachrichtungen.includes(f) ? "#EAF7EF" : "white" }}>
                       <input type="checkbox" checked={form.fachrichtungen.includes(f)} onChange={() => toggleArr("fachrichtungen", f)} style={{ accentColor: GREEN }}/>
@@ -258,7 +224,7 @@ export default function Arbeitgeber() {
               </div>
               <div>
                 <label style={labelStyle}>Beschäftigungsart</label>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div className="checkbox-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {["Vollzeit","Teilzeit","Minijob","Vertretung"].map(p => (
                     <label key={p} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #E2E8F0", background: form.positionen.includes(p) ? "#EAF7EF" : "white" }}>
                       <input type="checkbox" checked={form.positionen.includes(p)} onChange={() => toggleArr("positionen", p)} style={{ accentColor: GREEN }}/>
@@ -274,7 +240,7 @@ export default function Arbeitgeber() {
             <div>
               <div style={{ background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, borderRadius: 20, padding: 28, color: "white", marginBottom: 16 }}>
                 <div style={{ fontSize: "0.8rem", fontWeight: 700, opacity: 0.7, marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Hauptplan</div>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.5rem", fontWeight: 700 }}>299 EUR</div>
+                <div className="price-num" style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.5rem", fontWeight: 700 }}>299 EUR</div>
                 <div style={{ opacity: 0.7, fontSize: "0.82rem", marginBottom: 16 }}>pro Monat, zzgl. MwSt.</div>
                 {["Alle Fachkräfte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kündbar"].map(f => (
                   <div key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: "0.85rem" }}>
@@ -289,12 +255,12 @@ export default function Arbeitgeber() {
                 { key: "Recruiting-Support", price: "99 EUR/Monat", desc: "Persönliche Unterstützung bei der Personalsuche" },
               ].map(addon => (
                 <label key={addon.key} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${form.addons.includes(addon.key) ? BLUE : "#E2E8F0"}`, background: form.addons.includes(addon.key) ? "#EBF4FF" : "white", marginBottom: 10 }}>
-                  <input type="checkbox" checked={form.addons.includes(addon.key)} onChange={() => toggleArr("addons", addon.key)} style={{ accentColor: BLUE }}/>
-                  <div style={{ flex: 1 }}>
+                  <input type="checkbox" checked={form.addons.includes(addon.key)} onChange={() => toggleArr("addons", addon.key)} style={{ accentColor: BLUE, flexShrink: 0 }}/>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.9rem" }}>{addon.key}</div>
                     <div style={{ color: "#9BA8C0", fontSize: "0.8rem" }}>{addon.desc}</div>
                   </div>
-                  <div style={{ fontWeight: 700, color: BLUE, fontSize: "0.85rem" }}>{addon.price}</div>
+                  <div style={{ fontWeight: 700, color: BLUE, fontSize: "0.85rem", flexShrink: 0 }}>{addon.price}</div>
                 </label>
               ))}
             </div>
@@ -332,19 +298,19 @@ export default function Arbeitgeber() {
                   ["Offene Stellen", form.stellen_anzahl],
                   ["Plan", "299 EUR/Monat"],
                 ].map(([k, v]) => v ? (
-                  <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #E8EDF4", fontSize: "0.85rem" }}>
-                    <span style={{ color: "#9BA8C0", fontWeight: 600 }}>{k}</span>
-                    <span style={{ color: NAVY }}>{v}</span>
+                  <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #E8EDF4", fontSize: "0.85rem", gap: 8 }}>
+                    <span style={{ color: "#9BA8C0", fontWeight: 600, flexShrink: 0 }}>{k}</span>
+                    <span style={{ color: NAVY, textAlign: "right" }}>{v}</span>
                   </div>
                 ) : null)}
               </div>
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", marginBottom: 12 }}>
-                  <input type="checkbox" checked={form.agb} onChange={e => set("agb", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY }}/>
+                  <input type="checkbox" checked={form.agb} onChange={e => set("agb", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY, flexShrink: 0 }}/>
                   <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich stimme den <a href="/agb" style={{ color: BLUE }}>Allgemeinen Geschäftsbedingungen</a> zu *</span>
                 </label>
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
-                  <input type="checkbox" checked={form.datenschutz} onChange={e => set("datenschutz", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY }}/>
+                  <input type="checkbox" checked={form.datenschutz} onChange={e => set("datenschutz", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY, flexShrink: 0 }}/>
                   <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich habe die <a href="/datenschutz" style={{ color: BLUE }}>Datenschutzerklärung</a> gelesen und stimme zu *</span>
                 </label>
               </div>
@@ -356,7 +322,7 @@ export default function Arbeitgeber() {
             </div>
           )}
 
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 32, gap: 12 }}>
+          <div className="nav-btns-row" style={{ display: "flex", justifyContent: "space-between", marginTop: 32, gap: 12 }}>
             {step > 0 ? (
               <button onClick={() => setStep(s => s - 1)} style={{ padding: "12px 28px", borderRadius: 50, border: `2px solid ${NAVY}`, background: "transparent", color: NAVY, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
                 Zurück

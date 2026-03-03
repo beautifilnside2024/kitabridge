@@ -7,26 +7,14 @@ const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
 const GREEN = "#1E8449";
 
-const STEPS = [
-  "Persönliche Daten",
-  "Qualifikation",
-  "Sprachkenntnisse",
-  "Berufserfahrung",
-  "Verfügbarkeit",
-  "Abschluss"
-];
+const STEPS = ["Persönliche Daten","Qualifikation","Sprachkenntnisse","Berufserfahrung","Verfügbarkeit","Abschluss"];
 
 const inputStyle = {
   width: "100%", padding: "12px 16px", borderRadius: 10, border: "1.5px solid #E2E8F0",
   fontSize: "0.95rem", outline: "none", fontFamily: "'DM Sans', sans-serif",
-  color: "#1a1a2e", background: "white", marginBottom: 4
+  color: "#1a1a2e", background: "white", marginBottom: 4, boxSizing: "border-box"
 };
-
-const labelStyle = {
-  display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#4A5568",
-  marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5
-};
-
+const labelStyle = { display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#4A5568", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 };
 const selectStyle = { ...inputStyle, cursor: "pointer" };
 
 export default function Registrieren() {
@@ -45,7 +33,6 @@ export default function Registrieren() {
   });
 
   const set = (key, value) => setForm(f => ({ ...f, [key]: value }));
-
   const toggleArr = (key, val) => {
     const arr = form[key];
     set(key, arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
@@ -54,14 +41,8 @@ export default function Registrieren() {
   const handleWeiter = () => {
     setError("");
     if (step === 0) {
-      if (!form.vorname || !form.nachname || !form.email || !form.passwort) {
-        setError("Bitte fülle alle Pflichtfelder aus.");
-        return;
-      }
-      if (form.passwort.length < 6) {
-        setError("Das Passwort muss mindestens 6 Zeichen lang sein.");
-        return;
-      }
+      if (!form.vorname || !form.nachname || !form.email || !form.passwort) { setError("Bitte fülle alle Pflichtfelder aus."); return; }
+      if (form.passwort.length < 6) { setError("Das Passwort muss mindestens 6 Zeichen lang sein."); return; }
     }
     setStep(s => s + 1);
   };
@@ -71,59 +52,26 @@ export default function Registrieren() {
     setLoading(true);
     setError("");
 
-    // 1. Supabase Auth Account erstellen
-    const { error: authError } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.passwort,
-    });
-
+    const { error: authError } = await supabase.auth.signUp({ email: form.email, password: form.passwort });
     if (authError && authError.message !== "User already registered") {
       setError("Fehler bei der Registrierung: " + authError.message);
       setLoading(false);
       return;
     }
 
-    // 2. Profil in Datenbank speichern
     const { error: dbError } = await supabase.from("fachkraefte").insert([{
-      vorname: form.vorname,
-      nachname: form.nachname,
-      email: form.email,
-      telefon: form.telefon,
-      wohnort: form.wohnort,
-      qualifikation: form.qualifikation,
-      zusatzqualifikation: form.zusatzqualifikation,
-      uniabschluss: form.uniabschluss,
-      deutsch: form.deutsch,
-      englisch: form.englisch,
-      weitere_sprachen: form.weitere_sprachen,
-      erfahrung_jahre: form.erfahrung_jahre,
-      kita_alter: form.kita_alter,
-      beschreibung: form.beschreibung,
-      verfuegbar_ab: form.verfuegbar_ab,
-      arbeitszeit: form.arbeitszeit,
-      bundesland: form.bundesland,
-      status: "neu"
+      vorname: form.vorname, nachname: form.nachname, email: form.email, telefon: form.telefon,
+      wohnort: form.wohnort, qualifikation: form.qualifikation, zusatzqualifikation: form.zusatzqualifikation,
+      uniabschluss: form.uniabschluss, deutsch: form.deutsch, englisch: form.englisch,
+      weitere_sprachen: form.weitere_sprachen, erfahrung_jahre: form.erfahrung_jahre,
+      kita_alter: form.kita_alter, beschreibung: form.beschreibung, verfuegbar_ab: form.verfuegbar_ab,
+      arbeitszeit: form.arbeitszeit, bundesland: form.bundesland, status: "neu"
     }]);
 
-    if (dbError) {
-      setError("Fehler beim Speichern: " + dbError.message);
-      setLoading(false);
-      return;
-    }
+    if (dbError) { setError("Fehler beim Speichern: " + dbError.message); setLoading(false); return; }
 
-    // 3. Admin-Benachrichtigung
-    await fetch("/api/send-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "fachkraft", data: form }),
-    });
-
-    // 4. Willkommens-E-Mail an Fachkraft
-    await fetch("/api/send-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "willkommen_fachkraft", data: form }),
-    });
+    await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "fachkraft", data: form }) });
+    await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "willkommen_fachkraft", data: form }) });
 
     setLoading(false);
     setSubmitted(true);
@@ -133,16 +81,15 @@ export default function Registrieren() {
 
   if (submitted) {
     return (
-      <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'DM Sans', sans-serif" }}>
-        <div style={{ background: "white", borderRadius: 24, padding: 48, maxWidth: 500, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(26,63,111,0.12)" }}>
+      <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px", fontFamily: "'DM Sans', sans-serif" }}>
+        <div style={{ background: "white", borderRadius: 24, padding: "40px 28px", maxWidth: 500, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(26,63,111,0.12)" }}>
           <div style={{ fontSize: "4rem", marginBottom: 20 }}>🎉</div>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 16 }}>Willkommen bei KitaBridge!</h2>
-          <p style={{ color: "#6B7897", lineHeight: 1.7, marginBottom: 28 }}>Vielen Dank, {form.vorname}! Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden bei dir.</p>
+          <p style={{ color: "#6B7897", lineHeight: 1.7, marginBottom: 28 }}>Vielen Dank, {form.vorname}! Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden.</p>
           <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
             <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>📧 Willkommens-E-Mail gesendet!</div>
             <div style={{ color: "#444", fontSize: "0.85rem", marginTop: 8, lineHeight: 1.7 }}>
-              Wir haben eine E-Mail an <strong>{form.email}</strong> geschickt.<br/>
-              Bitte prüfe auch deinen Spam-Ordner.
+              Wir haben eine E-Mail an <strong>{form.email}</strong> geschickt.<br/>Bitte prüfe auch deinen Spam-Ordner.
             </div>
           </div>
           <div style={{ background: "#F8FAFF", borderRadius: 12, padding: 16, marginBottom: 28, textAlign: "left" }}>
@@ -150,10 +97,10 @@ export default function Registrieren() {
             <div style={{ color: "#444", fontSize: "0.85rem", lineHeight: 1.9 }}>
               1. Wir prüfen dein Profil innerhalb von 24 Stunden<br/>
               2. Du erhältst eine Bestätigung per E-Mail<br/>
-              3. Kitas in ganz Deutschland können dich direkt kontaktieren
+              3. Kitas in ganz Deutschland können dich kontaktieren
             </div>
           </div>
-          <button onClick={() => router.push("/fachkraft/einstellungen")} style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", marginBottom: 12, width: "100%" }}>
+          <button onClick={() => router.push("/fachkraft/einstellungen")} style={{ display: "block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", marginBottom: 12, width: "100%" }}>
             Mein Profil ansehen →
           </button>
           <a href="/" style={{ display: "block", color: "#9BA8C0", fontSize: "0.88rem", textDecoration: "none" }}>Zurück zur Startseite</a>
@@ -164,17 +111,30 @@ export default function Registrieren() {
 
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap'); * { box-sizing: border-box; } input:focus, select:focus, textarea:focus { border-color: ${BLUE} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.1); }`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { border-color: ${BLUE} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.1); }
+        @media (max-width: 600px) {
+          .reg-header { padding: 14px 16px !important; }
+          .reg-container { padding: 24px 16px !important; }
+          .reg-card { padding: 24px 18px !important; }
+          .two-col-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+          .checkbox-grid { grid-template-columns: 1fr !important; }
+          .nav-btns-row { flex-direction: column !important; gap: 10px !important; }
+          .nav-btns-row button { width: 100% !important; }
+        }
+      `}</style>
 
-      <div style={{ background: "white", borderBottom: "1px solid #E8EDF4", padding: "16px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div className="reg-header" style={{ background: "white", borderBottom: "1px solid #E8EDF4", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 700 }}>
           <span style={{ color: NAVY }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
         </a>
         <div style={{ fontSize: "0.85rem", color: "#6B7897" }}>Schritt {step + 1} von {STEPS.length}</div>
       </div>
 
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "40px 24px" }}>
-        <div style={{ marginBottom: 32 }}>
+      <div className="reg-container" style={{ maxWidth: 680, margin: "0 auto", padding: "32px 20px" }}>
+        <div style={{ marginBottom: 28 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
             <span style={{ fontSize: "0.8rem", fontWeight: 700, color: NAVY }}>{STEPS[step]}</span>
             <span style={{ fontSize: "0.8rem", color: "#9BA8C0" }}>{Math.round(progress)}%</span>
@@ -189,14 +149,13 @@ export default function Registrieren() {
           </div>
         </div>
 
-        <div style={{ background: "white", borderRadius: 24, padding: 40, boxShadow: "0 8px 40px rgba(26,63,111,0.1)", border: "1px solid #E8EDF4" }}>
+        <div className="reg-card" style={{ background: "white", borderRadius: 24, padding: 36, boxShadow: "0 8px 40px rgba(26,63,111,0.1)", border: "1px solid #E8EDF4" }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", color: NAVY, marginBottom: 8 }}>{STEPS[step]}</h2>
           <p style={{ color: "#9BA8C0", fontSize: "0.85rem", marginBottom: 28 }}>Bitte fülle alle Pflichtfelder aus</p>
 
-          {/* SCHRITT 1 - Persönliche Daten */}
           {step === 0 && (
             <div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div className="two-col-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
                 <div>
                   <label style={labelStyle}>Vorname *</label>
                   <input style={inputStyle} value={form.vorname} onChange={e => set("vorname", e.target.value)} placeholder="Maria"/>
@@ -214,7 +173,7 @@ export default function Registrieren() {
                 <label style={labelStyle}>Passwort * (mind. 6 Zeichen)</label>
                 <input style={inputStyle} type="password" value={form.passwort} onChange={e => set("passwort", e.target.value)} placeholder="••••••••"/>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="two-col-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 <div>
                   <label style={labelStyle}>Telefonnummer</label>
                   <input style={inputStyle} value={form.telefon} onChange={e => set("telefon", e.target.value)} placeholder="+49 123 456789"/>
@@ -227,7 +186,6 @@ export default function Registrieren() {
             </div>
           )}
 
-          {/* SCHRITT 2 - Qualifikation */}
           {step === 1 && (
             <div>
               <div style={{ marginBottom: 16 }}>
@@ -239,7 +197,7 @@ export default function Registrieren() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Zusatzqualifikationen</label>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div className="checkbox-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {["Montessori Zertifikat","Waldorf Ausbildung","Sprachförderung","Inklusionspädagogik","Musikpädagogik","Erste Hilfe Kind"].map(z => (
                     <label key={z} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #E2E8F0", background: form.zusatzqualifikation.includes(z) ? "#EAF7EF" : "white" }}>
                       <input type="checkbox" checked={form.zusatzqualifikation.includes(z)} onChange={() => set("zusatzqualifikation", form.zusatzqualifikation.includes(z) ? form.zusatzqualifikation.replace(z, "").trim() : (form.zusatzqualifikation + " " + z).trim())} style={{ accentColor: GREEN }}/>
@@ -255,7 +213,6 @@ export default function Registrieren() {
             </div>
           )}
 
-          {/* SCHRITT 3 - Sprachkenntnisse */}
           {step === 2 && (
             <div>
               <div style={{ marginBottom: 16 }}>
@@ -282,7 +239,6 @@ export default function Registrieren() {
             </div>
           )}
 
-          {/* SCHRITT 4 - Berufserfahrung */}
           {step === 3 && (
             <div>
               <div style={{ marginBottom: 16 }}>
@@ -294,7 +250,7 @@ export default function Registrieren() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Erfahrung mit Altersgruppen</label>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div className="checkbox-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {["Krippe (0-3 Jahre)","Kindergarten (3-6 Jahre)","Hort (6-12 Jahre)","Integrationskita","Familiengruppen","Ganztagesbetreuung"].map(a => (
                     <label key={a} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #E2E8F0", background: form.kita_alter.includes(a) ? "#EAF7EF" : "white" }}>
                       <input type="checkbox" checked={form.kita_alter.includes(a)} onChange={() => toggleArr("kita_alter", a)} style={{ accentColor: GREEN }}/>
@@ -310,7 +266,6 @@ export default function Registrieren() {
             </div>
           )}
 
-          {/* SCHRITT 5 - Verfügbarkeit */}
           {step === 4 && (
             <div>
               <div style={{ marginBottom: 16 }}>
@@ -319,7 +274,7 @@ export default function Registrieren() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Gewünschte Arbeitszeit *</label>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div className="checkbox-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {["Vollzeit (38-40h)","Teilzeit (20-30h)","Minijob","Vertretung / Aushilfe"].map(a => (
                     <label key={a} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "12px 16px", borderRadius: 8, border: `1.5px solid ${form.arbeitszeit === a ? BLUE : "#E2E8F0"}`, background: form.arbeitszeit === a ? "#EBF4FF" : "white" }}>
                       <input type="radio" name="arbeitszeit" value={a} checked={form.arbeitszeit === a} onChange={() => set("arbeitszeit", a)} style={{ accentColor: BLUE }}/>
@@ -338,7 +293,6 @@ export default function Registrieren() {
             </div>
           )}
 
-          {/* SCHRITT 6 - Abschluss */}
           {step === 5 && (
             <div>
               <div style={{ background: "#F8FAFF", borderRadius: 16, padding: 20, marginBottom: 24 }}>
@@ -353,19 +307,19 @@ export default function Registrieren() {
                   ["Arbeitszeit", form.arbeitszeit],
                   ["Bundesland", form.bundesland || "Flexibel"],
                 ].map(([k, v]) => v ? (
-                  <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #E8EDF4", fontSize: "0.85rem" }}>
-                    <span style={{ color: "#9BA8C0", fontWeight: 600 }}>{k}</span>
-                    <span style={{ color: NAVY }}>{v}</span>
+                  <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #E8EDF4", fontSize: "0.85rem", gap: 8 }}>
+                    <span style={{ color: "#9BA8C0", fontWeight: 600, flexShrink: 0 }}>{k}</span>
+                    <span style={{ color: NAVY, textAlign: "right" }}>{v}</span>
                   </div>
                 ) : null)}
               </div>
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", marginBottom: 12 }}>
-                  <input type="checkbox" checked={form.agb} onChange={e => set("agb", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY }}/>
+                  <input type="checkbox" checked={form.agb} onChange={e => set("agb", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY, flexShrink: 0 }}/>
                   <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich stimme den <a href="/agb" style={{ color: BLUE }}>AGB</a> zu *</span>
                 </label>
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
-                  <input type="checkbox" checked={form.datenschutz} onChange={e => set("datenschutz", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY }}/>
+                  <input type="checkbox" checked={form.datenschutz} onChange={e => set("datenschutz", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY, flexShrink: 0 }}/>
                   <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich habe die <a href="/datenschutz" style={{ color: BLUE }}>Datenschutzerklärung</a> gelesen *</span>
                 </label>
               </div>
@@ -383,7 +337,7 @@ export default function Registrieren() {
             </div>
           )}
 
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 32, gap: 12 }}>
+          <div className="nav-btns-row" style={{ display: "flex", justifyContent: "space-between", marginTop: 32, gap: 12 }}>
             {step > 0 ? (
               <button onClick={() => setStep(s => s - 1)} style={{ padding: "12px 28px", borderRadius: 50, border: `2px solid ${NAVY}`, background: "transparent", color: NAVY, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
                 Zurück

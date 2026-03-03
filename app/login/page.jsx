@@ -37,7 +37,6 @@ export default function Login() {
       return;
     }
 
-    // Prüfen ob Arbeitgeber oder Fachkraft
     const { data: arbeitgeber } = await supabase
       .from("arbeitgeber")
       .select("id")
@@ -53,18 +52,26 @@ export default function Login() {
 
   return (
     <div style={{ minHeight: "100vh", background: `linear-gradient(135deg, ${NAVY} 0%, #0F2340 100%)`,
-display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap'); * { box-sizing: border-box; } input::placeholder { color: rgba(255,255,255,0.3); }`}</style>
+      display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px", fontFamily: "'DM Sans', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; }
+        input::placeholder { color: rgba(255,255,255,0.3); }
+        @media (max-width: 480px) {
+          .login-box { padding: 28px 20px !important; border-radius: 18px !important; }
+          .login-logo { font-size: 1.6rem !important; }
+        }
+      `}</style>
 
       <div style={{ width: "100%", maxWidth: 420 }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700 }}>
+          <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700 }} className="login-logo">
             <span style={{ color: "white" }}>Kita</span><span style={{ color: "#4ADE80" }}>Bridge</span>
           </a>
           <p style={{ color: "rgba(255,255,255,0.5)", marginTop: 8, fontSize: "0.9rem" }}>Login für Arbeitgeber & Fachkräfte</p>
         </div>
 
-        <div style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 24, padding: 40 }}>
+        <div className="login-box" style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 24, padding: 40 }}>
           <div style={{ marginBottom: 20 }}>
             <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>E-Mail</label>
             <input
