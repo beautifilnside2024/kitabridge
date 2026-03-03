@@ -60,12 +60,7 @@ const translations = {
       planLabel: "Hauptplan",
       perMonth: "pro Monat, zzgl. MwSt.",
       features: ["Alle Fachkräfte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kündbar"],
-      addonsLabel: "Optionale Zusatzleistungen",
-      addons: [
-        { key: "Profil-Boost", price: "49 EUR/Monat", desc: "Ihre Kita wird prominent hervorgehoben" },
-        { key: "Bewerber-Matching", price: "79 EUR/Monat", desc: "KI-gestütztes Matching mit passenden Fachkräften" },
-        { key: "Recruiting-Support", price: "99 EUR/Monat", desc: "Persönliche Unterstützung bei der Personalsuche" },
-      ],
+      note: "✓ Keine versteckten Kosten. Keine Provision. Monatlich kündbar.",
     },
     step5: {
       title: "Passwort",
@@ -78,7 +73,7 @@ const translations = {
       title: "Abschluss",
       summary: "Zusammenfassung",
       fields: ["Einrichtung","Typ","Ort","Ansprechpartner","E-Mail","Offene Stellen","Plan"],
-      agbText: (a, b) => <>Ich stimme den <a href="/agb" style={{ color: BLUE }}>{a}</a> zu *</>,
+      agbText: (a) => <>Ich stimme den <a href="/agb" style={{ color: BLUE }}>{a}</a> zu *</>,
       agbLabel: "Allgemeinen Geschäftsbedingungen",
       dsgvoText: (a) => <>Ich habe die <a href="/datenschutz" style={{ color: BLUE }}>{a}</a> gelesen und stimme zu *</>,
       dsgvoLabel: "Datenschutzerklärung",
@@ -142,12 +137,7 @@ const translations = {
       planLabel: "Main Plan",
       perMonth: "per month, excl. VAT",
       features: ["All professional profiles","Direct contact","Unlimited search","No commission","Cancel monthly"],
-      addonsLabel: "Optional Add-ons",
-      addons: [
-        { key: "Profile Boost", price: "€49/month", desc: "Your daycare is prominently highlighted" },
-        { key: "Applicant Matching", price: "€79/month", desc: "AI-powered matching with suitable professionals" },
-        { key: "Recruiting Support", price: "€99/month", desc: "Personal support during your staff search" },
-      ],
+      note: "✓ No hidden costs. No commission. Cancel monthly.",
     },
     step5: {
       title: "Password",
@@ -160,7 +150,7 @@ const translations = {
       title: "Summary",
       summary: "Summary",
       fields: ["Facility","Type","Location","Contact","Email","Open Positions","Plan"],
-      agbText: (a, b) => <>I agree to the <a href="/agb" style={{ color: BLUE }}>{a}</a> *</>,
+      agbText: (a) => <>I agree to the <a href="/agb" style={{ color: BLUE }}>{a}</a> *</>,
       agbLabel: "Terms and Conditions",
       dsgvoText: (a) => <>I have read and agree to the <a href="/datenschutz" style={{ color: BLUE }}>{a}</a> *</>,
       dsgvoLabel: "Privacy Policy",
@@ -195,7 +185,7 @@ export default function Arbeitgeber() {
     strasse: "", hausnummer: "", plz: "", ort: "", bundesland: "",
     ansprech_name: "", ansprech_rolle: "", email: "", telefon: "",
     passwort: "", passwort2: "",
-    stellen_anzahl: "", fachrichtungen: [], positionen: [], addons: [],
+    stellen_anzahl: "", fachrichtungen: [], positionen: [],
     agb: false, datenschutz: false
   });
 
@@ -227,7 +217,7 @@ export default function Arbeitgeber() {
       bundesland: form.bundesland, ansprech_name: form.ansprech_name,
       ansprech_rolle: form.ansprech_rolle, email: form.email, telefon: form.telefon,
       stellen_anzahl: form.stellen_anzahl, fachrichtungen: form.fachrichtungen,
-      positionen: form.positionen, addons: form.addons, status: "neu"
+      positionen: form.positionen, status: "neu"
     }]).select().single();
 
     if (error) { setLoading(false); alert(t.errors.authError + error.message); return; }
@@ -255,7 +245,6 @@ export default function Arbeitgeber() {
           .ag-header { padding: 14px 16px !important; }
           .ag-container { padding: 24px 16px !important; }
           .ag-card { padding: 24px 18px !important; }
-          .two-col-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
           .three-one-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
           .one-two-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
           .checkbox-grid { grid-template-columns: 1fr !important; }
@@ -431,17 +420,9 @@ export default function Arbeitgeber() {
                   </div>
                 ))}
               </div>
-              <label style={labelStyle}>{t.step4.addonsLabel}</label>
-              {t.step4.addons.map(addon => (
-                <label key={addon.key} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${form.addons.includes(addon.key) ? BLUE : "#E2E8F0"}`, background: form.addons.includes(addon.key) ? "#EBF4FF" : "white", marginBottom: 10 }}>
-                  <input type="checkbox" checked={form.addons.includes(addon.key)} onChange={() => toggleArr("addons", addon.key)} style={{ accentColor: BLUE, flexShrink: 0 }}/>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.9rem" }}>{addon.key}</div>
-                    <div style={{ color: "#9BA8C0", fontSize: "0.8rem" }}>{addon.desc}</div>
-                  </div>
-                  <div style={{ fontWeight: 700, color: BLUE, fontSize: "0.85rem", flexShrink: 0 }}>{addon.price}</div>
-                </label>
-              ))}
+              <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, fontSize: "0.85rem", color: "#1E8449", fontWeight: 600 }}>
+                {t.step4.note}
+              </div>
             </div>
           )}
 
