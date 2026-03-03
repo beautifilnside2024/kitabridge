@@ -7,7 +7,92 @@ const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
 const GREEN = "#1E8449";
 
-const STEPS = ["Persönliche Daten","Qualifikation","Sprachkenntnisse","Berufserfahrung","Verfügbarkeit","Abschluss"];
+const t = {
+  de: {
+    steps: ["Persönliche Daten","Qualifikation","Sprachkenntnisse","Berufserfahrung","Verfügbarkeit","Abschluss"],
+    step: "Schritt", of: "von",
+    fillFields: "Bitte fülle alle Pflichtfelder aus",
+    next: "Weiter", back: "Zurück", submit: "Registrierung abschließen", saving: "Wird gespeichert...",
+    errorRequired: "Bitte fülle alle Pflichtfelder aus.",
+    errorPassword: "Das Passwort muss mindestens 6 Zeichen lang sein.",
+    errorAuth: "Fehler bei der Registrierung: ", errorDb: "Fehler beim Speichern: ",
+    firstName: "Vorname *", lastName: "Nachname *", email: "E-Mail-Adresse *",
+    password: "Passwort * (mind. 6 Zeichen)", phone: "Telefonnummer", city: "Aktueller Wohnort",
+    firstNamePh: "Maria", lastNamePh: "Mustermann", emailPh: "maria@example.com",
+    passwordPh: "••••••••", phonePh: "+49 123 456789", cityPh: "Berlin",
+    qualification: "Berufsabschluss *", pleaseSelect: "Bitte wählen",
+    qualifications: ["Staatlich anerkannte Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kindheitspädagogin / Kindheitspädagoge","Sonstige pädagogische Ausbildung"],
+    additionalQual: "Zusatzqualifikationen",
+    additionalQuals: ["Montessori Zertifikat","Waldorf Ausbildung","Sprachförderung","Inklusionspädagogik","Musikpädagogik","Erste Hilfe Kind"],
+    university: "Hochschulabschluss (falls vorhanden)", universityPh: "z.B. Bachelor Pädagogik",
+    german: "Deutschkenntnisse *", english: "Englischkenntnisse", otherLangs: "Weitere Sprachen",
+    none: "Keine", otherLangsPh: "z.B. Französisch B2, Arabisch Muttersprache",
+    langLevels: ["A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"],
+    langNote: "Hinweis: Mindestens Deutschkenntnisse auf B1-Niveau sind erforderlich.",
+    experience: "Jahre Berufserfahrung in der Kita *",
+    experienceLevels: ["Berufseinsteiger (0-1 Jahre)","1-2 Jahre","2-5 Jahre","5-10 Jahre","Mehr als 10 Jahre"],
+    ageGroups: "Erfahrung mit Altersgruppen",
+    ageGroupList: ["Krippe (0-3 Jahre)","Kindergarten (3-6 Jahre)","Hort (6-12 Jahre)","Integrationskita","Familiengruppen","Ganztagesbetreuung"],
+    description: "Kurze Beschreibung deiner Erfahrung", descriptionPh: "Beschreibe kurz deine bisherige Erfahrung in der Kita...",
+    availableFrom: "Verfügbar ab *", workingHours: "Gewünschte Arbeitszeit *",
+    workingHoursList: ["Vollzeit (38-40h)","Teilzeit (20-30h)","Minijob","Vertretung / Aushilfe"],
+    state: "Gewünschtes Bundesland", flexible: "Egal / Flexibel",
+    states: ["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"],
+    summary: "Zusammenfassung",
+    summaryFields: ["Name","E-Mail","Qualifikation","Deutschkenntnisse","Erfahrung","Verfügbar ab","Arbeitszeit","Bundesland"],
+    flexibleLabel: "Flexibel",
+    agbText: "Ich stimme den AGB zu *", privacyText: "Ich habe die Datenschutzerklärung gelesen *",
+    welcome: "Willkommen bei KitaBridge!",
+    thankYou: "Vielen Dank, {name}! Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden.",
+    emailSent: "📧 Willkommens-E-Mail gesendet!",
+    emailInfo: "Wir haben eine E-Mail an {email} geschickt. Bitte prüfe auch deinen Spam-Ordner.",
+    nextSteps: "Nächste Schritte:",
+    nextStepsList: ["Wir prüfen dein Profil innerhalb von 24 Stunden","Du erhältst eine Bestätigung per E-Mail","Kitas in ganz Deutschland können dich kontaktieren"],
+    viewProfile: "Mein Profil ansehen →", backHome: "Zurück zur Startseite",
+  },
+  en: {
+    steps: ["Personal Data","Qualification","Language Skills","Work Experience","Availability","Summary"],
+    step: "Step", of: "of",
+    fillFields: "Please fill in all required fields",
+    next: "Next", back: "Back", submit: "Complete Registration", saving: "Saving...",
+    errorRequired: "Please fill in all required fields.",
+    errorPassword: "The password must be at least 6 characters long.",
+    errorAuth: "Registration error: ", errorDb: "Saving error: ",
+    firstName: "First Name *", lastName: "Last Name *", email: "Email Address *",
+    password: "Password * (min. 6 characters)", phone: "Phone Number", city: "Current City",
+    firstNamePh: "Maria", lastNamePh: "Smith", emailPh: "maria@example.com",
+    passwordPh: "••••••••", phonePh: "+49 123 456789", cityPh: "Berlin",
+    qualification: "Professional Qualification *", pleaseSelect: "Please select",
+    qualifications: ["State-certified Educator (Erzieherin/Erzieher)","Childcare Worker (Kinderpfleger)","Social Pedagogue (Sozialpädagoge)","Special Needs Educator (Heilpädagoge)","Early Childhood Educator (Kindheitspädagoge)","Other pedagogical qualification"],
+    additionalQual: "Additional Qualifications",
+    additionalQuals: ["Montessori Certificate","Waldorf Training","Language Promotion","Inclusive Pedagogy","Music Education","First Aid for Children"],
+    university: "University Degree (if applicable)", universityPh: "e.g. Bachelor Education",
+    german: "German Language Skills *", english: "English Language Skills", otherLangs: "Other Languages",
+    none: "None", otherLangsPh: "e.g. French B2, Arabic native speaker",
+    langLevels: ["A1 – Beginner","A2 – Elementary","B1 – Intermediate","B2 – Upper Intermediate","C1 – Advanced","C2 – Native/Proficient"],
+    langNote: "Note: Minimum German language skills at B1 level are required.",
+    experience: "Years of Daycare Experience *",
+    experienceLevels: ["Career starter (0-1 years)","1-2 years","2-5 years","5-10 years","More than 10 years"],
+    ageGroups: "Experience with Age Groups",
+    ageGroupList: ["Nursery (0-3 years)","Kindergarten (3-6 years)","After-school care (6-12 years)","Inclusive daycare","Mixed-age groups","Full-day care"],
+    description: "Brief description of your experience", descriptionPh: "Briefly describe your previous experience in childcare...",
+    availableFrom: "Available from *", workingHours: "Desired Working Hours *",
+    workingHoursList: ["Full-time (38-40h)","Part-time (20-30h)","Mini job","Substitute / Temp"],
+    state: "Preferred Federal State", flexible: "Flexible / No preference",
+    states: ["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"],
+    summary: "Summary",
+    summaryFields: ["Name","Email","Qualification","German Skills","Experience","Available from","Working Hours","Federal State"],
+    flexibleLabel: "Flexible",
+    agbText: "I agree to the Terms & Conditions *", privacyText: "I have read the Privacy Policy *",
+    welcome: "Welcome to KitaBridge!",
+    thankYou: "Thank you, {name}! We have received your profile and will get back to you within 24 hours.",
+    emailSent: "📧 Welcome email sent!",
+    emailInfo: "We sent an email to {email}. Please also check your spam folder.",
+    nextSteps: "Next Steps:",
+    nextStepsList: ["We review your profile within 24 hours","You will receive a confirmation by email","Daycare centers across Germany can contact you"],
+    viewProfile: "View my profile →", backHome: "Back to home page",
+  }
+};
 
 const inputStyle = {
   width: "100%", padding: "12px 16px", borderRadius: 10, border: "1.5px solid #E2E8F0",
@@ -19,10 +104,14 @@ const selectStyle = { ...inputStyle, cursor: "pointer" };
 
 export default function Registrieren() {
   const router = useRouter();
+  const [lang, setLang] = useState("de");
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const tx = t[lang];
+  const STEPS = tx.steps;
+
   const [form, setForm] = useState({
     vorname: "", nachname: "", email: "", passwort: "", telefon: "", wohnort: "",
     qualifikation: "", zusatzqualifikation: "", uniabschluss: "",
@@ -41,8 +130,8 @@ export default function Registrieren() {
   const handleWeiter = () => {
     setError("");
     if (step === 0) {
-      if (!form.vorname || !form.nachname || !form.email || !form.passwort) { setError("Bitte fülle alle Pflichtfelder aus."); return; }
-      if (form.passwort.length < 6) { setError("Das Passwort muss mindestens 6 Zeichen lang sein."); return; }
+      if (!form.vorname || !form.nachname || !form.email || !form.passwort) { setError(tx.errorRequired); return; }
+      if (form.passwort.length < 6) { setError(tx.errorPassword); return; }
     }
     setStep(s => s + 1);
   };
@@ -51,14 +140,10 @@ export default function Registrieren() {
     if (!form.agb || !form.datenschutz) return;
     setLoading(true);
     setError("");
-
     const { error: authError } = await supabase.auth.signUp({ email: form.email, password: form.passwort });
     if (authError && authError.message !== "User already registered") {
-      setError("Fehler bei der Registrierung: " + authError.message);
-      setLoading(false);
-      return;
+      setError(tx.errorAuth + authError.message); setLoading(false); return;
     }
-
     const { error: dbError } = await supabase.from("fachkraefte").insert([{
       vorname: form.vorname, nachname: form.nachname, email: form.email, telefon: form.telefon,
       wohnort: form.wohnort, qualifikation: form.qualifikation, zusatzqualifikation: form.zusatzqualifikation,
@@ -67,12 +152,9 @@ export default function Registrieren() {
       kita_alter: form.kita_alter, beschreibung: form.beschreibung, verfuegbar_ab: form.verfuegbar_ab,
       arbeitszeit: form.arbeitszeit, bundesland: form.bundesland, status: "neu"
     }]);
-
-    if (dbError) { setError("Fehler beim Speichern: " + dbError.message); setLoading(false); return; }
-
+    if (dbError) { setError(tx.errorDb + dbError.message); setLoading(false); return; }
     await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "fachkraft", data: form }) });
     await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "willkommen_fachkraft", data: form }) });
-
     setLoading(false);
     setSubmitted(true);
   };
@@ -84,26 +166,24 @@ export default function Registrieren() {
       <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #EAF7EF)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px", fontFamily: "'DM Sans', sans-serif" }}>
         <div style={{ background: "white", borderRadius: 24, padding: "40px 28px", maxWidth: 500, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(26,63,111,0.12)" }}>
           <div style={{ fontSize: "4rem", marginBottom: 20 }}>🎉</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 16 }}>Willkommen bei KitaBridge!</h2>
-          <p style={{ color: "#6B7897", lineHeight: 1.7, marginBottom: 28 }}>Vielen Dank, {form.vorname}! Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden.</p>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 16 }}>{tx.welcome}</h2>
+          <p style={{ color: "#6B7897", lineHeight: 1.7, marginBottom: 28 }}>{tx.thankYou.replace("{name}", form.vorname)}</p>
           <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, marginBottom: 28 }}>
-            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>📧 Willkommens-E-Mail gesendet!</div>
+            <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem" }}>{tx.emailSent}</div>
             <div style={{ color: "#444", fontSize: "0.85rem", marginTop: 8, lineHeight: 1.7 }}>
-              Wir haben eine E-Mail an <strong>{form.email}</strong> geschickt.<br/>Bitte prüfe auch deinen Spam-Ordner.
+              {tx.emailInfo.split("{email}")[0]}<strong>{form.email}</strong>{tx.emailInfo.split("{email}")[1]}
             </div>
           </div>
           <div style={{ background: "#F8FAFF", borderRadius: 12, padding: 16, marginBottom: 28, textAlign: "left" }}>
-            <div style={{ color: NAVY, fontWeight: 700, fontSize: "0.9rem", marginBottom: 8 }}>Nächste Schritte:</div>
+            <div style={{ color: NAVY, fontWeight: 700, fontSize: "0.9rem", marginBottom: 8 }}>{tx.nextSteps}</div>
             <div style={{ color: "#444", fontSize: "0.85rem", lineHeight: 1.9 }}>
-              1. Wir prüfen dein Profil innerhalb von 24 Stunden<br/>
-              2. Du erhältst eine Bestätigung per E-Mail<br/>
-              3. Kitas in ganz Deutschland können dich kontaktieren
+              {tx.nextStepsList.map((s, i) => <div key={i}>{i+1}. {s}</div>)}
             </div>
           </div>
           <button onClick={() => router.push("/fachkraft/einstellungen")} style={{ display: "block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", marginBottom: 12, width: "100%" }}>
-            Mein Profil ansehen →
+            {tx.viewProfile}
           </button>
-          <a href="/" style={{ display: "block", color: "#9BA8C0", fontSize: "0.88rem", textDecoration: "none" }}>Zurück zur Startseite</a>
+          <a href="/" style={{ display: "block", color: "#9BA8C0", fontSize: "0.88rem", textDecoration: "none" }}>{tx.backHome}</a>
         </div>
       </div>
     );
@@ -115,6 +195,10 @@ export default function Registrieren() {
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; }
         input:focus, select:focus, textarea:focus { border-color: ${BLUE} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.1); }
+        .lang-btn { background: none; border: 1.5px solid #E8EDF4; border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 0.8rem; font-weight: 700; font-family: 'DM Sans', sans-serif; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s; color: #444; }
+        .lang-btn:hover { border-color: #1A3F6F; }
+        .lang-btn.active { border-color: #1A3F6F; background: #EEF2FF; color: #1A3F6F; }
+        .flag-img { width: 20px; height: 14px; border-radius: 2px; object-fit: cover; }
         @media (max-width: 600px) {
           .reg-header { padding: 14px 16px !important; }
           .reg-container { padding: 24px 16px !important; }
@@ -130,7 +214,17 @@ export default function Registrieren() {
         <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 700 }}>
           <span style={{ color: NAVY }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
         </a>
-        <div style={{ fontSize: "0.85rem", color: "#6B7897" }}>Schritt {step + 1} von {STEPS.length}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", gap: 4 }}>
+            <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}>
+              <img className="flag-img" src="https://flagcdn.com/w20/de.png" alt="DE" />DE
+            </button>
+            <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}>
+              <img className="flag-img" src="https://flagcdn.com/w20/gb.png" alt="EN" />EN
+            </button>
+          </div>
+          <div style={{ fontSize: "0.85rem", color: "#6B7897" }}>{tx.step} {step + 1} {tx.of} {STEPS.length}</div>
+        </div>
       </div>
 
       <div className="reg-container" style={{ maxWidth: 680, margin: "0 auto", padding: "32px 20px" }}>
@@ -151,37 +245,19 @@ export default function Registrieren() {
 
         <div className="reg-card" style={{ background: "white", borderRadius: 24, padding: 36, boxShadow: "0 8px 40px rgba(26,63,111,0.1)", border: "1px solid #E8EDF4" }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", color: NAVY, marginBottom: 8 }}>{STEPS[step]}</h2>
-          <p style={{ color: "#9BA8C0", fontSize: "0.85rem", marginBottom: 28 }}>Bitte fülle alle Pflichtfelder aus</p>
+          <p style={{ color: "#9BA8C0", fontSize: "0.85rem", marginBottom: 28 }}>{tx.fillFields}</p>
 
           {step === 0 && (
             <div>
               <div className="two-col-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-                <div>
-                  <label style={labelStyle}>Vorname *</label>
-                  <input style={inputStyle} value={form.vorname} onChange={e => set("vorname", e.target.value)} placeholder="Maria"/>
-                </div>
-                <div>
-                  <label style={labelStyle}>Nachname *</label>
-                  <input style={inputStyle} value={form.nachname} onChange={e => set("nachname", e.target.value)} placeholder="Mustermann"/>
-                </div>
+                <div><label style={labelStyle}>{tx.firstName}</label><input style={inputStyle} value={form.vorname} onChange={e => set("vorname", e.target.value)} placeholder={tx.firstNamePh}/></div>
+                <div><label style={labelStyle}>{tx.lastName}</label><input style={inputStyle} value={form.nachname} onChange={e => set("nachname", e.target.value)} placeholder={tx.lastNamePh}/></div>
               </div>
-              <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>E-Mail-Adresse *</label>
-                <input style={inputStyle} type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="maria@example.com"/>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Passwort * (mind. 6 Zeichen)</label>
-                <input style={inputStyle} type="password" value={form.passwort} onChange={e => set("passwort", e.target.value)} placeholder="••••••••"/>
-              </div>
+              <div style={{ marginBottom: 16 }}><label style={labelStyle}>{tx.email}</label><input style={inputStyle} type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder={tx.emailPh}/></div>
+              <div style={{ marginBottom: 16 }}><label style={labelStyle}>{tx.password}</label><input style={inputStyle} type="password" value={form.passwort} onChange={e => set("passwort", e.target.value)} placeholder={tx.passwordPh}/></div>
               <div className="two-col-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <label style={labelStyle}>Telefonnummer</label>
-                  <input style={inputStyle} value={form.telefon} onChange={e => set("telefon", e.target.value)} placeholder="+49 123 456789"/>
-                </div>
-                <div>
-                  <label style={labelStyle}>Aktueller Wohnort</label>
-                  <input style={inputStyle} value={form.wohnort} onChange={e => set("wohnort", e.target.value)} placeholder="Berlin"/>
-                </div>
+                <div><label style={labelStyle}>{tx.phone}</label><input style={inputStyle} value={form.telefon} onChange={e => set("telefon", e.target.value)} placeholder={tx.phonePh}/></div>
+                <div><label style={labelStyle}>{tx.city}</label><input style={inputStyle} value={form.wohnort} onChange={e => set("wohnort", e.target.value)} placeholder={tx.cityPh}/></div>
               </div>
             </div>
           )}
@@ -189,105 +265,88 @@ export default function Registrieren() {
           {step === 1 && (
             <div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Berufsabschluss *</label>
+                <label style={labelStyle}>{tx.qualification}</label>
                 <select style={selectStyle} value={form.qualifikation} onChange={e => set("qualifikation", e.target.value)}>
-                  <option value="">Bitte wählen</option>
-                  {["Staatlich anerkannte Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kindheitspädagogin / Kindheitspädagoge","Sonstige pädagogische Ausbildung"].map(q => <option key={q} value={q}>{q}</option>)}
+                  <option value="">{tx.pleaseSelect}</option>
+                  {tx.qualifications.map(q => <option key={q} value={q}>{q}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Zusatzqualifikationen</label>
+                <label style={labelStyle}>{tx.additionalQual}</label>
                 <div className="checkbox-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  {["Montessori Zertifikat","Waldorf Ausbildung","Sprachförderung","Inklusionspädagogik","Musikpädagogik","Erste Hilfe Kind"].map(z => (
+                  {tx.additionalQuals.map(z => (
                     <label key={z} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #E2E8F0", background: form.zusatzqualifikation.includes(z) ? "#EAF7EF" : "white" }}>
-                      <input type="checkbox" checked={form.zusatzqualifikation.includes(z)} onChange={() => set("zusatzqualifikation", form.zusatzqualifikation.includes(z) ? form.zusatzqualifikation.replace(z, "").trim() : (form.zusatzqualifikation + " " + z).trim())} style={{ accentColor: GREEN }}/>
-                      {z}
+                      <input type="checkbox" checked={form.zusatzqualifikation.includes(z)} onChange={() => set("zusatzqualifikation", form.zusatzqualifikation.includes(z) ? form.zusatzqualifikation.replace(z, "").trim() : (form.zusatzqualifikation + " " + z).trim())} style={{ accentColor: GREEN }}/>{z}
                     </label>
                   ))}
                 </div>
               </div>
-              <div>
-                <label style={labelStyle}>Hochschulabschluss (falls vorhanden)</label>
-                <input style={inputStyle} value={form.uniabschluss} onChange={e => set("uniabschluss", e.target.value)} placeholder="z.B. Bachelor Pädagogik"/>
-              </div>
+              <div><label style={labelStyle}>{tx.university}</label><input style={inputStyle} value={form.uniabschluss} onChange={e => set("uniabschluss", e.target.value)} placeholder={tx.universityPh}/></div>
             </div>
           )}
 
           {step === 2 && (
             <div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Deutschkenntnisse *</label>
+                <label style={labelStyle}>{tx.german}</label>
                 <select style={selectStyle} value={form.deutsch} onChange={e => set("deutsch", e.target.value)}>
-                  <option value="">Bitte wählen</option>
-                  {["A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
+                  <option value="">{tx.pleaseSelect}</option>
+                  {tx.langLevels.map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Englischkenntnisse</label>
+                <label style={labelStyle}>{tx.english}</label>
                 <select style={selectStyle} value={form.englisch} onChange={e => set("englisch", e.target.value)}>
-                  <option value="">Keine</option>
-                  {["A1 – Anfänger","A2 – Grundlagen","B1 – Mittelstufe","B2 – Gute Kenntnisse","C1 – Fortgeschritten","C2 – Muttersprachlich"].map(l => <option key={l} value={l}>{l}</option>)}
+                  <option value="">{tx.none}</option>
+                  {tx.langLevels.map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
-              <div>
-                <label style={labelStyle}>Weitere Sprachen</label>
-                <input style={inputStyle} value={form.weitere_sprachen} onChange={e => set("weitere_sprachen", e.target.value)} placeholder="z.B. Französisch B2, Arabisch Muttersprache"/>
-              </div>
-              <div style={{ marginTop: 20, background: "#F0F4F9", borderRadius: 12, padding: 16, fontSize: "0.85rem", color: "#6B7897" }}>
-                Hinweis: Mindestens Deutschkenntnisse auf B1-Niveau sind erforderlich.
-              </div>
+              <div><label style={labelStyle}>{tx.otherLangs}</label><input style={inputStyle} value={form.weitere_sprachen} onChange={e => set("weitere_sprachen", e.target.value)} placeholder={tx.otherLangsPh}/></div>
+              <div style={{ marginTop: 20, background: "#F0F4F9", borderRadius: 12, padding: 16, fontSize: "0.85rem", color: "#6B7897" }}>{tx.langNote}</div>
             </div>
           )}
 
           {step === 3 && (
             <div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Jahre Berufserfahrung in der Kita *</label>
+                <label style={labelStyle}>{tx.experience}</label>
                 <select style={selectStyle} value={form.erfahrung_jahre} onChange={e => set("erfahrung_jahre", e.target.value)}>
-                  <option value="">Bitte wählen</option>
-                  {["Berufseinsteiger (0-1 Jahre)","1-2 Jahre","2-5 Jahre","5-10 Jahre","Mehr als 10 Jahre"].map(j => <option key={j} value={j}>{j}</option>)}
+                  <option value="">{tx.pleaseSelect}</option>
+                  {tx.experienceLevels.map(j => <option key={j} value={j}>{j}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Erfahrung mit Altersgruppen</label>
+                <label style={labelStyle}>{tx.ageGroups}</label>
                 <div className="checkbox-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  {["Krippe (0-3 Jahre)","Kindergarten (3-6 Jahre)","Hort (6-12 Jahre)","Integrationskita","Familiengruppen","Ganztagesbetreuung"].map(a => (
+                  {tx.ageGroupList.map(a => (
                     <label key={a} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #E2E8F0", background: form.kita_alter.includes(a) ? "#EAF7EF" : "white" }}>
-                      <input type="checkbox" checked={form.kita_alter.includes(a)} onChange={() => toggleArr("kita_alter", a)} style={{ accentColor: GREEN }}/>
-                      {a}
+                      <input type="checkbox" checked={form.kita_alter.includes(a)} onChange={() => toggleArr("kita_alter", a)} style={{ accentColor: GREEN }}/>{a}
                     </label>
                   ))}
                 </div>
               </div>
-              <div>
-                <label style={labelStyle}>Kurze Beschreibung deiner Erfahrung</label>
-                <textarea style={{ ...inputStyle, height: 100, resize: "vertical" }} value={form.beschreibung} onChange={e => set("beschreibung", e.target.value)} placeholder="Beschreibe kurz deine bisherige Erfahrung in der Kita..."/>
-              </div>
+              <div><label style={labelStyle}>{tx.description}</label><textarea style={{ ...inputStyle, height: 100, resize: "vertical" }} value={form.beschreibung} onChange={e => set("beschreibung", e.target.value)} placeholder={tx.descriptionPh}/></div>
             </div>
           )}
 
           {step === 4 && (
             <div>
+              <div style={{ marginBottom: 16 }}><label style={labelStyle}>{tx.availableFrom}</label><input style={inputStyle} type="date" value={form.verfuegbar_ab} onChange={e => set("verfuegbar_ab", e.target.value)}/></div>
               <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Verfügbar ab *</label>
-                <input style={inputStyle} type="date" value={form.verfuegbar_ab} onChange={e => set("verfuegbar_ab", e.target.value)}/>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <label style={labelStyle}>Gewünschte Arbeitszeit *</label>
+                <label style={labelStyle}>{tx.workingHours}</label>
                 <div className="checkbox-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  {["Vollzeit (38-40h)","Teilzeit (20-30h)","Minijob","Vertretung / Aushilfe"].map(a => (
+                  {tx.workingHoursList.map(a => (
                     <label key={a} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.88rem", color: "#444", padding: "12px 16px", borderRadius: 8, border: `1.5px solid ${form.arbeitszeit === a ? BLUE : "#E2E8F0"}`, background: form.arbeitszeit === a ? "#EBF4FF" : "white" }}>
-                      <input type="radio" name="arbeitszeit" value={a} checked={form.arbeitszeit === a} onChange={() => set("arbeitszeit", a)} style={{ accentColor: BLUE }}/>
-                      {a}
+                      <input type="radio" name="arbeitszeit" value={a} checked={form.arbeitszeit === a} onChange={() => set("arbeitszeit", a)} style={{ accentColor: BLUE }}/>{a}
                     </label>
                   ))}
                 </div>
               </div>
               <div>
-                <label style={labelStyle}>Gewünschtes Bundesland</label>
+                <label style={labelStyle}>{tx.state}</label>
                 <select style={selectStyle} value={form.bundesland} onChange={e => set("bundesland", e.target.value)}>
-                  <option value="">Egal / Flexibel</option>
-                  {["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}
+                  <option value="">{tx.flexible}</option>
+                  {tx.states.map(b => <option key={b} value={b}>{b}</option>)}
                 </select>
               </div>
             </div>
@@ -296,16 +355,16 @@ export default function Registrieren() {
           {step === 5 && (
             <div>
               <div style={{ background: "#F8FAFF", borderRadius: 16, padding: 20, marginBottom: 24 }}>
-                <h3 style={{ color: NAVY, fontSize: "0.95rem", fontWeight: 700, marginBottom: 12 }}>Zusammenfassung</h3>
+                <h3 style={{ color: NAVY, fontSize: "0.95rem", fontWeight: 700, marginBottom: 12 }}>{tx.summary}</h3>
                 {[
-                  ["Name", `${form.vorname} ${form.nachname}`],
-                  ["E-Mail", form.email],
-                  ["Qualifikation", form.qualifikation],
-                  ["Deutschkenntnisse", form.deutsch],
-                  ["Erfahrung", form.erfahrung_jahre],
-                  ["Verfügbar ab", form.verfuegbar_ab],
-                  ["Arbeitszeit", form.arbeitszeit],
-                  ["Bundesland", form.bundesland || "Flexibel"],
+                  [tx.summaryFields[0], `${form.vorname} ${form.nachname}`],
+                  [tx.summaryFields[1], form.email],
+                  [tx.summaryFields[2], form.qualifikation],
+                  [tx.summaryFields[3], form.deutsch],
+                  [tx.summaryFields[4], form.erfahrung_jahre],
+                  [tx.summaryFields[5], form.verfuegbar_ab],
+                  [tx.summaryFields[6], form.arbeitszeit],
+                  [tx.summaryFields[7], form.bundesland || tx.flexibleLabel],
                 ].map(([k, v]) => v ? (
                   <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #E8EDF4", fontSize: "0.85rem", gap: 8 }}>
                     <span style={{ color: "#9BA8C0", fontWeight: 600, flexShrink: 0 }}>{k}</span>
@@ -316,43 +375,35 @@ export default function Registrieren() {
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", marginBottom: 12 }}>
                   <input type="checkbox" checked={form.agb} onChange={e => set("agb", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY, flexShrink: 0 }}/>
-                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich stimme den <a href="/agb" style={{ color: BLUE }}>AGB</a> zu *</span>
+                  <span style={{ fontSize: "0.85rem", color: "#444" }}><a href="/agb" style={{ color: BLUE }}>{tx.agbText}</a></span>
                 </label>
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
                   <input type="checkbox" checked={form.datenschutz} onChange={e => set("datenschutz", e.target.checked)} style={{ marginTop: 2, accentColor: NAVY, flexShrink: 0 }}/>
-                  <span style={{ fontSize: "0.85rem", color: "#444" }}>Ich habe die <a href="/datenschutz" style={{ color: BLUE }}>Datenschutzerklärung</a> gelesen *</span>
+                  <span style={{ fontSize: "0.85rem", color: "#444" }}><a href="/datenschutz" style={{ color: BLUE }}>{tx.privacyText}</a></span>
                 </label>
               </div>
-              {error && (
-                <div style={{ padding: "12px 16px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.88rem", marginBottom: 16 }}>
-                  ⚠️ {error}
-                </div>
-              )}
+              {error && <div style={{ padding: "12px 16px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.88rem", marginBottom: 16 }}>⚠️ {error}</div>}
             </div>
           )}
 
           {error && step < 5 && (
-            <div style={{ marginTop: 16, padding: "12px 16px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.88rem" }}>
-              ⚠️ {error}
-            </div>
+            <div style={{ marginTop: 16, padding: "12px 16px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.88rem" }}>⚠️ {error}</div>
           )}
 
           <div className="nav-btns-row" style={{ display: "flex", justifyContent: "space-between", marginTop: 32, gap: 12 }}>
             {step > 0 ? (
               <button onClick={() => setStep(s => s - 1)} style={{ padding: "12px 28px", borderRadius: 50, border: `2px solid ${NAVY}`, background: "transparent", color: NAVY, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
-                Zurück
+                {tx.back}
               </button>
             ) : <div/>}
             {step < STEPS.length - 1 ? (
               <button onClick={handleWeiter} style={{ padding: "12px 28px", borderRadius: 50, border: "none", background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 4px 16px rgba(26,63,111,0.28)" }}>
-                Weiter
+                {tx.next}
               </button>
             ) : (
-              <button
-                onClick={handleSubmit}
-                disabled={!form.agb || !form.datenschutz || loading}
+              <button onClick={handleSubmit} disabled={!form.agb || !form.datenschutz || loading}
                 style={{ padding: "12px 28px", borderRadius: 50, border: "none", background: form.agb && form.datenschutz ? `linear-gradient(135deg, ${GREEN}, #27AE60)` : "#ccc", color: "white", fontWeight: 700, cursor: form.agb && form.datenschutz ? "pointer" : "not-allowed", fontFamily: "'DM Sans', sans-serif" }}>
-                {loading ? "Wird gespeichert..." : "Registrierung abschließen"}
+                {loading ? tx.saving : tx.submit}
               </button>
             )}
           </div>
