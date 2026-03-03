@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 const NAVY = "#1A3F6F";
 const BLUE = "#2471A3";
@@ -211,6 +212,18 @@ export default function Home() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        supabase.from("arbeitgeber").select("id").eq("email", session.user.email).single()
+          .then(({ data }) => {
+            if (data) router.push("/dashboard");
+            else router.push("/fachkraft/einstellungen");
+          });
+      }
+    });
+  }, []);
+
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: "white", color: "#1a1a2e" }}>
       <style>{`
@@ -264,14 +277,7 @@ export default function Home() {
       `}</style>
 
       {/* NAV */}
-      <nav style={{
-        position: "sticky", top: 0, left: 0, right: 0, zIndex: 100,
-        background: scrolled ? "rgba(255,255,255,0.96)" : "white",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
-        borderBottom: "1px solid #E8EDF4",
-        transition: "all 0.3s", height: 68,
-        display: "flex", alignItems: "center",
-      }}>
+      <nav style={{ position: "sticky", top: 0, left: 0, right: 0, zIndex: 100, background: scrolled ? "rgba(255,255,255,0.96)" : "white", backdropFilter: scrolled ? "blur(12px)" : "none", borderBottom: "1px solid #E8EDF4", transition: "all 0.3s", height: 68, display: "flex", alignItems: "center" }}>
         <div style={{ maxWidth: 1200, width: "100%", margin: "0 auto", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, #1A3F6F, #2471A3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -288,33 +294,21 @@ export default function Home() {
               <span style={{ color: NAVY }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
             </span>
           </a>
-
           <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: 32 }}>
             <a href="#wie-es-funktioniert" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>{t.nav.howItWorks}</a>
             <a href="#fuer-kitas" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>{t.nav.forKitas}</a>
             <a href="#fuer-fachkraefte" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>{t.nav.forPros}</a>
             <a href="#faq" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }}>{t.nav.faq}</a>
           </div>
-
           <div className="nav-btns" style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <div style={{ display: "flex", gap: 4, marginRight: 8 }}>
-              <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}>
-                <img className="flag-img" src="https://flagcdn.com/w20/de.png" alt="DE" />
-                DE
-              </button>
-              <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}>
-                <img className="flag-img" src="https://flagcdn.com/w20/gb.png" alt="EN" />
-                EN
-              </button>
+              <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}><img className="flag-img" src="https://flagcdn.com/w20/de.png" alt="DE" />DE</button>
+              <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}><img className="flag-img" src="https://flagcdn.com/w20/gb.png" alt="EN" />EN</button>
             </div>
             <a href="/login" className="btn-secondary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>{t.nav.login}</a>
             <a href="/Arbeitgeber" className="btn-primary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>{t.nav.start}</a>
           </div>
-
-          <button
-            className="hamburger"
-            onClick={() => setMenuOpen(!menuOpen)}
-            style={{ display: "none", background: "none", border: "none", cursor: "pointer", flexDirection: "column", gap: 5, padding: 4 }}>
+          <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} style={{ display: "none", background: "none", border: "none", cursor: "pointer", flexDirection: "column", gap: 5, padding: 4 }}>
             <div style={{ width: 24, height: 2, background: NAVY, borderRadius: 2, transition: "all 0.3s", transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : "none" }}/>
             <div style={{ width: 24, height: 2, background: NAVY, borderRadius: 2, transition: "all 0.3s", opacity: menuOpen ? 0 : 1 }}/>
             <div style={{ width: 24, height: 2, background: NAVY, borderRadius: 2, transition: "all 0.3s", transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : "none" }}/>
@@ -325,14 +319,8 @@ export default function Home() {
       {/* Mobile Menu */}
       <div className={`mobile-menu${menuOpen ? " open" : ""}`}>
         <div style={{ display: "flex", gap: 8, paddingBottom: 12, borderBottom: "1px solid #E8EDF4" }}>
-          <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}>
-            <img className="flag-img" src="https://flagcdn.com/w20/de.png" alt="DE" />
-            DE
-          </button>
-          <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}>
-            <img className="flag-img" src="https://flagcdn.com/w20/gb.png" alt="EN" />
-            EN
-          </button>
+          <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}><img className="flag-img" src="https://flagcdn.com/w20/de.png" alt="DE" />DE</button>
+          <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}><img className="flag-img" src="https://flagcdn.com/w20/gb.png" alt="EN" />EN</button>
         </div>
         <a href="#wie-es-funktioniert" onClick={() => setMenuOpen(false)} style={{ color: NAVY, textDecoration: "none", fontWeight: 600, padding: "8px 0" }}>{t.nav.howItWorks}</a>
         <a href="#fuer-kitas" onClick={() => setMenuOpen(false)} style={{ color: NAVY, textDecoration: "none", fontWeight: 600, padding: "8px 0" }}>{t.nav.forKitas}</a>
@@ -354,12 +342,9 @@ export default function Home() {
                 <span style={{ fontSize: "0.78rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 1 }}>{t.hero.badge}</span>
               </div>
               <h1 className="hero-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "3.4rem", fontWeight: 900, color: NAVY, lineHeight: 1.15, marginBottom: 24 }}>
-                {t.hero.title1}<br/>
-                <span style={{ color: GREEN }}>{t.hero.title2}</span>
+                {t.hero.title1}<br/><span style={{ color: GREEN }}>{t.hero.title2}</span>
               </h1>
-              <p style={{ fontSize: "1.05rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 36, maxWidth: 480 }}>
-                {t.hero.desc}
-              </p>
+              <p style={{ fontSize: "1.05rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 36, maxWidth: 480 }}>{t.hero.desc}</p>
               <div className="hero-btns" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                 <button onClick={() => router.push("/login")} className="btn-primary">{t.hero.btnFind}</button>
                 <button onClick={() => router.push("/Registrieren")} className="btn-green">{t.hero.btnApply}</button>
@@ -373,7 +358,6 @@ export default function Home() {
                 ))}
               </div>
             </div>
-
             <div className="hide-mobile" style={{ position: "relative" }}>
               <div style={{ background: "white", borderRadius: 24, padding: 32, boxShadow: "0 20px 60px rgba(26,63,111,0.15)", border: "1px solid #E8EDF4" }}>
                 <div style={{ background: "#EEF2FF", borderRadius: 10, padding: "6px 12px", fontSize: "0.72rem", fontWeight: 700, color: "#4F46E5", display: "inline-block", marginBottom: 16 }}>{t.hero.profileLabel}</div>
@@ -391,9 +375,7 @@ export default function Home() {
                     <span style={{ color: NAVY, fontWeight: 500 }}>{v}</span>
                   </div>
                 ))}
-                <button onClick={() => router.push("/Arbeitgeber")} className="btn-primary" style={{ width: "100%", marginTop: 20, textAlign: "center", display: "block" }}>
-                  {t.hero.profileBtn}
-                </button>
+                <button onClick={() => router.push("/Arbeitgeber")} className="btn-primary" style={{ width: "100%", marginTop: 20, textAlign: "center", display: "block" }}>{t.hero.profileBtn}</button>
               </div>
               <div style={{ position: "absolute", top: -20, right: -20, background: "white", borderRadius: 16, padding: "12px 18px", boxShadow: "0 8px 24px rgba(0,0,0,0.1)", border: "1px solid #E8EDF4" }}>
                 <div style={{ fontSize: "0.75rem", color: "#9BA8C0", marginBottom: 2 }}>{t.hero.newRequest}</div>
@@ -457,9 +439,7 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-                <div style={{ marginTop: 20, background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 16px", fontSize: "0.8rem", opacity: 0.9 }}>
-                  {t.kitas.noFee}
-                </div>
+                <div style={{ marginTop: 20, background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 16px", fontSize: "0.8rem", opacity: 0.9 }}>{t.kitas.noFee}</div>
               </div>
             </div>
           </div>
@@ -535,11 +515,7 @@ export default function Home() {
                   <span style={{ fontSize: "0.95rem", paddingRight: 16 }}>{faq.q}</span>
                   <span style={{ fontSize: "1.4rem", color: BLUE, transition: "transform 0.3s", transform: openFaq === i ? "rotate(45deg)" : "rotate(0deg)", display: "inline-block", flexShrink: 0 }}>+</span>
                 </button>
-                {openFaq === i && (
-                  <div style={{ paddingBottom: 20, color: "#6B7897", fontSize: "0.92rem", lineHeight: 1.8 }}>
-                    {faq.a}
-                  </div>
-                )}
+                {openFaq === i && <div style={{ paddingBottom: 20, color: "#6B7897", fontSize: "0.92rem", lineHeight: 1.8 }}>{faq.a}</div>}
               </div>
             ))}
           </div>
@@ -570,16 +546,10 @@ export default function Home() {
         <p style={{ fontSize: "0.82rem", marginBottom: 20 }}>{t.footer.desc}</p>
         <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 24 }}>
           <a href="https://www.instagram.com/kitabridge" target="_blank" rel="noopener noreferrer" style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="white" strokeWidth="2" fill="none"/>
-              <circle cx="12" cy="12" r="4" stroke="white" strokeWidth="2" fill="none"/>
-              <circle cx="17.5" cy="6.5" r="1.5" fill="white"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="white" strokeWidth="2" fill="none"/><circle cx="12" cy="12" r="4" stroke="white" strokeWidth="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.5" fill="white"/></svg>
           </a>
           <a href="https://www.facebook.com/profile.php?id=61586408009889" target="_blank" rel="noopener noreferrer" style={{ width: 40, height: 40, borderRadius: 10, background: "#1877F2", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
           </a>
         </div>
         <div style={{ marginBottom: 16, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 4 }}>
