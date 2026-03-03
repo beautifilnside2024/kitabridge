@@ -152,7 +152,7 @@ export default function Home() {
                 KitaBridge verbindet internationale Erziehungsfachkräfte mit Kitas und Krippen in Deutschland. Schnell, transparent und ohne versteckte Kosten.
               </p>
               <div className="hero-btns" style={{ display: "flex", gap: 16, flexWrap: "wrap", position: "relative", zIndex: 10 }}>
-                <a href="/login" className="btn-primary">Fachkräfte finden</a>
+               <button onClick={() => window.location.href = "/login"} className="btn-primary">Fachkräfte finden</button>
                 <a href="/Registrieren" className="btn-green">Als Fachkraft bewerben</a>
               </div>
               <div className="hero-badges" style={{ display: "flex", gap: 20, marginTop: 40, flexWrap: "wrap" }}>
