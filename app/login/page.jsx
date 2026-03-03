@@ -40,7 +40,7 @@ const translations = {
 const inputStyle = {
   width: "100%", padding: "14px 16px", borderRadius: 12, border: "1.5px solid rgba(255,255,255,0.15)",
   fontSize: "0.95rem", outline: "none", fontFamily: "'DM Sans', sans-serif",
-  color: "white", background: "rgba(255,255,255,0.08)", marginBottom: 4, boxSizing: "border-box" as const
+  color: "white", background: "rgba(255,255,255,0.08)", marginBottom: 4, boxSizing: "border-box" 
 };
 
 export default function Login() {
