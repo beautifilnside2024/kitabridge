@@ -25,7 +25,7 @@ export default function Kontakt() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        to: "kitabridge@protonmail.com",
+        to: "hallo@kitabridge.de",
         subject: `Kontaktanfrage: ${form.betreff || "Allgemeine Anfrage"} – von ${form.name}`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
@@ -55,20 +55,33 @@ export default function Kontakt() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#F8FAFF", fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap'); * { box-sizing: border-box; } input:focus, select:focus, textarea:focus { border-color: ${BLUE} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.1); outline: none; }`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { border-color: ${BLUE} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.1); outline: none; }
+        @media (max-width: 768px) {
+          .kontakt-grid { grid-template-columns: 1fr !important; }
+          .form-grid { grid-template-columns: 1fr !important; }
+          .kontakt-header h1 { font-size: 2rem !important; }
+          .kontakt-pad { padding: 32px 16px !important; }
+          .nav-pad { padding: 14px 20px !important; }
+          .form-card { padding: 24px !important; }
+          .footer-pad { padding: 24px 20px !important; }
+        }
+      `}</style>
 
       {/* Nav */}
-      <div style={{ background: "white", borderBottom: "1px solid #E8EDF4", padding: "16px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div className="nav-pad" style={{ background: "white", borderBottom: "1px solid #E8EDF4", padding: "16px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 700 }}>
           <span style={{ color: NAVY }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
         </a>
-        <a href="/" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.88rem" }}>← Zurück zur Startseite</a>
+        <a href="/" style={{ color: "#6B7897", textDecoration: "none", fontSize: "0.88rem" }}>← Zurück</a>
       </div>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 24px" }}>
+      <div className="kontakt-pad" style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 24px" }}>
 
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 60 }}>
+        <div className="kontakt-header" style={{ textAlign: "center", marginBottom: 60 }}>
           <div style={{ fontSize: "0.75rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Wir helfen gerne</div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.6rem", fontWeight: 800, color: NAVY, marginBottom: 16 }}>Kontakt</h1>
           <p style={{ color: "#6B7897", fontSize: "1rem", maxWidth: 480, margin: "0 auto", lineHeight: 1.7 }}>
@@ -76,10 +89,10 @@ export default function Kontakt() {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 420px", gap: 40, alignItems: "start" }}>
+        <div className="kontakt-grid" style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 40, alignItems: "start" }}>
 
           {/* Kontaktformular */}
-          <div style={{ background: "white", borderRadius: 24, padding: 40, boxShadow: "0 4px 24px rgba(26,63,111,0.08)" }}>
+          <div className="form-card" style={{ background: "white", borderRadius: 24, padding: 40, boxShadow: "0 4px 24px rgba(26,63,111,0.08)" }}>
             {sent ? (
               <div style={{ textAlign: "center", padding: "40px 0" }}>
                 <div style={{ fontSize: "3.5rem", marginBottom: 16 }}>✅</div>
@@ -95,7 +108,7 @@ export default function Kontakt() {
               <div>
                 <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", color: NAVY, marginBottom: 28 }}>Nachricht senden</h2>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                <div className="form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
                   <div>
                     <label style={labelStyle}>Name *</label>
                     <input style={inputStyle} value={form.name} onChange={e => set("name", e.target.value)} placeholder="Dein Name"/>
@@ -151,31 +164,11 @@ export default function Kontakt() {
             {/* Direktkontakt */}
             <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 4px 24px rgba(26,63,111,0.08)" }}>
               <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", color: NAVY, marginBottom: 20 }}>Direktkontakt</h3>
-              {[
-                { icon: "✉", label: "E-Mail", value: "kitabridge@protonmail.com", href: "mailto:kitabridge@protonmail.com" },
-              ].map(item => (
-                <div key={item.label} style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 16 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", flexShrink: 0 }}>
-                    {item.icon}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#9BA8C0", textTransform: "uppercase", marginBottom: 2 }}>{item.label}</div>
-                    <a href={item.href} style={{ color: NAVY, fontWeight: 600, fontSize: "0.9rem", textDecoration: "none" }}>{item.value}</a>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Adresse */}
-            <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 4px 24px rgba(26,63,111,0.08)" }}>
-              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", color: NAVY, marginBottom: 20 }}>Adresse</h3>
-              <div style={{ display: "flex", gap: 14 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: "#EAF7EF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", flexShrink: 0 }}>📍</div>
-                <div style={{ color: "#444", fontSize: "0.9rem", lineHeight: 1.7 }}>
-                  KitaBridge<br/>
-                  Heusenstammer Weg 69<br/>
-                  63071 Offenbach am Main<br/>
-                  Deutschland
+              <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", flexShrink: 0 }}>✉</div>
+                <div>
+                  <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#9BA8C0", textTransform: "uppercase", marginBottom: 2 }}>E-Mail</div>
+                  <a href="mailto:hallo@kitabridge.de" style={{ color: NAVY, fontWeight: 600, fontSize: "0.9rem", textDecoration: "none" }}>hallo@kitabridge.de</a>
                 </div>
               </div>
             </div>
@@ -199,7 +192,7 @@ export default function Kontakt() {
       </div>
 
       {/* Footer */}
-      <footer style={{ background: "#0D1B2A", color: "rgba(255,255,255,0.6)", padding: "32px 40px", textAlign: "center", marginTop: 60 }}>
+      <footer className="footer-pad" style={{ background: "#0D1B2A", color: "rgba(255,255,255,0.6)", padding: "32px 40px", textAlign: "center", marginTop: 60 }}>
         <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", fontWeight: 700, marginBottom: 10 }}>
           <span style={{ color: "white" }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
         </div>
