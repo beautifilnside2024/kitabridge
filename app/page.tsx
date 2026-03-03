@@ -230,9 +230,10 @@ export default function Home() {
         .faq-btn:hover { color: #2471A3; }
         .mobile-menu { display: none; position: fixed; top: 68px; left: 0; right: 0; background: white; border-bottom: 1px solid #E8EDF4; padding: 16px 24px; z-index: 99; flex-direction: column; gap: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
         .mobile-menu.open { display: flex; }
-        .lang-btn { background: none; border: 1.5px solid #E8EDF4; border-radius: 8px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; font-weight: 700; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
+        .lang-btn { background: none; border: 1.5px solid #E8EDF4; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.8rem; font-weight: 700; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 6px; transition: all 0.2s; color: #444; }
         .lang-btn:hover { border-color: #1A3F6F; }
         .lang-btn.active { border-color: #1A3F6F; background: #EEF2FF; color: #1A3F6F; }
+        .flag-img { width: 20px; height: 14px; border-radius: 2px; display: inline-block; object-fit: cover; }
         @media (max-width: 768px) {
           .hero-title { font-size: 2rem !important; }
           .hero-section { padding: 90px 20px 50px !important; }
@@ -296,10 +297,15 @@ export default function Home() {
           </div>
 
           <div className="nav-btns" style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            {/* Language Switcher */}
             <div style={{ display: "flex", gap: 4, marginRight: 8 }}>
-              <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}><img src="flagcdn.com/w20/de.png" width="18" height="12" alt="DE" style={{borderRadius:2,display:"inline-block"}}/>DE"
-              <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}><img src="https://flagcdn.com/w20/gb.png" width="20" alt="EN" style={{borderRadius:2}}/>EN</button>
+              <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}>
+                <img className="flag-img" src="https://flagcdn.com/w20/de.png" alt="DE" />
+                DE
+              </button>
+              <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}>
+                <img className="flag-img" src="https://flagcdn.com/w20/gb.png" alt="EN" />
+                EN
+              </button>
             </div>
             <a href="/login" className="btn-secondary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>{t.nav.login}</a>
             <a href="/Arbeitgeber" className="btn-primary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>{t.nav.start}</a>
@@ -319,8 +325,14 @@ export default function Home() {
       {/* Mobile Menu */}
       <div className={`mobile-menu${menuOpen ? " open" : ""}`}>
         <div style={{ display: "flex", gap: 8, paddingBottom: 12, borderBottom: "1px solid #E8EDF4" }}>
-          <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}><img src="https://flagcdn.com/w20/de.png" width="20" alt="DE" style={{borderRadius:2}}/>DE</button>
-          <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}><img src="https://flagcdn.com/w20/gb.png" width="18" height="12" alt="EN" style={{borderRadius:2,display:"inline-block"}}/>EN</button>
+          <button className={`lang-btn${lang === "de" ? " active" : ""}`} onClick={() => setLang("de")}>
+            <img className="flag-img" src="https://flagcdn.com/w20/de.png" alt="DE" />
+            DE
+          </button>
+          <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}>
+            <img className="flag-img" src="https://flagcdn.com/w20/gb.png" alt="EN" />
+            EN
+          </button>
         </div>
         <a href="#wie-es-funktioniert" onClick={() => setMenuOpen(false)} style={{ color: NAVY, textDecoration: "none", fontWeight: 600, padding: "8px 0" }}>{t.nav.howItWorks}</a>
         <a href="#fuer-kitas" onClick={() => setMenuOpen(false)} style={{ color: NAVY, textDecoration: "none", fontWeight: 600, padding: "8px 0" }}>{t.nav.forKitas}</a>
@@ -353,7 +365,7 @@ export default function Home() {
                 <button onClick={() => router.push("/Registrieren")} className="btn-green">{t.hero.btnApply}</button>
               </div>
               <div className="hero-badges" style={{ display: "flex", gap: 20, marginTop: 40, flexWrap: "wrap" }}>
-                {[{ icon: "🔒", text: t.hero.badges[0] }, { icon: "💳", text: t.hero.badges[1] }, { icon: "🚀", text: t.hero.badges[2] }].map(b => (
+                {[{ icon: "🔒", text: t.hero.badges[0] }, { icon: "💎", text: t.hero.badges[1] }, { icon: "🚀", text: t.hero.badges[2] }].map(b => (
                   <div key={b.text} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ fontSize: "1rem" }}>{b.icon}</span>
                     <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#6B7897" }}>{b.text}</span>
@@ -556,7 +568,6 @@ export default function Home() {
           <span style={{ color: "white" }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
         </div>
         <p style={{ fontSize: "0.82rem", marginBottom: 20 }}>{t.footer.desc}</p>
-        {/* Social Media */}
         <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 24 }}>
           <a href="https://www.instagram.com/kitabridge" target="_blank" rel="noopener noreferrer" style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
