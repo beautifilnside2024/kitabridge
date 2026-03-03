@@ -90,6 +90,34 @@ export default function FachkraftEinstellungen() {
       </div>
 
       <div style={{ maxWidth: 700, margin: "0 auto", padding: "40px 24px" }}>
+      {/* VISITENKARTE */}
+      <div style={{ background:"linear-gradient(135deg,#0D1B2A 0%,#1A3F6F 60%,#1a5276 100%)", borderRadius:24, padding:"32px 32px 28px", marginBottom:32, position:"relative", overflow:"hidden", boxShadow:"0 20px 60px rgba(26,63,111,0.35)" }}>
+        <style>{`.vk-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:50px;padding:5px 14px;font-size:0.78rem;color:rgba(255,255,255,0.85);font-weight:600}`}</style>
+        <div style={{position:"absolute",top:-60,right:-60,width:220,height:220,borderRadius:"50%",background:"rgba(255,255,255,0.04)",pointerEvents:"none"}}/>
+        <div style={{position:"absolute",top:0,left:0,right:0,height:"1px",background:"linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)"}}/>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
+          <div style={{fontSize:"0.68rem",fontWeight:800,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:3}}>KitaBridge · Fachkraft</div>
+          <div style={{background:fachkraft?.status==="bestaetigt"?"linear-gradient(135deg,#1E8449,#27AE60)":"linear-gradient(135deg,#B7950B,#D4AC0D)",borderRadius:50,padding:"4px 14px",fontSize:"0.72rem",fontWeight:800,color:"white",textTransform:"uppercase",letterSpacing:1}}>{fachkraft?.status==="bestaetigt"?"✓ Verifiziert":"⏳ In Prüfung"}</div>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:20,marginBottom:24}}>
+          <div style={{width:72,height:72,borderRadius:20,background:"linear-gradient(135deg,rgba(255,255,255,0.15),rgba(255,255,255,0.05))",border:"2px solid rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.6rem",fontWeight:800,color:"white",fontFamily:"serif",flexShrink:0}}>{fachkraft?.vorname?.[0]}{fachkraft?.nachname?.[0]}</div>
+          <div>
+            <div style={{fontSize:"1.6rem",fontWeight:800,color:"white",lineHeight:1.1,marginBottom:4}}>{fachkraft?.vorname} {fachkraft?.nachname}</div>
+            <div style={{fontSize:"0.85rem",color:"rgba(255,255,255,0.55)"}}>{fachkraft?.qualifikation||"Pädagogische Fachkraft"}</div>
+          </div>
+        </div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:24}}>
+          {fachkraft?.wohnort&&<span className="vk-chip">📍 {fachkraft.wohnort}</span>}
+          {fachkraft?.deutsch&&<span className="vk-chip">🇩🇪 {fachkraft.deutsch}</span>}
+          {fachkraft?.arbeitszeit&&<span className="vk-chip">⏱ {fachkraft.arbeitszeit}</span>}
+          {fachkraft?.erfahrung_jahre&&<span className="vk-chip">⭐ {fachkraft.erfahrung_jahre} Jahre</span>}
+          {fachkraft?.kita_alter&&<span className="vk-chip">👶 {fachkraft.kita_alter}</span>}
+        </div>
+        <div style={{borderTop:"1px solid rgba(255,255,255,0.1)",paddingTop:16,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{fontSize:"0.75rem",color:"rgba(255,255,255,0.4)",fontWeight:600,textTransform:"uppercase",letterSpacing:1}}>Verfügbar ab</div>
+          <div style={{fontSize:"0.9rem",color:"rgba(255,255,255,0.9)",fontWeight:700}}>{fachkraft?.verfuegbar_ab?new Date(fachkraft.verfuegbar_ab).toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"}):"Auf Anfrage"}</div>
+        </div>
+      </div>
         <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: NAVY, marginBottom: 8 }}>Willkommen, {fachkraft?.vorname}!</h1>
         <p style={{ color: "#9BA8C0", fontSize: "0.9rem", marginBottom: 32 }}>Hier kannst du dein Profil bearbeiten und speichern.</p>
 
@@ -146,5 +174,6 @@ export default function FachkraftEinstellungen() {
     </div>
   );
 }
+
 
 
