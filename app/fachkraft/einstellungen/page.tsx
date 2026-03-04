@@ -90,6 +90,16 @@ export default function FachkraftEinstellungen() {
       </div>
 
       <div style={{ maxWidth: 700, margin: "0 auto", padding: "40px 24px" }}>
+      {/* VERFÜGBARKEITSSTATUS */}
+      <div style={{background:"white",borderRadius:20,padding:"20px 24px",marginBottom:24,boxShadow:"0 2px 12px rgba(26,63,111,0.08)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div>
+          <div style={{fontWeight:700,color:"#1A3F6F",fontSize:"0.95rem",marginBottom:4}}>Aktiv auf Jobsuche</div>
+          <div style={{fontSize:"0.82rem",color:"#9BA8C0"}}>{fachkraft?.aktiv_suchend?"Kitas können dich jetzt kontaktieren":"Du bist gerade nicht sichtbar für Kitas"}</div>
+        </div>
+        <div onClick={async()=>{const neu=!fachkraft.aktiv_suchend;await supabase.from("fachkraefte").update({aktiv_suchend:neu}).eq("email",fachkraft.email);setFachkraft({...fachkraft,aktiv_suchend:neu});}} style={{width:52,height:28,borderRadius:50,background:fachkraft?.aktiv_suchend?"#1E8449":"#D1DAE8",cursor:"pointer",position:"relative",transition:"background 0.3s",flexShrink:0}}>
+          <div style={{position:"absolute",top:3,left:fachkraft?.aktiv_suchend?26:3,width:22,height:22,borderRadius:"50%",background:"white",boxShadow:"0 2px 6px rgba(0,0,0,0.2)",transition:"left 0.3s"}}/>
+        </div>
+      </div>
       {/* VISITENKARTE */}
       <div style={{ background:"linear-gradient(135deg,#0D1B2A 0%,#1A3F6F 60%,#1a5276 100%)", borderRadius:24, padding:"32px 32px 28px", marginBottom:32, position:"relative", overflow:"hidden", boxShadow:"0 20px 60px rgba(26,63,111,0.35)" }}>
         <style>{`.vk-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:50px;padding:5px 14px;font-size:0.78rem;color:rgba(255,255,255,0.85);font-weight:600}`}</style>
