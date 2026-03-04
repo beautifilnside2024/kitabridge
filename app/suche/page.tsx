@@ -59,6 +59,7 @@ export default function Suche() {
       .from("fachkraefte")
       .select("*")
       .eq("status", "bestaetigt")
+      .eq("aktiv_suchend", true)        // ← NEU: nur aktiv suchende anzeigen
       .order("created_at", { ascending: false });
     setFachkraefte(data || []);
     setLoading(false);
