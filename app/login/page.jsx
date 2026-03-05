@@ -81,7 +81,7 @@ export default function LoginPage() {
         </div>
         <p style={{ textAlign: "center", marginTop: 20, color: "#9BA8C0", fontSize: "0.85rem" }}>
           Noch kein Konto?{" "}
-          <a href="/Registrieren" style={{ color: BLUE, fontWeight: 600, textDecoration: "none" }}>Jetzt registrieren</a>
+          <a href={rolle === "kita" ? "/Arbeitgeber" : "/Registrieren"} style={{ color: BLUE, fontWeight: 600, textDecoration: "none" }}>Jetzt registrieren</a>
         </p>
       </div>
     </div>
