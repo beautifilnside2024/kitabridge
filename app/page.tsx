@@ -22,7 +22,7 @@ const translations = {
       badge: "Die Plattform für Kitas & Kita-Fachkräfte",
       title1: "Die Brücke zwischen",
       title2: "Fachkräften und Kitas.",
-      desc: "KitaBridge verbindet internationale Erziehungsfachkräfte mit Kitas und Krippen in Deutschland. Schnell, transparent und ohne versteckte Kosten.",
+      desc: "KitaBridge verbindet Erzieher/innen und pädagogische Fachkräfte mit Kitas in ganz Deutschland",
       btnFind: "Fachkräfte finden",
       btnApply: "Als Fachkraft bewerben",
       badges: ["DSGVO-konform", "100% transparent", "Sofort starten"],
