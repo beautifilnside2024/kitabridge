@@ -10,13 +10,8 @@ export async function POST(request) {
       await resend.emails.send({
         from: "KitaBridge <hallo@kitabridge.de>",
         to: data.email,
-        subject: "Willkommen bei KitaBridge! 🎉",
-        html: `
-          <h2>Hallo ${data.vorname}!</h2>
-          <p>Vielen Dank für deine Registrierung bei KitaBridge.</p>
-          <p>Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden.</p>
-          <p>Viele Grüße,<br/>Das KitaBridge Team</p>
-        `
+        subject: "Willkommen bei KitaBridge!",
+        html: `<h2>Hallo ${data.vorname}!</h2><p>Vielen Dank für deine Registrierung bei KitaBridge.</p><p>Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden.</p><p>Viele Grüße,<br/>Das KitaBridge Team</p>`
       });
     }
 
@@ -25,13 +20,7 @@ export async function POST(request) {
         from: "KitaBridge <hallo@kitabridge.de>",
         to: "hallo@kitabridge.de",
         subject: `Neue Fachkraft: ${data.vorname} ${data.nachname}`,
-        html: `
-          <h2>Neue Registrierung</h2>
-          <p><strong>Name:</strong> ${data.vorname} ${data.nachname}</p>
-          <p><strong>Email:</strong> ${data.email}</p>
-          <p><strong>Qualifikation:</strong> ${data.qualifikation}</p>
-          <p><strong>Verfügbar ab:</strong> ${data.verfuegbar_ab}</p>
-        `
+        html: `<h2>Neue Registrierung</h2><p><strong>Name:</strong> ${data.vorname} ${data.nachname}</p><p><strong>Email:</strong> ${data.email}</p><p><strong>Qualifikation:</strong> ${data.qualifikation}</p>`
       });
     }
 
@@ -40,12 +29,7 @@ export async function POST(request) {
         from: "KitaBridge <hallo@kitabridge.de>",
         to: "hallo@kitabridge.de",
         subject: `Kontaktanfrage: ${data.betreff || "Kein Betreff"}`,
-        html: `
-          <h2>Neue Kontaktanfrage</h2>
-          <p><strong>Name:</strong> ${data.name}</p>
-          <p><strong>Email:</strong> ${data.email}</p>
-          <p><strong>Nachricht:</strong> ${data.nachricht}</p>
-        `
+        html: `<h2>Neue Kontaktanfrage</h2><p><strong>Name:</strong> ${data.name}</p><p><strong>Email:</strong> ${data.email}</p><p><strong>Nachricht:</strong> ${data.nachricht}</p>`
       });
     }
 
@@ -55,8 +39,3 @@ export async function POST(request) {
     return Response.json({ error: error.message }, { status: 500 });
   }
 }
-```
-
-Dann prüfe ob `RESEND_API_KEY` in deiner `.env.local` steht:
-```
-Get-Content .env.local
