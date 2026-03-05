@@ -212,17 +212,7 @@ export default function Home() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        supabase.from("arbeitgeber").select("id").eq("email", session.user.email).single()
-          .then(({ data }) => {
-            if (data) router.push("/dashboard");
-            else router.push("/fachkraft/einstellungen");
-          });
-      }
-    });
-  }, []);
+
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: "white", color: "#1a1a2e" }}>
@@ -346,7 +336,6 @@ export default function Home() {
               </h1>
               <p style={{ fontSize: "1.05rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 36, maxWidth: 480 }}>{t.hero.desc}</p>
               <div className="hero-btns" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                {/* ← GEÄNDERT: führt jetzt zu /Arbeitgeber statt /login */}
                 <button onClick={() => router.push("/Arbeitgeber")} className="btn-primary">{t.hero.btnFind}</button>
                 <button onClick={() => router.push("/Registrieren")} className="btn-green">{t.hero.btnApply}</button>
               </div>
