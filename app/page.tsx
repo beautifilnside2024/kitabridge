@@ -22,7 +22,7 @@ const translations = {
       badge: "Die Plattform für Kitas & Kita-Fachkräfte",
       title1: "Die Brücke zwischen",
       title2: "Fachkräften und Kitas.",
-      desc: "KitaBridge verbindet Erzieher/innen und pädagogische Fachkräfte mit Kitas in ganz Deutschland",
+      desc: "KitaBridge verbindet Erzieher/innen und pädagogische Fachkräfte mit Kitas in ganz Deutschland. Schnell, transparent und ohne versteckte Kosten.",
       btnFind: "Fachkräfte finden",
       btnApply: "Als Fachkraft bewerben",
       badges: ["DSGVO-konform", "100% transparent", "Sofort starten"],
@@ -346,7 +346,8 @@ export default function Home() {
               </h1>
               <p style={{ fontSize: "1.05rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 36, maxWidth: 480 }}>{t.hero.desc}</p>
               <div className="hero-btns" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                <button onClick={() => router.push("/login")} className="btn-primary">{t.hero.btnFind}</button>
+                {/* ← GEÄNDERT: führt jetzt zu /Arbeitgeber statt /login */}
+                <button onClick={() => router.push("/Arbeitgeber")} className="btn-primary">{t.hero.btnFind}</button>
                 <button onClick={() => router.push("/Registrieren")} className="btn-green">{t.hero.btnApply}</button>
               </div>
               <div className="hero-badges" style={{ display: "flex", gap: 20, marginTop: 40, flexWrap: "wrap" }}>
@@ -532,7 +533,7 @@ export default function Home() {
           <h2 className="cta-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.6rem", fontWeight: 800, color: "white", marginBottom: 20 }}>{t.cta.title}</h2>
           <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "1.05rem", lineHeight: 1.75, marginBottom: 40 }}>{t.cta.desc}</p>
           <div className="cta-btns" style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href="/login" className="btn-primary">{t.cta.btnFind}</a>
+            <a href="/Arbeitgeber" className="btn-primary">{t.cta.btnFind}</a>
             <a href="/Registrieren" className="btn-green">{t.cta.btnApply}</a>
           </div>
         </div>
