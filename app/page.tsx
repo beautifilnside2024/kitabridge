@@ -212,17 +212,6 @@ export default function Home() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        supabase.from("arbeitgeber").select("id").eq("email", session.user.email).single()
-          .then(({ data }) => {
-            if (data) router.push("/dashboard");
-            else router.push("/fachkraft/einstellungen");
-          });
-      }
-    });
-  }, []);
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: "white", color: "#1a1a2e" }}>
