@@ -15,6 +15,14 @@ export default function PasswortReset() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        // Token ist jetzt aktiv, Nutzer kann Passwort ändern
+      }
+    });
+  }, []);
+
   const handleReset = async () => {
     if (!passwort || !passwort2) {
       setError("Bitte fülle alle Felder aus.");
