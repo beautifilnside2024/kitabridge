@@ -15,6 +15,79 @@ const inputStyle = {
 const selectStyle = { ...inputStyle, cursor: "pointer" };
 const labelStyle = { display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", textTransform: "uppercase", marginBottom: 6 };
 
+function NachrichtenTab({ arbeitgeberId }) {
+  const [nachrichten, setNachrichten] = useState([]);
+  const [antwort, setAntwort] = useState({});
+  const [gesendet, setGesendet] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!arbeitgeberId) return;
+    fetch(`/api/nachrichten?user_id=${arbeitgeberId}`)
+      .then(r => r.json())
+      .then(data => { setNachrichten(data || []); setLoading(false); });
+  }, [arbeitgeberId]);
+
+  const handleAntwort = async (msg) => {
+    const text = antwort[msg.id];
+    if (!text) return;
+    await fetch("/api/nachrichten", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        von_id: arbeitgeberId,
+        an_id: msg.von_id,
+        von_typ: "arbeitgeber",
+        nachricht: text,
+        empfaenger_email: "",
+        empfaenger_name: "",
+        absender_name: "",
+      }),
+    });
+    setGesendet({ ...gesendet, [msg.id]: true });
+    setAntwort({ ...antwort, [msg.id]: "" });
+  };
+
+  if (loading) return <div style={{ color: NAVY, padding: 20 }}>Lädt...</div>;
+
+  return (
+    <div>
+      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 24 }}>Nachrichten</h2>
+      {nachrichten.length === 0 ? (
+        <div style={{ background: "white", borderRadius: 20, padding: 40, textAlign: "center", color: "#9BA8C0" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📭</div>
+          <p>Noch keine Nachrichten</p>
+        </div>
+      ) : (
+        nachrichten.map(msg => (
+          <div key={msg.id} style={{ background: "white", borderRadius: 16, padding: 24, marginBottom: 16, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+              <div style={{ fontWeight: 700, color: NAVY }}>{msg.von_typ === "fachkraft" ? "👤 Fachkraft" : "📢 Du"}</div>
+              <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>{new Date(msg.erstellt_am).toLocaleDateString("de-DE")}</div>
+            </div>
+            <p style={{ color: "#444", lineHeight: 1.7, marginBottom: 16 }}>{msg.nachricht}</p>
+            {msg.von_typ === "fachkraft" && !gesendet[msg.id] && (
+              <div>
+                <textarea
+                  placeholder="Antwort schreiben..."
+                  rows={3}
+                  value={antwort[msg.id] || ""}
+                  onChange={e => setAntwort({ ...antwort, [msg.id]: e.target.value })}
+                  style={{ width: "100%", padding: "12px 16px", border: "1px solid #E8EDF4", borderRadius: 12, fontSize: "0.9rem", resize: "vertical", fontFamily: "'DM Sans', sans-serif" }}
+                />
+                <button onClick={() => handleAntwort(msg)} style={{ marginTop: 8, padding: "10px 24px", background: NAVY, color: "white", border: "none", borderRadius: 50, fontWeight: 700, cursor: "pointer", fontSize: "0.9rem" }}>
+                  Antworten →
+                </button>
+              </div>
+            )}
+            {gesendet[msg.id] && <div style={{ color: GREEN, fontWeight: 600 }}>✅ Antwort gesendet!</div>}
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const [arbeitgeber, setArbeitgeber] = useState(null);
@@ -58,7 +131,7 @@ export default function Dashboard() {
     if (!session) return;
     const res = await fetch("/api/account/delete", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: session.user.email, rolle: "arbeitgeber" }) });
     if (res.ok) { await supabase.auth.signOut(); alert("Ihr Account wurde erfolgreich gelöscht."); router.push("/"); }
-    else { alert("Fehler beim Löschen. Bitte kontaktieren Sie uns unter kitabridge@protonmail.com"); }
+    else { alert("Fehler beim Löschen. Bitte kontaktieren Sie uns unter hallo@kitabridge.de"); }
   };
 
   const handleKuendigung = async () => {
@@ -67,7 +140,7 @@ export default function Dashboard() {
     if (!session) return;
     const res = await fetch("/api/stripe/kuendigung", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: session.user.email }) });
     if (res.ok) { alert("Ihr Abo wurde erfolgreich gekündigt."); loadDashboard(); }
-    else { alert("Fehler beim Kündigen. Bitte kontaktieren Sie uns unter kitabridge@protonmail.com"); }
+    else { alert("Fehler beim Kündigen. Bitte kontaktieren Sie uns unter hallo@kitabridge.de"); }
   };
 
   if (loading) {
@@ -84,7 +157,6 @@ export default function Dashboard() {
         input:focus, select:focus, textarea:focus { border-color: #2471A3 !important; }
         @media (max-width: 768px) {
           .db-header { padding: 0 16px !important; height: auto !important; flex-wrap: wrap !important; gap: 8px !important; padding-top: 12px !important; padding-bottom: 12px !important; }
-          .db-header-name { display: none !important; }
           .db-container { padding: 20px 16px !important; }
           .stats-grid { grid-template-columns: 1fr 1fr !important; }
           .quick-grid { grid-template-columns: 1fr !important; }
@@ -97,8 +169,6 @@ export default function Dashboard() {
           .edit-btns { flex-direction: column !important; width: 100% !important; }
           .edit-btns button { width: 100% !important; }
           .profile-card { padding: 20px 16px !important; }
-          .inactive-banner { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
-          .inactive-banner a { width: 100% !important; text-align: center !important; }
         }
         @media (max-width: 480px) {
           .stats-grid { grid-template-columns: 1fr !important; }
@@ -106,30 +176,26 @@ export default function Dashboard() {
         }
       `}</style>
 
-      {/* Header */}
       <div className="db-header" style={{ background: NAVY, padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
-        <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 700, flexShrink: 0 }}>
+        <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 700 }}>
           <span style={{ color: "white" }}>Kita</span><span style={{ color: "#4ADE80" }}>Bridge</span>
         </a>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span className="db-header-name" style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem" }}>{arbeitgeber?.einrichtung_name}</span>
-          <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "white", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.85rem", fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap" }}>
+          <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem" }}>{arbeitgeber?.einrichtung_name}</span>
+          <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "white", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.85rem", fontFamily: "'DM Sans', sans-serif" }}>
             Ausloggen
           </button>
         </div>
       </div>
 
       <div className="db-container" style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px" }}>
-
         {!isAktiv && (
-          <div className="inactive-banner" style={{ background: "#FFF7ED", border: "1px solid #FED7AA", borderRadius: 16, padding: 20, marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+          <div style={{ background: "#FFF7ED", border: "1px solid #FED7AA", borderRadius: 16, padding: 20, marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
             <div>
               <div style={{ fontWeight: 700, color: "#92400E", marginBottom: 4 }}>⚠️ Konto noch nicht aktiv</div>
               <div style={{ color: "#78350F", fontSize: "0.88rem" }}>Ihr Account wird gerade geprüft oder die Zahlung steht noch aus.</div>
             </div>
-            <a href="/bezahlung" style={{ background: "#EA580C", color: "white", padding: "10px 20px", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.88rem", whiteSpace: "nowrap", fontFamily: "'DM Sans', sans-serif" }}>
-              Jetzt bezahlen
-            </a>
+            <a href="/bezahlung" style={{ background: "#EA580C", color: "white", padding: "10px 20px", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.88rem", whiteSpace: "nowrap", fontFamily: "'DM Sans', sans-serif" }}>Jetzt bezahlen</a>
           </div>
         )}
 
@@ -154,7 +220,12 @@ export default function Dashboard() {
         </div>
 
         <div className="tab-bar" style={{ display: "flex", gap: 4, marginBottom: 28, background: "white", borderRadius: 12, padding: 4, width: "fit-content", boxShadow: "0 2px 8px rgba(26,63,111,0.08)", maxWidth: "100%" }}>
-          {[{ key: "uebersicht", label: "Übersicht" }, { key: "profil", label: "Mein Profil" }, { key: "suche", label: "Fachkräfte suchen" }].map(tab => (
+          {[
+            { key: "uebersicht", label: "Übersicht" },
+            { key: "profil", label: "Mein Profil" },
+            { key: "suche", label: "Fachkräfte suchen" },
+            { key: "nachrichten", label: "📩 Nachrichten" },
+          ].map(tab => (
             <button key={tab.key} onClick={() => tab.key === "suche" ? router.push("/suche") : setActiveTab(tab.key)} style={{ padding: "9px 20px", borderRadius: 9, border: "none", background: activeTab === tab.key ? NAVY : "transparent", color: activeTab === tab.key ? "white" : "#6B7897", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s" }}>
               {tab.label}
             </button>
@@ -182,13 +253,16 @@ export default function Dashboard() {
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", color: NAVY, marginBottom: 16 }}>Schnellzugriff</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <a href="/suche" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 10, background: "#F8FAFF", textDecoration: "none", color: NAVY, fontWeight: 600, fontSize: "0.9rem" }}>
-                    <span>🔍</span> Fachkräfte suchen
+                    🔍 Fachkräfte suchen
                   </a>
+                  <button onClick={() => setActiveTab("nachrichten")} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 10, background: "#F8FAFF", border: "none", color: NAVY, fontWeight: 600, fontSize: "0.9rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "left" }}>
+                    📩 Nachrichten
+                  </button>
                   <button onClick={() => setActiveTab("profil")} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 10, background: "#F8FAFF", border: "none", color: NAVY, fontWeight: 600, fontSize: "0.9rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "left" }}>
-                    <span>✏️</span> Profil bearbeiten
+                    ✏️ Profil bearbeiten
                   </button>
                   <a href="/kontakt" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 10, background: "#F8FAFF", textDecoration: "none", color: NAVY, fontWeight: 600, fontSize: "0.9rem" }}>
-                    <span>✉️</span> Support kontaktieren
+                    ✉️ Support kontaktieren
                   </a>
                 </div>
               </div>
@@ -202,7 +276,7 @@ export default function Dashboard() {
                     Abo kündigen
                   </button>
                 )}
-                {["Alle Fachkräfte-Profile","Direktkontakt","Keine Provision","Monatlich kündbar"].map(f => (
+                {["Alle Fachkräfte-Profile", "Direktkontakt", "Keine Provision", "Monatlich kündbar"].map(f => (
                   <div key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: "0.85rem" }}>
                     <span style={{ color: "#4ADE80" }}>✓</span> {f}
                   </div>
@@ -210,6 +284,10 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+        )}
+
+        {activeTab === "nachrichten" && (
+          <NachrichtenTab arbeitgeberId={arbeitgeber?.id} />
         )}
 
         {activeTab === "profil" && (
@@ -281,7 +359,6 @@ export default function Dashboard() {
                   <label style={labelStyle}>Beschreibung</label>
                   <textarea style={{ ...inputStyle, height: 90, resize: "vertical" }} value={form.beschreibung || ""} onChange={e => set("beschreibung", e.target.value)} />
                 </div>
-
                 <div style={{ marginTop: 8, marginBottom: 8, fontWeight: 700, color: BLUE, fontSize: "0.82rem", textTransform: "uppercase", letterSpacing: 1 }}>Adresse</div>
                 <div style={{ height: 1, background: "#F0F4F9", marginBottom: 16 }} />
                 <div className="three-one-grid" style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 16, marginBottom: 16 }}>
@@ -299,7 +376,6 @@ export default function Dashboard() {
                     {["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}
                   </select>
                 </div>
-
                 <div style={{ marginTop: 8, marginBottom: 8, fontWeight: 700, color: BLUE, fontSize: "0.82rem", textTransform: "uppercase", letterSpacing: 1 }}>Ansprechpartner</div>
                 <div style={{ height: 1, background: "#F0F4F9", marginBottom: 16 }} />
                 <div className="two-col-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
