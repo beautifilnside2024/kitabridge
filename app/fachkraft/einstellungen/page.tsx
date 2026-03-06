@@ -85,7 +85,8 @@ export default function FachkraftEinstellungen() {
         </a>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem" }}>{fachkraft?.vorname} {fachkraft?.nachname}</span>
-          <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "white", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.85rem" }}>Ausloggen</button>
+          <a href="/nachrichten" style={{ background: "rgba(255,255,255,0.15)", color: "white", padding: "8px 16px", borderRadius: 8, fontSize: "0.85rem", textDecoration: "none", fontWeight: 600 }}>📩 Nachrichten</a>
+<button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "white", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.85rem" }}>Ausloggen</button>
         </div>
       </div>
 
