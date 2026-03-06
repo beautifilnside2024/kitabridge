@@ -48,7 +48,7 @@ const translations = {
       desc: "Erhalten Sie direkten Zugang zu qualifizierten internationalen Fachkräften. Suchen, filtern und kontaktieren Sie passende Fachkräfte ohne Einschränkungen.",
       features: ["Alle Fachkräfte-Profile einsehen","Direkter Kontakt ohne Vermittler","Unbegrenzte Suche und Filter","Monatlich kündbar","Keine Provision bei Einstellung","Kita-Profil für Bewerber sichtbar"],
       btn: "Jetzt registrieren – 299 EUR/Monat",
-      planLabel: "Hauptplan",
+      planLabel: "Hauptplan für alle Einrichtungen",
       perMonth: "pro Monat, zzgl. MwSt.",
       planFeatures: ["Alle Fachkräfte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kündbar","Kita-Profil sichtbar"],
       noFee: "Keine Einrichtungsgebühr – Keine Mindestlaufzeit",

@@ -11,65 +11,46 @@ const inputStyle = {
   fontSize: "0.9rem", outline: "none", fontFamily: "'DM Sans', sans-serif",
   color: "#1a1a2e", background: "white"
 };
-
 const selectStyle = { ...inputStyle, cursor: "pointer" };
 
 export default function Suche() {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fachkraefte, setFachkraefte] = useState([]);
   const [selected, setSelected] = useState(null);
-  const [filter, setFilter] = useState({
-    qualifikation: "", deutsch: "", bundesland: "", arbeitszeit: "", erfahrung: ""
-  });
+  const [filter, setFilter] = useState({ qualifikation: "", deutsch: "", bundesland: "", arbeitszeit: "", erfahrung: "" });
+  const [nachrichtText, setNachrichtText] = useState("");
+  const [gesendet, setGesendet] = useState(false);
+  const [sendLoading, setSendLoading] = useState(false);
+  const [arbeitgeberId, setArbeitgeberId] = useState(null);
+  const [arbeitgeberName, setArbeitgeberName] = useState("");
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  useEffect(() => { checkAuth(); }, []);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      window.location.href = "/login";
-      return;
-    }
+    if (!session) { window.location.href = "/login"; return; }
 
     const { data: arbeitgeber } = await supabase
       .from("arbeitgeber")
-      .select("id, status")
+      .select("id, status, einrichtung_name")
       .eq("email", session.user.email)
       .single();
 
-    if (!arbeitgeber) {
-      window.location.href = "/fachkraft/einstellungen";
-      return;
-    }
+    if (!arbeitgeber) { window.location.href = "/fachkraft/einstellungen"; return; }
+    if (arbeitgeber.status !== "aktiv" && arbeitgeber.status !== "bestaetigt") { window.location.href = "/dashboard"; return; }
 
-    if (arbeitgeber.status !== "aktiv" && arbeitgeber.status !== "bestaetigt") {
-      window.location.href = "/dashboard";
-      return;
-    }
-
-    setUser(session.user);
+    setArbeitgeberId(arbeitgeber.id);
+    setArbeitgeberName(arbeitgeber.einrichtung_name);
     loadFachkraefte();
   };
 
   const loadFachkraefte = async () => {
-    const { data } = await supabase
-      .from("fachkraefte")
-      .select("*")
-      .eq("status", "bestaetigt")
-      .eq("aktiv_suchend", true)        // ← NEU: nur aktiv suchende anzeigen
-      .order("created_at", { ascending: false });
+    const { data } = await supabase.from("fachkraefte").select("*").eq("status", "bestaetigt").eq("aktiv_suchend", true).order("created_at", { ascending: false });
     setFachkraefte(data || []);
     setLoading(false);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/login";
-  };
-
+  const handleLogout = async () => { await supabase.auth.signOut(); window.location.href = "/login"; };
   const setF = (key, value) => setFilter(f => ({ ...f, [key]: value }));
 
   const filtered = fachkraefte.filter(f => {
@@ -81,13 +62,32 @@ export default function Suche() {
     return true;
   });
 
-  if (loading) {
-    return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F0F4F9", fontFamily: "'DM Sans', sans-serif" }}>
-        <div style={{ color: NAVY }}>Lädt...</div>
-      </div>
-    );
-  }
+  const handleNachrichtSenden = async () => {
+    if (!nachrichtText || !arbeitgeberId || !selected) return;
+    setSendLoading(true);
+    await fetch("/api/nachrichten", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        von_id: arbeitgeberId,
+        an_id: selected.id,
+        von_typ: "arbeitgeber",
+        nachricht: nachrichtText,
+        empfaenger_email: selected.email,
+        empfaenger_name: selected.vorname,
+        absender_name: arbeitgeberName,
+      }),
+    });
+    setSendLoading(false);
+    setGesendet(true);
+    setNachrichtText("");
+  };
+
+  if (loading) return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F0F4F9", fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ color: NAVY }}>Lädt...</div>
+    </div>
+  );
 
   return (
     <div style={{ minHeight: "100vh", background: "#F0F4F9", fontFamily: "'DM Sans', sans-serif" }}>
@@ -99,9 +99,7 @@ export default function Suche() {
         </a>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <a href="/dashboard" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.85rem", textDecoration: "none" }}>Dashboard</a>
-          <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "white", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.85rem", fontFamily: "'DM Sans', sans-serif" }}>
-            Ausloggen
-          </button>
+          <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "white", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.85rem", fontFamily: "'DM Sans', sans-serif" }}>Ausloggen</button>
         </div>
       </div>
 
@@ -109,56 +107,27 @@ export default function Suche() {
         <h1 style={{ fontFamily: "'Playfair Display', serif", color: NAVY, fontSize: "1.8rem", marginBottom: 8 }}>Fachkräfte suchen</h1>
         <p style={{ color: "#9BA8C0", marginBottom: 32, fontSize: "0.9rem" }}>{filtered.length} Fachkräfte gefunden</p>
 
-        {/* Filter */}
         <div style={{ background: "white", borderRadius: 16, padding: 24, marginBottom: 24, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
-            <div>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", marginBottom: 6, textTransform: "uppercase" }}>Qualifikation</label>
-              <select style={selectStyle} value={filter.qualifikation} onChange={e => setF("qualifikation", e.target.value)}>
-                <option value="">Alle</option>
-                <option value="Erzieherin">Erzieherin / Erzieher</option>
-                <option value="Kinderpflegerin">Kinderpflegerin</option>
-                <option value="Sozialpädagogin">Sozialpädagoge</option>
-                <option value="Heilpädagogin">Heilpädagoge</option>
-                <option value="Kindheitspädagogin">Kindheitspädagoge</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", marginBottom: 6, textTransform: "uppercase" }}>Deutsch</label>
-              <select style={selectStyle} value={filter.deutsch} onChange={e => setF("deutsch", e.target.value)}>
-                <option value="">Alle</option>
-                <option value="B1">B1</option>
-                <option value="B2">B2</option>
-                <option value="C1">C1</option>
-                <option value="C2">C2</option>
-              </select>
-            </div>
+            {[
+              { label: "Qualifikation", key: "qualifikation", options: [["Erzieherin","Erzieherin / Erzieher"],["Kinderpflegerin","Kinderpflegerin"],["Sozialpädagogin","Sozialpädagoge"],["Heilpädagogin","Heilpädagoge"],["Kindheitspädagogin","Kindheitspädagoge"]] },
+              { label: "Deutsch", key: "deutsch", options: [["B1","B1"],["B2","B2"],["C1","C1"],["C2","C2"]] },
+              { label: "Arbeitszeit", key: "arbeitszeit", options: [["Vollzeit","Vollzeit"],["Teilzeit","Teilzeit"],["Minijob","Minijob"],["Vertretung","Vertretung"]] },
+              { label: "Erfahrung", key: "erfahrung", options: [["Berufseinsteiger","Einsteiger"],["1-2 Jahre","1-2 Jahre"],["2-5 Jahre","2-5 Jahre"],["5-10 Jahre","5-10 Jahre"],["Mehr als 10 Jahre","10+ Jahre"]] },
+            ].map(({ label, key, options }) => (
+              <div key={key}>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", marginBottom: 6, textTransform: "uppercase" }}>{label}</label>
+                <select style={selectStyle} value={filter[key]} onChange={e => setF(key, e.target.value)}>
+                  <option value="">Alle</option>
+                  {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+              </div>
+            ))}
             <div>
               <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", marginBottom: 6, textTransform: "uppercase" }}>Bundesland</label>
               <select style={selectStyle} value={filter.bundesland} onChange={e => setF("bundesland", e.target.value)}>
                 <option value="">Alle</option>
                 {["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", marginBottom: 6, textTransform: "uppercase" }}>Arbeitszeit</label>
-              <select style={selectStyle} value={filter.arbeitszeit} onChange={e => setF("arbeitszeit", e.target.value)}>
-                <option value="">Alle</option>
-                <option value="Vollzeit">Vollzeit</option>
-                <option value="Teilzeit">Teilzeit</option>
-                <option value="Minijob">Minijob</option>
-                <option value="Vertretung">Vertretung</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", marginBottom: 6, textTransform: "uppercase" }}>Erfahrung</label>
-              <select style={selectStyle} value={filter.erfahrung} onChange={e => setF("erfahrung", e.target.value)}>
-                <option value="">Alle</option>
-                <option value="Berufseinsteiger">Einsteiger</option>
-                <option value="1-2 Jahre">1-2 Jahre</option>
-                <option value="2-5 Jahre">2-5 Jahre</option>
-                <option value="5-10 Jahre">5-10 Jahre</option>
-                <option value="Mehr als 10 Jahre">10+ Jahre</option>
               </select>
             </div>
           </div>
@@ -173,11 +142,8 @@ export default function Suche() {
               </div>
             )}
             {filtered.map(fk => (
-              <div
-                key={fk.id}
-                onClick={() => setSelected(selected?.id === fk.id ? null : fk)}
-                style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: selected?.id === fk.id ? `0 0 0 2px ${NAVY}, 0 4px 20px rgba(26,63,111,0.15)` : "0 2px 12px rgba(26,63,111,0.08)", cursor: "pointer", transition: "all 0.2s" }}
-              >
+              <div key={fk.id} onClick={() => { setSelected(selected?.id === fk.id ? null : fk); setGesendet(false); setNachrichtText(""); }}
+                style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: selected?.id === fk.id ? `0 0 0 2px ${NAVY}, 0 4px 20px rgba(26,63,111,0.15)` : "0 2px 12px rgba(26,63,111,0.08)", cursor: "pointer", transition: "all 0.2s" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                   <div style={{ width: 44, height: 44, borderRadius: 10, background: NAVY, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: "1rem", flexShrink: 0 }}>
                     {fk.vorname?.[0]}{fk.nachname?.[0]}
@@ -229,17 +195,32 @@ export default function Suche() {
                 </div>
               )}
 
-              <a
-                href={`mailto:${selected.email}?subject=Anfrage über KitaBridge&body=Hallo ${selected.vorname},%0D%0A%0D%0Awir haben Ihr Profil auf KitaBridge gesehen und würden uns gerne vorstellen.`}
-                style={{ display: "block", textAlign: "center", marginTop: 20, padding: "13px", borderRadius: 12, background: GREEN, color: "white", fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" }}
-              >
-                ✉️ Jetzt kontaktieren
-              </a>
-              {selected.telefon && (
-                <a href={`tel:${selected.telefon}`} style={{ display: "block", textAlign: "center", marginTop: 8, padding: "13px", borderRadius: 12, background: "#F0F4F9", color: NAVY, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" }}>
-                  📞 {selected.telefon}
-                </a>
-              )}
+              <div style={{ marginTop: 20 }}>
+                {!gesendet ? (
+                  <div>
+                    <textarea
+                      placeholder={`Hallo ${selected.vorname}, wir haben Ihr Profil auf KitaBridge gesehen...`}
+                      rows={4}
+                      value={nachrichtText}
+                      onChange={e => setNachrichtText(e.target.value)}
+                      style={{ width: "100%", padding: "12px 16px", border: "1px solid #E8EDF4", borderRadius: 12, fontSize: "0.88rem", resize: "vertical", fontFamily: "'DM Sans', sans-serif", marginBottom: 8 }}
+                    />
+                    <button
+                      disabled={sendLoading || !nachrichtText}
+                      onClick={handleNachrichtSenden}
+                      style={{ width: "100%", padding: "13px", borderRadius: 12, background: !nachrichtText ? "#ccc" : GREEN, color: "white", fontWeight: 700, border: "none", cursor: !nachrichtText ? "not-allowed" : "pointer", fontSize: "0.9rem", fontFamily: "'DM Sans', sans-serif" }}
+                    >
+                      {sendLoading ? "Wird gesendet..." : "✉️ Nachricht senden"}
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 16, textAlign: "center" }}>
+                    <div style={{ color: GREEN, fontWeight: 700, marginBottom: 8 }}>✅ Nachricht gesendet!</div>
+                    <div style={{ color: "#6B7897", fontSize: "0.85rem", marginBottom: 12 }}>{selected.vorname} wird per E-Mail benachrichtigt.</div>
+                    <button onClick={() => setGesendet(false)} style={{ background: "none", border: "none", color: "#9BA8C0", cursor: "pointer", fontSize: "0.82rem" }}>Weitere Nachricht senden</button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
