@@ -201,25 +201,37 @@ export default function Arbeitgeber() {
     if (form.passwort.length < 6) { alert(t.errors.passLength); return; }
     setLoading(true);
 
-    const { error: authError } = await supabase.auth.signUp({
-      email: form.email, password: form.passwort,
-      options: { data: { role: "arbeitgeber", einrichtung_name: form.einrichtung_name } }
+    // User server-seitig erstellen (sofort bestätigt, kein Email-Confirm nötig)
+    const createRes = await fetch("/api/create-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: form.email,
+        password: form.passwort,
+        einrichtung_name: form.einrichtung_name
+      })
     });
+    const createData = await createRes.json();
 
-    if (authError && authError.message !== "User already registered") {
-      setLoading(false); alert(t.errors.authError + authError.message); return;
+    if (createData.error) {
+      setLoading(false);
+      alert(t.errors.authError + createData.error);
+      return;
     }
 
-    // Sofort einloggen nach Registrierung
+    // Sofort einloggen
     const { error: loginError } = await supabase.auth.signInWithPassword({
       email: form.email,
       password: form.passwort
     });
 
     if (loginError) {
-      setLoading(false); alert(t.errors.authError + loginError.message); return;
+      setLoading(false);
+      alert(t.errors.authError + loginError.message);
+      return;
     }
 
+    // Arbeitgeber-Daten speichern
     const { data: insertedData, error } = await supabase.from("arbeitgeber").insert([{
       einrichtung_name: form.einrichtung_name, einrichtungstyp: form.einrichtungstyp,
       traeger: form.traeger, beschreibung: form.beschreibung,
