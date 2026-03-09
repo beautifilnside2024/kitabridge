@@ -11,7 +11,7 @@ const translations = {
   de: {
     steps: ["Einrichtung","Adresse","Ansprechpartner","Stellen","Plan","Passwort","Abschluss"],
     stepOf: (s, t) => `Schritt ${s} von ${t}`,
-    fillAll: "Bitte fülle alle Felder aus",
+    fillAll: "Bitte füllen Sie alle Pflichtfelder aus",
     back: "Zurück",
     next: "Weiter",
     saving: "Wird gespeichert...",
@@ -50,7 +50,33 @@ const translations = {
       anzahlLabel: "Anzahl offener Stellen *",
       anzahls: ["1 Stelle","2-3 Stellen","4-5 Stellen","6-10 Stellen","Mehr als 10 Stellen"],
       jobsLabel: "Gesuchte Berufe",
-      jobs: ["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kita-Leitung","Praktikant / FSJ"],
+      jobs: [
+        "Erzieherin / Erzieher",
+        "Kinderpflegerin / Kinderpfleger",
+        "Sozialpädagogin / Sozialpädagoge",
+        "Heilpädagogin / Heilpädagoge",
+        "Kindheitspädagogin / Kindheitspädagoge",
+        "Ergotherapeutin / Ergotherapeut",
+        "Logopädin / Logopäde",
+        "Sozialarbeiterin / Sozialarbeiter",
+        "Psychologin / Psychologe",
+        "Grundschullehrerin / Grundschullehrer",
+        "Sonderpädagogin / Sonderpädagoge",
+        "Schulbegleiterin / Schulbegleiter",
+        "Motopädagogin / Motopädagoge",
+        "Musiktherapeutin / Musiktherapeut",
+        "Betreuerin / Betreuer",
+        "Familienhelferin / Familienhelfer",
+        "Stellvertretende Kita-Leitung",
+        "Kinderkrankenpflegerin / Kinderkrankenpfleger",
+        "Physiotherapeutin / Physiotherapeut",
+        "Praktikantin / Praktikant",
+        "Anerkennungspraktikantin / Anerkennungspraktikant",
+        "Auszubildende / Auszubildender",
+        "Studierende / Studierender",
+        "Kita-Leitung",
+        "Sonstige pädagogische Fachkraft"
+      ],
       typeLabel: "Beschäftigungsart",
       types: ["Vollzeit","Teilzeit","Minijob","Vertretung"],
       select: "Bitte wählen",
@@ -88,7 +114,7 @@ const translations = {
   en: {
     steps: ["Facility","Address","Contact","Positions","Plan","Password","Summary"],
     stepOf: (s, t) => `Step ${s} of ${t}`,
-    fillAll: "Please fill in all fields",
+    fillAll: "Please fill in all required fields",
     back: "Back",
     next: "Next",
     saving: "Saving...",
@@ -127,7 +153,33 @@ const translations = {
       anzahlLabel: "Number of Open Positions *",
       anzahls: ["1 position","2-3 positions","4-5 positions","6-10 positions","More than 10 positions"],
       jobsLabel: "Sought Professions",
-      jobs: ["Educator (Erzieherin/Erzieher)","Childcare worker (Kinderpfleger)","Social pedagogue","Special needs educator","Daycare manager","Intern / Volunteer"],
+      jobs: [
+        "Educator (Erzieherin/Erzieher)",
+        "Childcare Worker (Kinderpfleger)",
+        "Social Pedagogue (Sozialpädagoge)",
+        "Special Needs Educator (Heilpädagoge)",
+        "Early Childhood Educator (Kindheitspädagoge)",
+        "Occupational Therapist (Ergotherapeut)",
+        "Speech Therapist (Logopäde)",
+        "Social Worker (Sozialarbeiter)",
+        "Psychologist (Psychologe)",
+        "Primary School Teacher (Grundschullehrer)",
+        "Special Education Teacher (Sonderpädagoge)",
+        "School Assistant (Schulbegleiter)",
+        "Movement Educator (Motopädagoge)",
+        "Music Therapist (Musiktherapeut)",
+        "Caregiver / Supervisor (Betreuer)",
+        "Family Support Worker (Familienhelfer)",
+        "Deputy Daycare Manager",
+        "Pediatric Nurse (Kinderkrankenpfleger)",
+        "Physiotherapist (Physiotherapeut)",
+        "Intern (Praktikant)",
+        "Recognition Intern (Anerkennungspraktikant)",
+        "Apprentice (Auszubildende)",
+        "Student (Studierende)",
+        "Daycare Manager (Kita-Leitung)",
+        "Other pedagogical professional"
+      ],
       typeLabel: "Employment Type",
       types: ["Full-time","Part-time","Mini-job","Substitute"],
       select: "Please select",
@@ -201,7 +253,6 @@ export default function Arbeitgeber() {
     if (form.passwort.length < 6) { alert(t.errors.passLength); return; }
     setLoading(true);
 
-    // User server-seitig erstellen (sofort bestätigt, kein Email-Confirm nötig)
     const createRes = await fetch("/api/create-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -219,7 +270,6 @@ export default function Arbeitgeber() {
       return;
     }
 
-    // Sofort einloggen
     const { error: loginError } = await supabase.auth.signInWithPassword({
       email: form.email,
       password: form.passwort
@@ -231,7 +281,6 @@ export default function Arbeitgeber() {
       return;
     }
 
-    // Arbeitgeber-Daten speichern
     const { data: insertedData, error } = await supabase.from("arbeitgeber").insert([{
       einrichtung_name: form.einrichtung_name, einrichtungstyp: form.einrichtungstyp,
       traeger: form.traeger, beschreibung: form.beschreibung,
