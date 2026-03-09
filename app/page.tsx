@@ -11,7 +11,7 @@ const translations = {
   de: {
     nav: {
       howItWorks: "Wie es funktioniert",
-      forKitas: "Für Kitas",
+      forKitas: "Für Arbeitgeber",
       forPros: "Für Fachkräfte",
       faq: "FAQ",
       login: "Anmelden",
@@ -46,7 +46,7 @@ const translations = {
     kitas: {
       tag: "Für Kitas und Krippen",
       title: "Ein Plan. Volle Kontrolle. Keine Provision.",
-      desc: "Erhalten Sie direkten Zugang zu qualifizierten internationalen Fachkräften. Suchen, filtern und kontaktieren Sie passende Fachkräfte ohne Einschränkungen.",
+      desc: "Erhalten Sie direkten Zugang zu qualifizierten Fachkräften. Suchen, filtern und kontaktieren Sie passende Fachkräfte ohne Einschränkungen.",
       features: ["Alle Fachkräfte-Profile einsehen","Direkter Kontakt ohne Vermittler","Unbegrenzte Suche und Filter","Monatlich kündbar","Keine Provision bei Einstellung","Nachrichten verschicken auf der Platform"],
       btn: "Jetzt registrieren – 299 EUR/Monat",
       planLabel: "Hauptplan für alle Einrichtungen",
@@ -60,7 +60,7 @@ const translations = {
       desc: "Ob Erzieher, Kinderpfleger oder Sozialpädagoge – erstelle kostenlos dein Profil und werde von Kitas in ganz Deutschland gefunden.",
       freeLabel: "Kostenlos für Fachkräfte",
       freeDesc: "Die Registrierung und alle Funktionen sind für pädagogische Fachkräfte komplett kostenlos. Immer.",
-      roles: ["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kita-Leitung"],
+      roles: ["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kindheitspädagogin / Kindheitspädagoge","Ergotherapeutin / Ergotherapeut","Logopädin / Logopäde","Sozialarbeiterin / Sozialarbeiter","Psychologin / Psychologe","Grundschullehrerin / Grundschullehrer","Sonderpädagogin / Sonderpädagoge","Schulbegleiterin / Schulbegleiter","Motopädagogin / Motopädagoge","Musiktherapeutin / Musiktherapeut","Betreuerin / Betreuer","Familienhelferin / Familienhelfer","Stellvertretende Kita-Leitung","Kinderkrankenpflegerin / Kinderkrankenpfleger","Physiotherapeutin / Physiotherapeut","Kita-Leitung"],
       btn: "Jetzt kostenlos registrieren",
       cards: [
         { icon: "📝", title: "Kostenlos registrieren", desc: "Erstelle dein Profil in 10 Minuten" },
@@ -99,7 +99,7 @@ const translations = {
       btnApply: "Als Fachkraft bewerben",
     },
     footer: {
-      desc: "Die Plattform für internationale Kita-Fachkräfte in Deutschland.",
+      desc: "Die Plattform für pädagogische Fachkräfte in Deutschland.",
       links: [["Kontakt","/kontakt"],["Impressum","/impressum"],["Datenschutz","/datenschutz"],["AGB","/agb"]],
     },
   },
