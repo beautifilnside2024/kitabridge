@@ -10,8 +10,82 @@ export async function POST(request) {
       await resend.emails.send({
         from: "KitaBridge <onboarding@resend.dev>",
         to: data.email,
-        subject: "Willkommen bei KitaBridge!",
-        html: `<h2>Hallo ${data.vorname}!</h2><p>Vielen Dank für deine Registrierung bei KitaBridge.</p><p>Wir haben dein Profil erhalten und melden uns innerhalb von 24 Stunden.</p><p>Viele Grüße,<br/>Das KitaBridge Team</p>`
+        subject: "Willkommen bei KitaBridge! · Welcome to KitaBridge! 🎉",
+        html: `<html>
+<body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+  <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+    <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
+    <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-top:6px;">Die Plattform für pädagogische Fachkräfte · The platform for childcare professionals</div>
+  </td></tr>
+
+  <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
+
+    <div style="text-align:center;font-size:48px;margin-bottom:16px;">🎉</div>
+
+    <!-- DEUTSCH -->
+    <div style="border-left:4px solid #1A3F6F;padding-left:20px;margin-bottom:32px;">
+      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Herzlich willkommen bei KitaBridge, ${data.vorname}!</p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">
+        Wir freuen uns sehr, dich in unserer Community begrüßen zu dürfen! 🌟
+      </p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">
+        Bei KitaBridge kannst du dein Profil erstellen und wirst direkt von Kitas und sozialen Einrichtungen in ganz Deutschland kontaktiert – <strong>kein Lebenslauf, kein Anschreiben</strong> nötig.
+      </p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">
+        Einfach sichtbar sein – und die passende Einrichtung meldet sich bei dir. 💪
+      </p>
+    </div>
+
+    <hr style="border:none;border-top:2px dashed #E8EDF4;margin:0 0 32px;">
+
+    <!-- ENGLISH -->
+    <div style="border-left:4px solid #27AE60;padding-left:20px;margin-bottom:32px;">
+      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Welcome to KitaBridge, ${data.vorname}!</p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">
+        We are so happy to have you here! 🌟
+      </p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">
+        At KitaBridge, you can create your profile and get contacted directly by daycare centers and social institutions across Germany – <strong>no CV, no cover letter</strong> required.
+      </p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">
+        Simply be visible – and the right employer will reach out to you. 💪
+      </p>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #E8EDF4;margin:0 0 32px;">
+
+    <p style="font-size:15px;font-weight:700;color:#1A3F6F;margin:0 0 16px;">
+      Deine nächsten Schritte · Your next steps:
+    </p>
+    <p style="font-size:14px;color:#444;line-height:2;margin:0 0 32px;">
+      ✏️ Profil vervollständigen · Complete your profile<br>
+      🔍 Von Kitas gefunden werden · Get found by daycare centers<br>
+      📩 Kontaktiert werden · Get contacted directly<br>
+      🤝 Deinen Traumjob finden · Find your dream job
+    </p>
+
+    <div style="text-align:center;">
+      <a href="https://kitabridge.de/fachkraft/einstellungen" style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">
+        Jetzt Profil vervollständigen · Complete Profile →
+      </a>
+    </div>
+
+  </td></tr>
+
+  <tr><td style="padding:24px 40px;text-align:center;">
+    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen · Questions: <a href="mailto:support@kitabridge.de" style="color:#2471A3;">support@kitabridge.de</a></p>
+    <p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`
       });
     }
 
