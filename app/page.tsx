@@ -47,11 +47,11 @@ const translations = {
       tag: "Für Kitas, Krippen und alle sozialen Einrichtungen",
       title: "Ein Plan. Volle Kontrolle. Keine Provision.",
       desc: "Erhalten Sie direkten Zugang zu qualifizierten Fachkräften. Suchen, filtern und kontaktieren Sie passende Fachkräfte ohne Einschränkungen.",
-      features: ["Alle Fachkräfte-Profile einsehen","Direkter Kontakt ohne Vermittler","Unbegrenzte Suche und Filter","Monatlich kündbar","Keine Provision bei Einstellung","Nachrichten verschicken auf der Platform"],
+      features: ["Alle Fachkräfte-Profile einsehen","Direkter Kontakt ohne Vermittler","Unbegrenzte Suche und Filter","Monatlich kündbar","Keine Provision bei Einstellung","Nachrichten auf der Plattform verschicken"],
       btn: "Jetzt registrieren – 299 EUR/Monat",
       planLabel: "Hauptplan für alle Einrichtungen",
       perMonth: "pro Monat, zzgl. MwSt.",
-      planFeatures: ["Alle Fachkräfte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kündbar","Nachrichten verschicken auf der Platform"],
+      planFeatures: ["Alle Fachkräfte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kündbar","Nachrichten auf der Plattform verschicken"],
       noFee: "Keine Einrichtungsgebühr – Keine Mindestlaufzeit",
     },
     pros: {
@@ -60,7 +60,7 @@ const translations = {
       desc: "Ob Erzieher, Kinderpfleger oder Sozialpädagoge – erstelle kostenlos dein Profil und werde von Kitas und allen anderen sozialen Einrichtungen in ganz Deutschland gefunden.",
       freeLabel: "Kostenlos für Fachkräfte",
       freeDesc: "Die Registrierung und alle Funktionen sind für pädagogische Fachkräfte komplett kostenlos. Immer.",
-      roles: ["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kindheitspädagogin / Kindheitspädagoge","Ergotherapeutin / Ergotherapeut","Logopädin / Logopäde","Sozialarbeiterin / Sozialarbeiter","Psychologin / Psychologe","Grundschullehrerin / Grundschullehrer","Sonderpädagogin / Sonderpädagoge","Schulbegleiterin / Schulbegleiter","Motopädagogin / Motopädagoge","Musiktherapeutin / Musiktherapeut","Betreuerin / Betreuer","Familienhelferin / Familienhelfer","Stellvertretende Kita-Leitung","Kinderkrankenpflegerin / Kinderkrankenpfleger","Physiotherapeutin / Physiotherapeut","Kita-Leitung"],
+      roles: ["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kindheitspädagogin / Kindheitspädagoge","Ergotherapeutin / Ergotherapeut","Logopädin / Logopäde","Sozialarbeiterin / Sozialarbeiter","Psychologin / Psychologe","Grundschullehrerin / Grundschullehrer","Sonderpädagogin / Sonderpädagoge","Schulbegleiterin / Schulbegleiter","Motopädagogin / Motopädagoge","Musiktherapeutin / Musiktherapeut","Betreuerin / Betreuer","Familienhelferin / Familienhelfer","Stellvertretende Kita-Leitung","Kinderkrankenpflegerin / Kinderkrankenpfleger","Physiotherapeutin / Physiotherapeut","Praktikantin / Praktikant","Anerkennungspraktikantin / Anerkennungspraktikant","Auszubildende / Auszubildender","Studierende / Studierender","Kita-Leitung"],
       btn: "Jetzt kostenlos registrieren",
       cards: [
         { icon: "📝", title: "Kostenlos registrieren", desc: "Erstelle dein Profil in 10 Minuten" },
