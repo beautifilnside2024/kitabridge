@@ -140,10 +140,25 @@ export default function Registrieren() {
     if (!form.agb || !form.datenschutz) return;
     setLoading(true);
     setError("");
-    const { error: authError } = await supabase.auth.signUp({ email: form.email, password: form.passwort });
-    if (authError && authError.message !== "User already registered") {
-      setError(tx.errorAuth + authError.message); setLoading(false); return;
+
+    // User server-seitig erstellen (sofort bestätigt)
+    const createRes = await fetch("/api/create-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: form.email,
+        password: form.passwort,
+        einrichtung_name: form.vorname
+      })
+    });
+    const createData = await createRes.json();
+
+    if (createData.error && createData.error !== "A user with this email address has already been registered") {
+      setError(tx.errorAuth + createData.error);
+      setLoading(false);
+      return;
     }
+
     const { error: dbError } = await supabase.from("fachkraefte").insert([{
       vorname: form.vorname, nachname: form.nachname, email: form.email, telefon: form.telefon,
       wohnort: form.wohnort, qualifikation: form.qualifikation, zusatzqualifikation: form.zusatzqualifikation,
@@ -153,8 +168,10 @@ export default function Registrieren() {
       arbeitszeit: form.arbeitszeit, bundesland: form.bundesland, status: "neu"
     }]);
     if (dbError) { setError(tx.errorDb + dbError.message); setLoading(false); return; }
+
     await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "fachkraft", data: form }) });
     await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "willkommen_fachkraft", data: form }) });
+
     setLoading(false);
     setSubmitted(true);
   };
