@@ -23,6 +23,7 @@ const translations = {
       title1: "Die Brücke zwischen",
       title2: "Fachkräften und Kitas.",
       desc: "KitaBridge verbindet Erzieher/innen und pädagogische Fachkräfte mit Kitas und sozialen Einrichtungen in ganz Deutschland. Schnell, transparent und ohne versteckte Kosten.",
+      tagline: "Kein Lebenslauf. Kein Anschreiben. Einfach Profil erstellen – Die Einrichtung meldet sich bei dir! 🎯",
       btnFind: "Fachkräfte finden",
       btnApply: "Als Fachkraft bewerben",
       badges: ["DSGVO-konform", "100% transparent", "Sofort starten"],
@@ -117,6 +118,7 @@ const translations = {
       title1: "The bridge between",
       title2: "professionals and daycares.",
       desc: "KitaBridge connects international childcare professionals with daycare centers and social institutions in Germany. Fast, transparent and without hidden costs.",
+      tagline: "No CV. No cover letter. Just create your profile – The employer will contact you! 🎯",
       btnFind: "Find professionals",
       btnApply: "Apply as a professional",
       badges: ["GDPR-compliant", "100% transparent", "Start immediately"],
@@ -211,7 +213,6 @@ export default function Home() {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: "white", color: "#1a1a2e" }}>
@@ -333,9 +334,25 @@ export default function Home() {
               <h1 className="hero-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "3.4rem", fontWeight: 900, color: NAVY, lineHeight: 1.15, marginBottom: 24 }}>
                 {t.hero.title1}<br/><span style={{ color: GREEN }}>{t.hero.title2}</span>
               </h1>
-              <p style={{ fontSize: "1.05rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 36, maxWidth: 480 }}>{t.hero.desc}</p>
+              <p style={{ fontSize: "1.05rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 20, maxWidth: 480 }}>
+                {t.hero.desc}
+              </p>
+
+              {/* ── BOLD TAGLINE ── */}
+              <p style={{
+                fontSize: "1.2rem",
+                fontWeight: 900,
+                color: GREEN,
+                marginBottom: 32,
+                lineHeight: 1.5,
+                borderLeft: `4px solid ${GREEN}`,
+                paddingLeft: 16,
+                maxWidth: 480,
+              }}>
+                {t.hero.tagline}
+              </p>
+
               <div className="hero-btns" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                {/* ← GEÄNDERT: führt jetzt zu /Arbeitgeber statt /login */}
                 <button onClick={() => router.push("/Arbeitgeber")} className="btn-primary">{t.hero.btnFind}</button>
                 <button onClick={() => router.push("/Registrieren")} className="btn-green">{t.hero.btnApply}</button>
               </div>
