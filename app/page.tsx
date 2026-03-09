@@ -94,7 +94,7 @@ const translations = {
     },
     cta: {
       title: "Bereit loszulegen?",
-      desc: "Ob Kita oder Fachkraft – bei KitaBridge finden Sie sich. Schnell, direkt und ohne Provision.",
+      desc: "Ob Kita/ soziale Einrichtung oder Fachkraft – bei KitaBridge finden Sie sich. Schnell, direkt und ohne Provision.",
       btnFind: "Fachkräfte finden",
       btnApply: "Als Fachkraft bewerben",
     },
