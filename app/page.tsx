@@ -21,7 +21,7 @@ const translations = {
     hero: {
       badge: "Die Plattform für Kitas, soziale Einrichtungen & pädagogische Fachkräfte",
       title1: "Die Brücke zwischen",
-      title2: "Fachkräften und Kitas.",
+      title2: "Fachkräften und Kitas bzw. sozialen Einrichtungen.",
       desc: "KitaBridge verbindet Erzieher/innen und pädagogische Fachkräfte mit Kitas und sozialen Einrichtungen in ganz Deutschland. Schnell, transparent und ohne versteckte Kosten.",
       tagline: "Kein Lebenslauf. Kein Anschreiben. Einfach Profil erstellen – Die Einrichtung meldet sich bei dir! 🎯",
       btnFind: "Fachkräfte finden",
@@ -44,7 +44,7 @@ const translations = {
       ],
     },
     kitas: {
-      tag: "Für Kitas und Krippen",
+      tag: "Für Kitas, Krippen und alle sozialen Einrichtungen",
       title: "Ein Plan. Volle Kontrolle. Keine Provision.",
       desc: "Erhalten Sie direkten Zugang zu qualifizierten Fachkräften. Suchen, filtern und kontaktieren Sie passende Fachkräfte ohne Einschränkungen.",
       features: ["Alle Fachkräfte-Profile einsehen","Direkter Kontakt ohne Vermittler","Unbegrenzte Suche und Filter","Monatlich kündbar","Keine Provision bei Einstellung","Nachrichten verschicken auf der Platform"],
@@ -55,9 +55,9 @@ const translations = {
       noFee: "Keine Einrichtungsgebühr – Keine Mindestlaufzeit",
     },
     pros: {
-      tag: "Für internationale Fachkräfte",
-      title: "Dein Weg in die Kita beginnt hier",
-      desc: "Ob Erzieher, Kinderpfleger oder Sozialpädagoge – erstelle kostenlos dein Profil und werde von Kitas in ganz Deutschland gefunden.",
+      tag: "Für pädagogische Fachkräfte",
+      title: "Dein Weg in die Kita bzw. soziale Einrichtung beginnt hier",
+      desc: "Ob Erzieher, Kinderpfleger oder Sozialpädagoge – erstelle kostenlos dein Profil und werde von Kitas und allen anderen sozialen Einrichtungen in ganz Deutschland gefunden.",
       freeLabel: "Kostenlos für Fachkräfte",
       freeDesc: "Die Registrierung und alle Funktionen sind für pädagogische Fachkräfte komplett kostenlos. Immer.",
       roles: ["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kindheitspädagogin / Kindheitspädagoge","Ergotherapeutin / Ergotherapeut","Logopädin / Logopäde","Sozialarbeiterin / Sozialarbeiter","Psychologin / Psychologe","Grundschullehrerin / Grundschullehrer","Sonderpädagogin / Sonderpädagoge","Schulbegleiterin / Schulbegleiter","Motopädagogin / Motopädagoge","Musiktherapeutin / Musiktherapeut","Betreuerin / Betreuer","Familienhelferin / Familienhelfer","Stellvertretende Kita-Leitung","Kinderkrankenpflegerin / Kinderkrankenpfleger","Physiotherapeutin / Physiotherapeut","Kita-Leitung"],
