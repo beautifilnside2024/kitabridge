@@ -210,6 +210,16 @@ export default function Arbeitgeber() {
       setLoading(false); alert(t.errors.authError + authError.message); return;
     }
 
+    // Sofort einloggen nach Registrierung
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email: form.email,
+      password: form.passwort
+    });
+
+    if (loginError) {
+      setLoading(false); alert(t.errors.authError + loginError.message); return;
+    }
+
     const { data: insertedData, error } = await supabase.from("arbeitgeber").insert([{
       einrichtung_name: form.einrichtung_name, einrichtungstyp: form.einrichtungstyp,
       traeger: form.traeger, beschreibung: form.beschreibung,
