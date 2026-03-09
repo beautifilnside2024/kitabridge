@@ -1,23 +1,36 @@
-const handleDeleteAccount = async () => {
-  const bestaetigung = window.confirm(
-    "Sind Sie sicher? Ihr Account und alle Daten werden unwiderruflich gelöscht. Ihr Abonnement wird sofort gekündigt."
-  );
-  if (!bestaetigung) return;
+import { createClient } from "@supabase/supabase-js";
 
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return;
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
-  const res = await fetch("/api/account/delete", {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: session.user.email, rolle: "arbeitgeber" }),
-  });
+export async function DELETE(request) {
+  try {
+    const { email, rolle } = await request.json();
 
-  if (res.ok) {
-    await supabase.auth.signOut();
-    alert("Ihr Account wurde erfolgreich gelöscht.");
-    router.push("/");
-  } else {
-    alert("Fehler beim Löschen. Bitte kontaktieren Sie uns unter kitabridge@protonmail.com");
+    if (!email) {
+      return Response.json({ error: "Email fehlt" }, { status: 400 });
+    }
+
+    // User aus Auth löschen
+    const { data: users } = await supabaseAdmin.auth.admin.listUsers();
+    const user = users?.users?.find(u => u.email === email);
+
+    if (user) {
+      await supabaseAdmin.auth.admin.deleteUser(user.id);
+    }
+
+    // User aus Datenbank löschen
+    if (rolle === "fachkraft") {
+      await supabaseAdmin.from("fachkraefte").delete().eq("email", email);
+    } else if (rolle === "arbeitgeber") {
+      await supabaseAdmin.from("arbeitgeber").delete().eq("email", email);
+    }
+
+    return Response.json({ ok: true });
+  } catch (error) {
+    console.error("Delete error:", error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
-};
+}
