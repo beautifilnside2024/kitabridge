@@ -1,5 +1,7 @@
 import { MetadataRoute } from "next";
 
+const staedte = ["berlin", "hamburg", "münchen", "frankfurt", "köln", "stuttgart", "düsseldorf", "leipzig", "nürnberg", "bremen"];
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
@@ -20,6 +22,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.9,
     },
+    {
+      url: "https://www.kitabridge.de/blog",
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: "https://www.kitabridge.de/blog/kita-job-finden-ohne-anschreiben",
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: "https://www.kitabridge.de/blog/erzieherinnen-finden-kita",
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: "https://www.kitabridge.de/blog/fachkraeftemangel-kitas-2026",
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    ...staedte.map((stadt) => ({
+      url: `https://www.kitabridge.de/kita-jobs/${stadt}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
     {
       url: "https://www.kitabridge.de/login",
       lastModified: new Date(),
