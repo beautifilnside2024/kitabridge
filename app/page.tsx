@@ -533,6 +533,37 @@ export default function Home() {
         </div>
       </section>
 
+      {/* BLOG */}
+      <section className="section-pad" style={{ padding: "100px 40px", background: "#F8FAFF" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 60 }}>
+            <div style={{ fontSize: "0.75rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Ratgeber & Tipps</div>
+            <h2 className="section-heading" style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.4rem", fontWeight: 800, color: NAVY }}>Wissen für Fachkräfte & Einrichtungen</h2>
+          </div>
+          <div className="cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+            {[
+              { slug: "kita-job-finden-ohne-anschreiben", cat: "Für Fachkräfte", catColor: GREEN, title: "Kita Job finden ohne Anschreiben – so geht's 2026", excerpt: "Kein Anschreiben, kein Lebenslauf – wie du als Fachkraft schnell den richtigen Job findest.", read: "4 min" },
+              { slug: "erzieherinnen-finden-kita", cat: "Für Arbeitgeber", catColor: BLUE, title: "Erzieherinnen finden: So besetzen Kitas offene Stellen schnell", excerpt: "Praktische Tipps damit deine offene Stelle nicht monatelang unbesetzt bleibt.", read: "5 min" },
+              { slug: "fachkraeftemangel-kitas-2026", cat: "Ratgeber", catColor: "#8e44ad", title: "Fachkräftemangel in Kitas 2026 – Was Einrichtungen tun können", excerpt: "Was steckt hinter dem Mangel – und was können Einrichtungen jetzt konkret dagegen tun?", read: "6 min" },
+            ].map(post => (
+              <a key={post.slug} href={`/blog/${post.slug}`} style={{ textDecoration: "none" }}>
+                <div className="card" style={{ height: "100%", borderTop: `4px solid ${post.catColor}`, display: "flex", flexDirection: "column" }}>
+                  <div style={{ marginBottom: 14 }}>
+                    <span style={{ background: post.catColor, color: "#fff", fontSize: 11, padding: "3px 10px", borderRadius: 20, fontWeight: 600 }}>{post.cat}</span>
+                    <span style={{ color: "#999", fontSize: 12, marginLeft: 10 }}>{post.read} Lesezeit</span>
+                  </div>
+                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.05rem", color: NAVY, marginBottom: 12, lineHeight: 1.4 }}>{post.title}</h3>
+                  <p style={{ color: "#6B7897", fontSize: "0.85rem", lineHeight: 1.7, flex: 1 }}>{post.excerpt}</p>
+                  <p style={{ color: GREEN, fontSize: "0.83rem", fontWeight: 700, marginTop: 20 }}>Weiterlesen →</p>
+                </div>
+              </a>
+            ))}
+          </div>
+          <div style={{ textAlign: "center", marginTop: 40 }}>
+            <a href="/blog" className="btn-secondary">Alle Artikel lesen</a>
+          </div>
+        </div>
+      </section>
       {/* CTA */}
       <section className="cta-section" style={{ padding: "100px 40px", background: "linear-gradient(135deg, #1A3F6F 0%, #2471A3 100%)" }}>
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
