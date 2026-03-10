@@ -337,21 +337,9 @@ export default function Home() {
               <p style={{ fontSize: "1.05rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 20, maxWidth: 480 }}>
                 {t.hero.desc}
               </p>
-
-              {/* ── BOLD TAGLINE ── */}
-              <p style={{
-                fontSize: "1.2rem",
-                fontWeight: 900,
-                color: GREEN,
-                marginBottom: 32,
-                lineHeight: 1.5,
-                borderLeft: `4px solid ${GREEN}`,
-                paddingLeft: 16,
-                maxWidth: 480,
-              }}>
+              <p style={{ fontSize: "1.2rem", fontWeight: 900, color: GREEN, marginBottom: 32, lineHeight: 1.5, borderLeft: `4px solid ${GREEN}`, paddingLeft: 16, maxWidth: 480 }}>
                 {t.hero.tagline}
               </p>
-
               <div className="hero-btns" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                 <button onClick={() => router.push("/Arbeitgeber")} className="btn-primary">{t.hero.btnFind}</button>
                 <button onClick={() => router.push("/Registrieren")} className="btn-green">{t.hero.btnApply}</button>
@@ -426,7 +414,7 @@ export default function Home() {
                 {t.kitas.features.map(f => (
                   <div key={f} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                     <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#EAF7EF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <span style={{ color: GREEN, fontSize: "0.75rem", fontWeight: 700 }}>+</span>
+                      <span style={{ color: GREEN, fontSize: "0.75rem", fontWeight: 700 }}>✓</span>
                     </div>
                     <span style={{ color: "#444", fontSize: "0.9rem" }}>{f}</span>
                   </div>
@@ -436,13 +424,21 @@ export default function Home() {
             </div>
             <div>
               <div className="price-box" style={{ background: "linear-gradient(135deg, #1A3F6F, #2471A3)", borderRadius: 24, padding: 36, color: "white", position: "relative" }}>
-                <div style={{ fontSize: "0.8rem", fontWeight: 700, opacity: 0.7, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>{t.kitas.planLabel}</div>
-                <div className="price-num" style={{ fontFamily: "'Playfair Display', serif", fontSize: "3rem", fontWeight: 700, marginBottom: 4 }}>299 EUR</div>
-                <div style={{ opacity: 0.7, fontSize: "0.85rem", marginBottom: 28 }}>{t.kitas.perMonth}</div>
+                <div style={{ fontSize: "0.8rem", fontWeight: 700, opacity: 0.7, marginBottom: 16, textTransform: "uppercase", letterSpacing: 1 }}>{t.kitas.planLabel}</div>
+                <div style={{ background: "rgba(30,132,73,0.25)", border: "1px solid rgba(30,132,73,0.5)", borderRadius: 12, padding: "12px 16px", marginBottom: 20 }}>
+                  <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: 4 }}>Personalvermittler kosten bis zu</div>
+                  <div style={{ fontSize: "1.4rem", fontWeight: 800, textDecoration: "line-through", opacity: 0.6 }}>9.000 EUR</div>
+                  <div style={{ fontSize: "0.75rem", opacity: 0.8, marginTop: 4 }}>pro Einstellung – einmalig</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginBottom: 4 }}>
+                  <div className="price-num" style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.2rem", fontWeight: 700, lineHeight: 1 }}>299 EUR</div>
+                  <div style={{ opacity: 0.7, fontSize: "0.85rem", marginBottom: 4 }}>{t.kitas.perMonth}</div>
+                </div>
+                <div style={{ fontSize: "0.78rem", opacity: 0.6, marginBottom: 24 }}>Keine Provision. Egal wie viele Fachkräfte Sie einstellen.</div>
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: 20 }}>
                   {t.kitas.planFeatures.map(f => (
                     <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: "0.88rem" }}>
-                      <span style={{ color: "#27AE60" }}>+</span> {f}
+                      <span style={{ color: "#27AE60" }}>✓</span> {f}
                     </div>
                   ))}
                 </div>
@@ -479,7 +475,7 @@ export default function Home() {
               <div style={{ marginBottom: 28 }}>
                 {t.pros.roles.map(f => (
                   <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, fontSize: "0.88rem", color: "#444" }}>
-                    <span style={{ color: GREEN, fontWeight: 700 }}>+</span> {f}
+                    <span style={{ color: GREEN, fontWeight: 700 }}>✓</span> {f}
                   </div>
                 ))}
               </div>
@@ -564,6 +560,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+
       {/* CTA */}
       <section className="cta-section" style={{ padding: "100px 40px", background: "linear-gradient(135deg, #1A3F6F 0%, #2471A3 100%)" }}>
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
