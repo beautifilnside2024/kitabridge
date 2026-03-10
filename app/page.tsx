@@ -48,7 +48,7 @@ const translations = {
       title: "Ein Plan. Volle Kontrolle. Keine Provision.",
       desc: "Erhalten Sie direkten Zugang zu qualifizierten Fachkräften. Suchen, filtern und kontaktieren Sie passende Fachkräfte ohne Einschränkungen.",
       features: ["Alle Fachkräfte-Profile einsehen","Direkter Kontakt ohne Vermittler","Unbegrenzte Suche und Filter","Monatlich kündbar","Keine Provision bei Einstellung","Nachrichten auf der Plattform verschicken"],
-      btn: "Jetzt registrieren – 299 EUR/Monat",
+      btn: "Jetzt registrieren",
       planLabel: "Hauptplan für alle Einrichtungen",
       perMonth: "pro Monat, zzgl. MwSt.",
       planFeatures: ["Alle Fachkräfte-Profile","Direktkontakt","Unbegrenzte Suche","Keine Provision","Monatlich kündbar","Nachrichten auf der Plattform verschicken"],
