@@ -426,15 +426,15 @@ export default function Home() {
               <div className="price-box" style={{ background: "linear-gradient(135deg, #1A3F6F, #2471A3)", borderRadius: 24, padding: 36, color: "white", position: "relative" }}>
                 <div style={{ fontSize: "0.8rem", fontWeight: 700, opacity: 0.7, marginBottom: 16, textTransform: "uppercase", letterSpacing: 1 }}>{t.kitas.planLabel}</div>
                 <div style={{ background: "rgba(30,132,73,0.25)", border: "1px solid rgba(30,132,73,0.5)", borderRadius: 12, padding: "12px 16px", marginBottom: 20 }}>
-                  <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: 4 }}>Personalvermittler kosten bis zu</div>
+                  <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: 4 }}>{lang === "de" ? "Personalvermittler kosten bis zu" : "Recruitment agencies charge up to"}</div>
                   <div style={{ fontSize: "1.4rem", fontWeight: 800, textDecoration: "line-through", opacity: 0.6 }}>9.000 EUR</div>
-                  <div style={{ fontSize: "0.75rem", opacity: 0.8, marginTop: 4 }}>pro Einstellung – einmalig</div>
+                  <div style={{ fontSize: "0.75rem", opacity: 0.8, marginTop: 4 }}>{lang === "de" ? "pro Einstellung – einmalig" : "per hire – one time"}</div>
                 </div>
                 <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginBottom: 4 }}>
                   <div className="price-num" style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.2rem", fontWeight: 700, lineHeight: 1 }}>299 EUR</div>
                   <div style={{ opacity: 0.7, fontSize: "0.85rem", marginBottom: 4 }}>{t.kitas.perMonth}</div>
                 </div>
-                <div style={{ fontSize: "0.78rem", opacity: 0.6, marginBottom: 24 }}>Keine Provision. Egal wie viele Fachkräfte Sie einstellen.</div>
+                <div style={{ fontSize: "0.78rem", opacity: 0.6, marginBottom: 24 }}>{lang === "de" ? "Keine Provision. Egal wie viele Fachkräfte Sie einstellen." : "No commission. No matter how many professionals you hire."}</div>
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: 20 }}>
                   {t.kitas.planFeatures.map(f => (
                     <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: "0.88rem" }}>
