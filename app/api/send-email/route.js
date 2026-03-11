@@ -12,12 +12,12 @@ export async function POST(request) {
   try {
     const { type, data } = await request.json();
 
+    // ─── WILLKOMMEN FACHKRAFT ───────────────────────────────────────────────
     if (type === "willkommen_fachkraft") {
-      // FIX: supports both real name and anonymous username
-      const displayName = data.vorname || data.username || "dort";
+      const displayName = data.vorname || data.username || "";
 
       await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
+        from: "KitaBridge <hallo@kitabridge.de>",
         to: data.email,
         subject: "Willkommen bei KitaBridge! · Welcome to KitaBridge! 🎉",
         html: `<html><body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
@@ -30,14 +30,14 @@ export async function POST(request) {
   <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
     <div style="text-align:center;font-size:48px;margin-bottom:16px;">🎉</div>
     <div style="border-left:4px solid #1A3F6F;padding-left:20px;margin-bottom:32px;">
-      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Herzlich willkommen bei KitaBridge, ${displayName}!</p>
+      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Herzlich willkommen bei KitaBridge${displayName ? `, ${displayName}` : ""}!</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">Wir freuen uns sehr, dich in unserer Community begrüßen zu dürfen! 🌟</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">Bei KitaBridge kannst du dein Profil erstellen und wirst direkt von Kitas und sozialen Einrichtungen in ganz Deutschland kontaktiert – <strong>kein Lebenslauf, kein Anschreiben</strong> nötig.</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">Einfach sichtbar sein – und die passende Einrichtung meldet sich bei dir. 💪</p>
     </div>
     <hr style="border:none;border-top:2px dashed #E8EDF4;margin:0 0 32px;">
     <div style="border-left:4px solid #27AE60;padding-left:20px;margin-bottom:32px;">
-      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Welcome to KitaBridge, ${displayName}!</p>
+      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Welcome to KitaBridge${displayName ? `, ${displayName}` : ""}!</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">We are so happy to have you here! 🌟</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">At KitaBridge, you can create your profile and get contacted directly by daycare centers and social institutions across Germany – <strong>no CV, no cover letter</strong> required.</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">Simply be visible – and the right employer will reach out to you. 💪</p>
@@ -65,9 +65,10 @@ export async function POST(request) {
       });
     }
 
+    // ─── WILLKOMMEN ARBEITGEBER ─────────────────────────────────────────────
     if (type === "willkommen_arbeitgeber") {
       await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
+        from: "KitaBridge <hallo@kitabridge.de>",
         to: data.email,
         subject: "Willkommen bei KitaBridge – So geht es jetzt weiter 🎉",
         html: `<html><body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
@@ -75,7 +76,7 @@ export async function POST(request) {
 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
   <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
     <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
-    <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-top:6px;">Die Plattform für Kitas & pädagogische Fachkräfte</div>
+    <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-top:6px;">Die Plattform für Kitas &amp; pädagogische Fachkräfte</div>
   </td></tr>
   <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
     <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 8px;">Herzlich willkommen, ${data.ansprech_name}! 🎉</p>
@@ -109,6 +110,7 @@ export async function POST(request) {
       });
     }
 
+    // ─── NEUE ANFRAGE ───────────────────────────────────────────────────────
     if (type === "neue_anfrage") {
       const { data: fachkraft, error } = await supabaseAdmin
         .from("fachkraefte")
@@ -126,7 +128,7 @@ export async function POST(request) {
       const nachricht = data.nachricht?.trim() || `Wir sind ${kitaName} und suchen eine engagierte Fachkraft. Wir würden uns freuen, von Ihnen zu hören!`;
 
       await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
+        from: "KitaBridge <hallo@kitabridge.de>",
         to: fachkraft.email,
         subject: `Neue Anfrage von ${kitaName} – KitaBridge`,
         html: `<html><body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
@@ -162,11 +164,12 @@ export async function POST(request) {
       });
     }
 
+    // ─── ANFRAGE AKZEPTIERT ─────────────────────────────────────────────────
     if (type === "anfrage_akzeptiert") {
       const { kita_email, kita_name, fachkraft_name, fachkraft_email, fachkraft_telefon } = data;
 
       await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
+        from: "KitaBridge <hallo@kitabridge.de>",
         to: kita_email,
         subject: `Anfrage akzeptiert! ${fachkraft_name} möchte Kontakt – KitaBridge`,
         html: `<html><body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
@@ -198,9 +201,10 @@ export async function POST(request) {
       });
     }
 
+    // ─── INTERNE MAILS ──────────────────────────────────────────────────────
     if (type === "fachkraft") {
       await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
+        from: "KitaBridge <hallo@kitabridge.de>",
         to: "hallo@kitabridge.de",
         subject: `Neue Fachkraft: ${data.vorname || data.username}`,
         html: `<h2>Neue Registrierung</h2>
@@ -212,7 +216,7 @@ export async function POST(request) {
 
     if (type === "arbeitgeber") {
       await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
+        from: "KitaBridge <hallo@kitabridge.de>",
         to: "hallo@kitabridge.de",
         subject: `Neue Einrichtung: ${data.einrichtung_name}`,
         html: `<h2>Neue Arbeitgeber-Registrierung</h2>
@@ -228,7 +232,7 @@ export async function POST(request) {
 
     if (type === "kontakt") {
       await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
+        from: "KitaBridge <hallo@kitabridge.de>",
         to: "hallo@kitabridge.de",
         subject: `Kontaktanfrage: ${data.betreff || "Kein Betreff"}`,
         html: `<h2>Neue Kontaktanfrage</h2>
