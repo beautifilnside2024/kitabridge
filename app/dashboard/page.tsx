@@ -219,7 +219,7 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 800, color: NAVY, fontSize: "0.95rem" }}>{name}</div>
-                    {anonym && <div style={{ fontSize: "0.7rem", color: BLUE, fontWeight: 700, textTransform: "uppercase" }}>Anonym · Name nach Zustimmung</div>}
+                    {anonym && <div style={{ fontSize: "0.7rem", color: BLUE, fontWeight: 700, textTransform: "uppercase" }}>Anonym</div>}
                     <div style={{ fontSize: "0.8rem", color: "#6B7897", marginTop: 2 }}>{fk.qualifikation}</div>
                   </div>
                 </div>
