@@ -57,7 +57,7 @@ export async function POST(request) {
     </div>
   </td></tr>
   <tr><td style="padding:24px 40px;text-align:center;">
-    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen · Questions: <a href="mailto:support@kitabridge.de" style="color:#2471A3;">support@kitabridge.de</a></p>
+    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen · Questions: <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
     <p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p>
   </td></tr>
 </table></td></tr></table>
@@ -102,7 +102,7 @@ export async function POST(request) {
     </div>
   </td></tr>
   <tr><td style="padding:24px 40px;text-align:center;">
-    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen: <a href="mailto:support@kitabridge.de" style="color:#2471A3;">support@kitabridge.de</a></p>
+    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen: <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
     <p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p>
   </td></tr>
 </table></td></tr></table>
@@ -156,7 +156,7 @@ export async function POST(request) {
     </div>
   </td></tr>
   <tr><td style="padding:24px 40px;text-align:center;">
-    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen: <a href="mailto:support@kitabridge.de" style="color:#2471A3;">support@kitabridge.de</a></p>
+    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen: <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
     <p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p>
   </td></tr>
 </table></td></tr></table>
@@ -193,7 +193,7 @@ export async function POST(request) {
     </div>
   </td></tr>
   <tr><td style="padding:24px 40px;text-align:center;">
-    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen: <a href="mailto:support@kitabridge.de" style="color:#2471A3;">support@kitabridge.de</a></p>
+    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen: <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
     <p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p>
   </td></tr>
 </table></td></tr></table>
