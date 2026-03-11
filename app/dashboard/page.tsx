@@ -569,6 +569,9 @@ export default function Dashboard() {
                     </button>
                   ))}
                   <a href="/kontakt" style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", textDecoration: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem" }}>
+                    <a href={`/arbeitgeber/${arbeitgeber?.id}`} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", textDecoration: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem" }}>
+  👁 Meine Visitenkarte ansehen
+</a>
                     ✉️ Support kontaktieren
                   </a>
                 </div>
