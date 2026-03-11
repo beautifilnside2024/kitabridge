@@ -1,4 +1,6 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useParams } from "next/navigation";
 
 const NAVY = "#1A3F6F";
 const GREEN = "#1E8449";
@@ -17,22 +19,10 @@ const stadtDaten: Record<string, { name: string; bundesland: string; kitas: numb
   bremen: { name: "Bremen", bundesland: "Bremen", kitas: 500, desc: "Bremen bietet gute Arbeitsbedingungen für pädagogische Fachkräfte in einem überschaubaren aber lebendigen Stadtumfeld." },
 };
 
-export async function generateMetadata({ params }: { params: { stadt: string } }): Promise<Metadata> {
-  const stadt = stadtDaten[params.stadt.toLowerCase()];
-  if (!stadt) return { title: "KitaBridge" };
-  return {
-    title: `Kita Job ${stadt.name} – Kostenlos als Fachkraft registrieren | KitaBridge`,
-    description: `Kita Jobs in ${stadt.name} finden ohne Anschreiben. Registriere dich kostenlos auf KitaBridge und werde von Kitas in ${stadt.name} direkt kontaktiert.`,
-    keywords: [`Kita Job ${stadt.name}`, `Erzieherin Job ${stadt.name}`, `Erzieher Stelle ${stadt.name}`, `pädagogische Fachkraft ${stadt.name}`, `Kita ${stadt.name}`],
-  };
-}
-
-export async function generateStaticParams() {
-  return Object.keys(stadtDaten).map((stadt) => ({ stadt }));
-}
-
-export default function StadtPage({ params }: { params: { stadt: string } }) {
-  const stadt = stadtDaten[params.stadt.toLowerCase()];
+export default function StadtPage() {
+  const params = useParams();
+  const stadtKey = (params?.stadt as string)?.toLowerCase() ?? "";
+  const stadt = stadtDaten[stadtKey];
 
   if (!stadt) {
     return (
