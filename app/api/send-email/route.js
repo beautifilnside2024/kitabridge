@@ -20,49 +20,7 @@ export async function POST(request) {
         from: "KitaBridge <hallo@kitabridge.de>",
         to: data.email,
         subject: "Willkommen bei KitaBridge! · Welcome to KitaBridge! 🎉",
-        html: `<html><body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;"><tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-  <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
-    <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
-    <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-top:6px;">Die Plattform für pädagogische Fachkräfte · The platform for childcare professionals</div>
-  </td></tr>
-  <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
-    <div style="text-align:center;font-size:48px;margin-bottom:16px;">🎉</div>
-    <div style="border-left:4px solid #1A3F6F;padding-left:20px;margin-bottom:32px;">
-      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Herzlich willkommen bei KitaBridge${displayName ? `, ${displayName}` : ""}!</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">Wir freuen uns sehr, dich in unserer Community begrüßen zu dürfen! 🌟</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">Bei KitaBridge kannst du dein Profil erstellen und wirst direkt von Kitas und sozialen Einrichtungen in ganz Deutschland kontaktiert – <strong>kein Lebenslauf, kein Anschreiben</strong> nötig.</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">Einfach sichtbar sein – und die passende Einrichtung meldet sich bei dir. 💪</p>
-    </div>
-    <hr style="border:none;border-top:2px dashed #E8EDF4;margin:0 0 32px;">
-    <div style="border-left:4px solid #27AE60;padding-left:20px;margin-bottom:32px;">
-      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Welcome to KitaBridge${displayName ? `, ${displayName}` : ""}!</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">We are so happy to have you here! 🌟</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">At KitaBridge, you can create your profile and get contacted directly by daycare centers and social institutions across Germany – <strong>no CV, no cover letter</strong> required.</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">Simply be visible – and the right employer will reach out to you. 💪</p>
-    </div>
-    <hr style="border:none;border-top:1px solid #E8EDF4;margin:0 0 32px;">
-    <p style="font-size:15px;font-weight:700;color:#1A3F6F;margin:0 0 16px;">Deine nächsten Schritte · Your next steps:</p>
-    <p style="font-size:14px;color:#444;line-height:2;margin:0 0 32px;">
-      ✏️ Profil vervollständigen · Complete your profile<br>
-      🔍 Von Kitas gefunden werden · Get found by daycare centers<br>
-      📩 Kontaktiert werden · Get contacted directly<br>
-      🤝 Deinen Traumjob finden · Find your dream job
-    </p>
-    <div style="text-align:center;">
-      <a href="https://kitabridge.de/fachkraft/einstellungen" style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">
-        Jetzt Profil vervollständigen · Complete Profile →
-      </a>
-    </div>
-  </td></tr>
-  <tr><td style="padding:24px 40px;text-align:center;">
-    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen · Questions: <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
-    <p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p>
-  </td></tr>
-</table></td></tr></table>
-</body></html>`
-      });
+        html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>body{margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;-webkit-text-size-adjust:100%}.wrapper{width:100%;padding:20px 12px;box-sizing:border-box}.card{max-width:560px;margin:0 auto;border-radius:16px;overflow:hidden}.header{background:linear-gradient(135deg,#1A3F6F,#2471A3);padding:28px 24px;text-align:center}.body{background:white;padding:28px 24px}.footer{padding:20px 24px;text-align:center}.btn{display:block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:15px;padding:14px 24px;border-radius:50px;text-decoration:none;text-align:center}.section-de{border-left:4px solid #1A3F6F;padding-left:16px;margin-bottom:24px}.section-en{border-left:4px solid #27AE60;padding-left:16px;margin-bottom:24px}h1{font-size:17px;font-weight:700;color:#1A3F6F;margin:0 0 10px}p{font-size:14px;color:#444;line-height:1.8;margin:0 0 10px}</style></head><body><div class="wrapper"><div class="card"><div class="header"><div style="font-size:24px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div><div style="color:rgba(255,255,255,0.7);font-size:12px;margin-top:6px;">Die Plattform für pädagogische Fachkräfte</div></div><div class="body"><div style="text-align:center;font-size:44px;margin-bottom:20px;">🎉</div><div class="section-de"><h1>Herzlich willkommen bei KitaBridge${displayName ? `, ${displayName}` : ""}!</h1><p>Wir freuen uns sehr, dich in unserer Community begrüßen zu dürfen! 🌟</p><p>Bei KitaBridge kannst du dein Profil erstellen und wirst direkt von Kitas in ganz Deutschland kontaktiert – <strong>kein Lebenslauf, kein Anschreiben</strong> nötig.</p><p>Einfach sichtbar sein – und die passende Einrichtung meldet sich bei dir. 💪</p></div><hr style="border:none;border-top:2px dashed #E8EDF4;margin:0 0 24px;"><div class="section-en"><h1>Welcome to KitaBridge${displayName ? `, ${displayName}` : ""}!</h1><p>We are so happy to have you here! 🌟</p><p>At KitaBridge, you can create your profile and get contacted directly by daycare centers across Germany – <strong>no CV, no cover letter</strong> required.</p><p>Simply be visible – and the right employer will reach out to you. 💪</p></div><hr style="border:none;border-top:1px solid #E8EDF4;margin:0 0 20px;"><p style="font-size:14px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Deine nächsten Schritte · Your next steps:</p><p style="font-size:13px;color:#444;line-height:2;margin:0 0 24px;">✏️ Profil vervollständigen · Complete your profile<br>🔍 Von Kitas gefunden werden · Get found<br>📩 Kontaktiert werden · Get contacted<br>🤝 Deinen Traumjob finden · Find your dream job</p><a href="https://kitabridge.de/fachkraft/einstellungen" class="btn">Jetzt Profil vervollständigen →</a></div><div class="footer"><p style="font-size:12px;color:#9BA8C0;margin:0 0 6px;">Bei Fragen · Questions: <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p><p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p></div></div></div></body></html>`
     }
 
     // ─── WILLKOMMEN ARBEITGEBER ─────────────────────────────────────────────
