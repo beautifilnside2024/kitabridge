@@ -137,14 +137,14 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
     }
 
     try {
+      // ✅ FIX: Nur fachkraft_id senden – API holt E-Mail selbst via Service Role Key
       await fetch("/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: "neue_anfrage",
           data: {
-            fachkraft_email: selectedFachkraft.email,
-            fachkraft_name: selectedFachkraft.username || selectedFachkraft.vorname,
+            fachkraft_id: selectedFachkraft.id,
             kita_name: arbeitgeber.einrichtung_name,
             nachricht: nachricht.trim(),
           }

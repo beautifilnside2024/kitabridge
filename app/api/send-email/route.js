@@ -1,247 +1,213 @@
+import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST(request) {
+// Service Role Client – umgeht RLS
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+export async function POST(req) {
+  const { type, data } = await req.json();
+
   try {
-    const { type, data } = await request.json();
-
-    if (type === "willkommen_fachkraft") {
-      await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
-        to: data.email,
-        subject: "Willkommen bei KitaBridge! · Welcome to KitaBridge! 🎉",
-        html: `<html>
-<body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
-<tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-  <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
-    <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
-    <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-top:6px;">Die Plattform für pädagogische Fachkräfte · The platform for childcare professionals</div>
-  </td></tr>
-  <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
-    <div style="text-align:center;font-size:48px;margin-bottom:16px;">🎉</div>
-    <div style="border-left:4px solid #1A3F6F;padding-left:20px;margin-bottom:32px;">
-      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Herzlich willkommen bei KitaBridge, ${data.vorname}!</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">Wir freuen uns sehr, dich in unserer Community begrüßen zu dürfen! 🌟</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">Bei KitaBridge kannst du dein Profil erstellen und wirst direkt von Kitas und sozialen Einrichtungen in ganz Deutschland kontaktiert – <strong>kein Lebenslauf, kein Anschreiben</strong> nötig.</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">Einfach sichtbar sein – und die passende Einrichtung meldet sich bei dir. 💪</p>
-    </div>
-    <hr style="border:none;border-top:2px dashed #E8EDF4;margin:0 0 32px;">
-    <div style="border-left:4px solid #27AE60;padding-left:20px;margin-bottom:32px;">
-      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Welcome to KitaBridge, ${data.vorname}!</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">We are so happy to have you here! 🌟</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">At KitaBridge, you can create your profile and get contacted directly by daycare centers and social institutions across Germany – <strong>no CV, no cover letter</strong> required.</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">Simply be visible – and the right employer will reach out to you. 💪</p>
-    </div>
-    <hr style="border:none;border-top:1px solid #E8EDF4;margin:0 0 32px;">
-    <p style="font-size:15px;font-weight:700;color:#1A3F6F;margin:0 0 16px;">Deine nächsten Schritte · Your next steps:</p>
-    <p style="font-size:14px;color:#444;line-height:2;margin:0 0 32px;">
-      ✏️ Profil vervollständigen · Complete your profile<br>
-      🔍 Von Kitas gefunden werden · Get found by daycare centers<br>
-      📩 Kontaktiert werden · Get contacted directly<br>
-      🤝 Deinen Traumjob finden · Find your dream job
-    </p>
-    <div style="text-align:center;">
-      <a href="https://kitabridge.de/fachkraft/einstellungen" style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Jetzt Profil vervollständigen · Complete Profile →</a>
-    </div>
-  </td></tr>
-  <tr><td style="padding:24px 40px;text-align:center;">
-    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen · Questions: <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
-    <p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p>
-  </td></tr>
-</table>
-</td></tr>
-</table>
-</body>
-</html>`
-      });
-    }
-
-    if (type === "fachkraft") {
-      await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
-        to: "hallo@kitabridge.de",
-        subject: `Neue Fachkraft: ${data.vorname} ${data.nachname}`,
-        html: `<h2>Neue Registrierung</h2><p><strong>Name:</strong> ${data.vorname} ${data.nachname}</p><p><strong>Email:</strong> ${data.email}</p><p><strong>Qualifikation:</strong> ${data.qualifikation}</p>`
-      });
-    }
-
-    if (type === "arbeitgeber") {
-      await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
-        to: "hallo@kitabridge.de",
-        subject: `Neue Einrichtung: ${data.einrichtung_name}`,
-        html: `<h2>Neue Arbeitgeber-Registrierung</h2>
-          <p><strong>Einrichtung:</strong> ${data.einrichtung_name}</p>
-          <p><strong>Typ:</strong> ${data.einrichtungstyp}</p>
-          <p><strong>Ort:</strong> ${data.plz} ${data.ort}</p>
-          <p><strong>Ansprechpartner:</strong> ${data.ansprech_name}</p>
-          <p><strong>Email:</strong> ${data.email}</p>
-          <p><strong>Telefon:</strong> ${data.telefon}</p>
-          <p><strong>Stellen:</strong> ${data.stellen_anzahl}</p>`
-      });
-    }
-
-    if (type === "willkommen_arbeitgeber") {
-      await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
-        to: data.email,
-        subject: "Willkommen bei KitaBridge – So geht es jetzt weiter 🎉",
-        html: `<html>
-<body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
-<tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-  <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
-    <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
-    <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-top:6px;">Die Plattform für Kitas & pädagogische Fachkräfte</div>
-  </td></tr>
-  <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
-    <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 8px;">Herzlich willkommen, ${data.ansprech_name}! 🎉</p>
-    <p style="font-size:15px;color:#6B7897;line-height:1.7;margin:0 0 24px;">Wir freuen uns, <strong>${data.einrichtung_name}</strong> als neue Einrichtung begrüßen zu dürfen.</p>
-    <hr style="border:none;border-top:1px solid #E8EDF4;margin:0 0 24px;">
-    <div style="background:#EAF7EF;border-left:4px solid #1E8449;border-radius:0 12px 12px 0;padding:20px 24px;margin-bottom:24px;">
-      <p style="font-size:13px;font-weight:800;color:#1E8449;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px;">📋 Unser Ansatz – bitte kurz lesen</p>
-      <p style="font-size:14px;color:#2D4A2D;line-height:1.75;margin:0 0 10px;">Bei KitaBridge bitten wir Sie, Fachkräfte die über uns zu Ihnen kommen <strong>ausschließlich nach ihren Zeugnissen und Qualifikationsnachweisen</strong> zu beurteilen – kein Lebenslauf, kein Anschreiben erforderlich.</p>
-      <p style="font-size:14px;color:#2D4A2D;line-height:1.75;margin:0;">Wenn eine Fachkraft von sich aus ein Anschreiben oder Lebenslauf einreichen möchte, ist das selbstverständlich willkommen.</p>
-    </div>
-    <p style="font-size:15px;font-weight:700;color:#1A3F6F;margin:0 0 16px;">Ihre nächsten Schritte:</p>
-    <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 32px;">
-      🔍 Fachkräfte suchen & anfragen: kitabridge.de/dashboard<br>
-      📩 Anfrage senden – Fachkraft entscheidet ob sie Kontakt aufnimmt<br>
-      📄 Zeugnisse per E-Mail vor der Hospitation anfordern<br>
-      🤝 Hospitation vereinbaren & einstellen
-    </p>
-    <div style="text-align:center;">
-      <a href="https://kitabridge.de/dashboard" style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Jetzt Fachkräfte suchen →</a>
-    </div>
-  </td></tr>
-  <tr><td style="padding:24px 40px;text-align:center;">
-    <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen: <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
-    <p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p>
-  </td></tr>
-</table>
-</td></tr>
-</table>
-</body>
-</html>`
-      });
-    }
-
-    // ── NEU: ANFRAGEN-SYSTEM ──────────────────────────────────────
-
     if (type === "neue_anfrage") {
+      // E-Mail der Fachkraft direkt aus Supabase holen (RLS umgangen via Service Role)
+      const { data: fachkraft, error } = await supabaseAdmin
+        .from("fachkraefte")
+        .select("email, vorname, username")
+        .eq("id", data.fachkraft_id)
+        .single();
+
+      if (error || !fachkraft?.email) {
+        console.error("Fachkraft nicht gefunden:", error);
+        return new Response(JSON.stringify({ error: "Fachkraft nicht gefunden" }), { status: 404 });
+      }
+
+      const fachkraftName =
+        fachkraft.vorname || fachkraft.username || "Fachkraft";
+
+      const kitaName = data.kita_name || "Eine Kita";
+      const nachricht =
+        data.nachricht?.trim() ||
+        `Hallo! Wir sind ${kitaName} und suchen eine engagierte Fachkraft. Wir wurden uns freuen, von Ihnen zu horen!`;
+
       await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
-        to: data.fachkraft_email,
-        subject: `${data.kita_name} möchte dich kennenlernen! 📩`,
-        html: `<html><body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;"><tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-  <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
-    <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
-  </td></tr>
-  <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
-    <div style="text-align:center;font-size:48px;margin-bottom:16px;">📩</div>
-    <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Hey ${data.fachkraft_name}, du hast eine neue Anfrage!</p>
-    <p style="font-size:15px;color:#6B7897;line-height:1.7;margin:0 0 24px;"><strong>${data.kita_name}</strong> hat Interesse an deinem Profil und möchte Kontakt aufnehmen.</p>
-    ${data.nachricht ? `<div style="background:#F8FAFF;border-left:4px solid #2471A3;border-radius:0 12px 12px 0;padding:16px 20px;margin-bottom:24px;font-size:14px;color:#444;line-height:1.7;font-style:italic;">"${data.nachricht}"</div>` : ""}
-    <div style="background:#FFF8ED;border-radius:12px;padding:16px 20px;margin-bottom:24px;font-size:13px;color:#92400E;">
-      🔒 <strong>Deine Daten sind sicher:</strong> Die Kita sieht noch keinen Namen oder Kontaktdaten von dir. Du entscheidest!
-    </div>
-    <div style="text-align:center;">
-      <a href="https://kitabridge.de/fachkraft/einstellungen" style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Anfrage ansehen & entscheiden →</a>
-    </div>
-  </td></tr>
-  <tr><td style="padding:24px 40px;text-align:center;">
-    <p style="font-size:12px;color:#9BA8C0;margin:0;">© 2026 KitaBridge · <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
-  </td></tr>
-</table></td></tr></table>
-</body></html>`
+        from: "KitaBridge <noreply@kitabridge.de>",
+        to: fachkraft.email,
+        subject: `Neue Anfrage von ${kitaName} - KitaBridge`,
+        html: `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neue Anfrage - KitaBridge</title>
+</head>
+<body style="margin:0;padding:0;background:#F0F4F9;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F0F4F9;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1A3F6F;border-radius:16px 16px 0 0;padding:28px 36px;">
+              <div style="font-size:1.4rem;font-weight:700;color:white;">
+                Kita<span style="color:#4ADE80;">Bridge</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="background:white;padding:36px;border-radius:0 0 16px 16px;box-shadow:0 4px 24px rgba(26,63,111,0.10);">
+
+              <h1 style="color:#1A3F6F;font-size:1.4rem;margin:0 0 8px 0;">
+                Hallo ${fachkraftName},
+              </h1>
+              <p style="color:#6B7897;font-size:0.95rem;margin:0 0 24px 0;">
+                du hast eine neue Anfrage auf KitaBridge erhalten!
+              </p>
+
+              <!-- Anfrage-Box -->
+              <div style="background:#F0F4F9;border-left:4px solid #1A3F6F;border-radius:8px;padding:20px 24px;margin-bottom:28px;">
+                <div style="font-size:0.75rem;font-weight:700;color:#9BA8C0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">
+                  Einrichtung
+                </div>
+                <div style="font-size:1.1rem;font-weight:700;color:#1A3F6F;margin-bottom:16px;">
+                  ${kitaName}
+                </div>
+                <div style="font-size:0.75rem;font-weight:700;color:#9BA8C0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">
+                  Nachricht
+                </div>
+                <div style="font-size:0.92rem;color:#444;line-height:1.7;">
+                  ${nachricht}
+                </div>
+              </div>
+
+              <!-- Datenschutz-Hinweis -->
+              <div style="background:#FFF8ED;border-radius:10px;padding:14px 18px;margin-bottom:28px;font-size:0.83rem;color:#92400E;line-height:1.6;">
+                <strong>Datenschutz:</strong> Deine Kontaktdaten bleiben verborgen.
+                Erst wenn du die Anfrage annimmst, werden deine Daten an die Einrichtung weitergegeben.
+              </div>
+
+              <!-- CTA -->
+              <div style="text-align:center;margin-bottom:28px;">
+                <a href="https://kitabridge.de/fachkraft/dashboard"
+                   style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;font-weight:700;font-size:0.95rem;padding:14px 32px;border-radius:50px;text-decoration:none;">
+                  Anfrage ansehen &amp; antworten
+                </a>
+              </div>
+
+              <p style="color:#9BA8C0;font-size:0.8rem;text-align:center;margin:0;">
+                Du erhaeltst diese E-Mail, weil du bei KitaBridge als Fachkraft registriert bist.<br/>
+                <a href="https://kitabridge.de/abmelden" style="color:#2471A3;">Abmelden</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+        `,
       });
+
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
     }
 
+    // ───────────────────────────────────────────────────────────────
     if (type === "anfrage_akzeptiert") {
+      const kitaEmail = data.kita_email;
+      const kitaName = data.kita_name || "Ihre Einrichtung";
+      const fachkraftName = data.fachkraft_name || "Die Fachkraft";
+      const fachkraftEmail = data.fachkraft_email;
+      const fachkraftTelefon = data.fachkraft_telefon;
+
       await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
-        to: data.kita_email,
-        subject: `✅ Anfrage angenommen – Kontaktdaten verfügbar`,
-        html: `<html><body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;"><tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-  <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
-    <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
-  </td></tr>
-  <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
-    <div style="text-align:center;font-size:48px;margin-bottom:16px;">✅</div>
-    <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Die Fachkraft hat Ihre Anfrage angenommen!</p>
-    <p style="font-size:15px;color:#6B7897;line-height:1.7;margin:0 0 24px;">Hier sind die Kontaktdaten der Fachkraft:</p>
-    <div style="background:#EAF7EF;border-radius:12px;padding:20px 24px;margin-bottom:24px;">
-      ${data.fachkraft_name ? `<p style="margin:0 0 8px;font-size:15px;color:#1A3F6F;"><strong>👤 Name:</strong> ${data.fachkraft_name}</p>` : ""}
-      ${data.fachkraft_email ? `<p style="margin:0 0 8px;font-size:15px;color:#1A3F6F;"><strong>✉️ E-Mail:</strong> <a href="mailto:${data.fachkraft_email}" style="color:#2471A3;">${data.fachkraft_email}</a></p>` : ""}
-      ${data.fachkraft_telefon ? `<p style="margin:0;font-size:15px;color:#1A3F6F;"><strong>📞 Telefon:</strong> ${data.fachkraft_telefon}</p>` : ""}
-    </div>
-    <div style="text-align:center;">
-      <a href="https://kitabridge.de/dashboard" style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Zum Dashboard →</a>
-    </div>
-  </td></tr>
-  <tr><td style="padding:24px 40px;text-align:center;">
-    <p style="font-size:12px;color:#9BA8C0;margin:0;">© 2026 KitaBridge · <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
-  </td></tr>
-</table></td></tr></table>
-</body></html>`
+        from: "KitaBridge <noreply@kitabridge.de>",
+        to: kitaEmail,
+        subject: `Anfrage akzeptiert! - KitaBridge`,
+        html: `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anfrage akzeptiert - KitaBridge</title>
+</head>
+<body style="margin:0;padding:0;background:#F0F4F9;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F0F4F9;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+          <tr>
+            <td style="background:#1A3F6F;border-radius:16px 16px 0 0;padding:28px 36px;">
+              <div style="font-size:1.4rem;font-weight:700;color:white;">
+                Kita<span style="color:#4ADE80;">Bridge</span>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="background:white;padding:36px;border-radius:0 0 16px 16px;box-shadow:0 4px 24px rgba(26,63,111,0.10);">
+
+              <div style="text-align:center;font-size:3rem;margin-bottom:16px;">&#x2705;</div>
+
+              <h1 style="color:#1A3F6F;font-size:1.4rem;margin:0 0 8px 0;text-align:center;">
+                Anfrage akzeptiert!
+              </h1>
+              <p style="color:#6B7897;font-size:0.95rem;margin:0 0 28px 0;text-align:center;">
+                ${fachkraftName} hat Ihre Anfrage angenommen.
+              </p>
+
+              <div style="background:#EAF7EF;border-radius:12px;padding:22px 26px;margin-bottom:28px;">
+                <div style="font-size:0.75rem;font-weight:700;color:#9BA8C0;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">
+                  Kontaktdaten
+                </div>
+                <div style="font-size:0.95rem;color:#1E8449;font-weight:700;margin-bottom:6px;">
+                  &#x1F464; ${fachkraftName}
+                </div>
+                ${fachkraftEmail ? `<div style="font-size:0.92rem;color:#444;margin-bottom:4px;">&#x2709;&#xFE0F; <a href="mailto:${fachkraftEmail}" style="color:#2471A3;">${fachkraftEmail}</a></div>` : ""}
+                ${fachkraftTelefon ? `<div style="font-size:0.92rem;color:#444;">&#x1F4DE; ${fachkraftTelefon}</div>` : ""}
+              </div>
+
+              <div style="text-align:center;margin-bottom:28px;">
+                <a href="https://kitabridge.de/arbeitgeber/dashboard"
+                   style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:0.95rem;padding:14px 32px;border-radius:50px;text-decoration:none;">
+                  Zum Dashboard
+                </a>
+              </div>
+
+              <p style="color:#9BA8C0;font-size:0.8rem;text-align:center;margin:0;">
+                Du erhaeltst diese E-Mail, weil du bei KitaBridge als Arbeitgeber registriert bist.<br/>
+                <a href="https://kitabridge.de/abmelden" style="color:#2471A3;">Abmelden</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+        `,
       });
+
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
     }
 
-    if (type === "anfrage_abgelehnt") {
-      await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
-        to: data.kita_email,
-        subject: `Anfrage – Fachkraft derzeit nicht verfügbar`,
-        html: `<html><body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;"><tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-  <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
-    <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
-  </td></tr>
-  <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
-    <div style="text-align:center;font-size:48px;margin-bottom:16px;">😔</div>
-    <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Die Fachkraft ist derzeit nicht verfügbar</p>
-    <p style="font-size:15px;color:#6B7897;line-height:1.7;margin:0 0 24px;">Leider hat die Fachkraft Ihre Anfrage diesmal abgelehnt. Das kann verschiedene Gründe haben – vielleicht ist die Stelle schon vergeben oder der Zeitpunkt passt nicht.</p>
-    <div style="background:#F8FAFF;border-radius:12px;padding:16px 20px;margin-bottom:24px;font-size:14px;color:#6B7897;">
-      💡 <strong>Tipp:</strong> Es gibt viele weitere Fachkräfte auf KitaBridge. Schauen Sie sich weitere Profile an!
-    </div>
-    <div style="text-align:center;">
-      <a href="https://kitabridge.de/dashboard" style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Weitere Fachkräfte suchen →</a>
-    </div>
-  </td></tr>
-  <tr><td style="padding:24px 40px;text-align:center;">
-    <p style="font-size:12px;color:#9BA8C0;margin:0;">© 2026 KitaBridge · <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
-  </td></tr>
-</table></td></tr></table>
-</body></html>`
-      });
-    }
+    return new Response(JSON.stringify({ error: "Unbekannter Typ" }), { status: 400 });
 
-    // ─────────────────────────────────────────────────────────────
-
-    if (type === "kontakt") {
-      await resend.emails.send({
-        from: "KitaBridge <onboarding@resend.dev>",
-        to: "hallo@kitabridge.de",
-        subject: `Kontaktanfrage: ${data.betreff || "Kein Betreff"}`,
-        html: `<h2>Neue Kontaktanfrage</h2>
-          <p><strong>Name:</strong> ${data.name}</p>
-          <p><strong>Email:</strong> ${data.email}</p>
-          <p><strong>Nachricht:</strong> ${data.nachricht}</p>`
-      });
-    }
-
-    return Response.json({ ok: true });
-  } catch (error) {
-    console.error("Email error:", error);
-    return Response.json({ error: error.message }, { status: 500 });
+  } catch (err) {
+    console.error("send-email Fehler:", err);
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 }
