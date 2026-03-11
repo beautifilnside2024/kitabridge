@@ -21,10 +21,11 @@ const stadtDaten: Record<string, { name: string; bundesland: string; kitas: numb
 
 export default function StadtPage() {
   const params = useParams();
-  const stadtKey = typeof rawStadt === "string" ? rawStadt.toLowerCase() : Array.isArray(rawStadt) ? rawStadt[0].toLowerCase() : ""
+  const rawStadt = params?.stadt;
+  const stadtKey = typeof rawStadt === "string" ? rawStadt.toLowerCase() : Array.isArray(rawStadt) ? rawStadt[0].toLowerCase() : "";
   const stadt = stadtDaten[stadtKey];
 
-  if (!stadt) {
+  if (!stadtKey || !stadt) {
     return (
       <div style={{ fontFamily: "'DM Sans', sans-serif", textAlign: "center", padding: "100px 20px" }}>
         <h1 style={{ color: NAVY }}>Stadt nicht gefunden</h1>
@@ -37,37 +38,21 @@ export default function StadtPage() {
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#fff" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');`}</style>
 
-      {/* NAV */}
       <nav style={{ background: "#fff", borderBottom: "1px solid #E8EDF4", height: 68, display: "flex", alignItems: "center", padding: "0 40px" }}>
         <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-              <path d="M4 21 Q14 6 24 21" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <line x1="2" y1="21" x2="26" y2="21" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <circle cx="14" cy="7" r="3" fill="#27AE60"/>
-            </svg>
-          </div>
           <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 700 }}>
             <span style={{ color: NAVY }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
           </span>
         </a>
       </nav>
 
-      {/* HERO */}
       <section style={{ background: `linear-gradient(160deg, #F0F4F9 0%, #E8F4FD 50%, #EAF7EF 100%)`, padding: "80px 40px 60px", textAlign: "center" }}>
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(30,132,73,0.1)", borderRadius: 50, padding: "6px 16px", marginBottom: 24 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: GREEN }}/>
-            <span style={{ fontSize: "0.78rem", fontWeight: 700, color: GREEN, textTransform: "uppercase", letterSpacing: 1 }}>Kita Jobs {stadt.name}</span>
-          </div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 5vw, 3.2rem)", fontWeight: 900, color: NAVY, lineHeight: 1.15, marginBottom: 20 }}>
             Kita Job in {stadt.name} –<br/><span style={{ color: GREEN }}>Jetzt kostenlos registrieren</span>
           </h1>
-          <p style={{ fontSize: "1.1rem", color: "#6B7897", lineHeight: 1.75, marginBottom: 16, maxWidth: 600, margin: "0 auto 16px" }}>
+          <p style={{ fontSize: "1.1rem", color: "#6B7897", lineHeight: 1.75, maxWidth: 600, margin: "0 auto 36px" }}>
             {stadt.desc}
-          </p>
-          <p style={{ fontSize: "1.15rem", fontWeight: 800, color: GREEN, marginBottom: 36, borderLeft: `4px solid ${GREEN}`, paddingLeft: 16, textAlign: "left", maxWidth: 560, margin: "0 auto 36px" }}>
-            Kein Anschreiben. Kein Lebenslauf. Profil erstellen – Kitas in {stadt.name} melden sich bei dir! 🎯
           </p>
           <a href="/Registrieren" style={{ display: "inline-block", padding: "16px 40px", borderRadius: 50, background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, color: "white", fontWeight: 700, fontSize: "1rem", textDecoration: "none", boxShadow: "0 6px 24px rgba(30,132,73,0.3)" }}>
             Jetzt kostenlos registrieren →
@@ -83,7 +68,6 @@ export default function StadtPage() {
         </div>
       </section>
 
-      {/* WIE ES FUNKTIONIERT */}
       <section style={{ padding: "80px 40px", background: "#fff" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 800, color: NAVY, textAlign: "center", marginBottom: 48 }}>
@@ -91,8 +75,8 @@ export default function StadtPage() {
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 24 }}>
             {[
-              { num: "01", icon: "📝", title: "Profil erstellen", desc: `Registriere dich kostenlos und erstelle dein Profil in 5 Minuten – mit deinen Qualifikationen und Wunsch-Arbeitszeit in ${stadt.name}.` },
-              { num: "02", icon: "🔍", title: "Gefunden werden", desc: `Kitas und soziale Einrichtungen in ${stadt.name} sehen dein Profil und kontaktieren dich direkt.` },
+              { num: "01", icon: "📝", title: "Profil erstellen", desc: `Registriere dich kostenlos in 5 Minuten mit deinen Qualifikationen und Wunsch-Arbeitszeit in ${stadt.name}.` },
+              { num: "02", icon: "🔍", title: "Gefunden werden", desc: `Kitas in ${stadt.name} sehen dein Profil und kontaktieren dich direkt.` },
               { num: "03", icon: "🤝", title: "Job starten", desc: "Kein Vermittler, keine Provision. Du kommunizierst direkt mit der Einrichtung." },
             ].map(step => (
               <div key={step.num} style={{ background: "#F8FAFF", borderRadius: 20, padding: 28, textAlign: "center" }}>
@@ -106,47 +90,20 @@ export default function StadtPage() {
         </div>
       </section>
 
-      {/* BERUFE */}
-      <section style={{ padding: "80px 40px", background: "#F8FAFF" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 800, color: NAVY, marginBottom: 16 }}>
-            Welche Berufe finden Kita Jobs in {stadt.name}?
-          </h2>
-          <p style={{ color: "#6B7897", marginBottom: 40 }}>KitaBridge ist für alle pädagogischen Fachkräfte kostenlos.</p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
-            {["Erzieherin / Erzieher","Kinderpflegerin / Kinderpfleger","Sozialpädagogin / Sozialpädagoge","Heilpädagogin / Heilpädagoge","Kindheitspädagogin / Kindheitspädagoge","Kita-Leitung","Schulbegleiterin / Schulbegleiter","Sozialarbeiterin / Sozialarbeiter","Logopädin / Logopäde","Ergotherapeutin / Ergotherapeut"].map(beruf => (
-              <span key={beruf} style={{ background: "#fff", border: `1px solid #E8EDF4`, borderRadius: 50, padding: "8px 18px", fontSize: "0.85rem", color: NAVY, fontWeight: 500 }}>
-                {beruf}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
       <section style={{ padding: "80px 40px", background: `linear-gradient(135deg, ${NAVY} 0%, ${BLUE} 100%)`, textAlign: "center" }}>
         <div style={{ maxWidth: 600, margin: "0 auto" }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.2rem", fontWeight: 800, color: "white", marginBottom: 16 }}>
             Bereit für deinen Job in {stadt.name}?
           </h2>
-          <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "1rem", marginBottom: 36, lineHeight: 1.7 }}>
-            Registriere dich kostenlos – in 5 Minuten bist du dabei und wirst von Kitas in {stadt.name} gefunden.
-          </p>
           <a href="/Registrieren" style={{ display: "inline-block", padding: "16px 40px", borderRadius: 50, background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, color: "white", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>
             Jetzt kostenlos registrieren →
           </a>
         </div>
       </section>
 
-      {/* FOOTER */}
       <footer style={{ background: "#0D1B2A", color: "rgba(255,255,255,0.5)", padding: "32px 40px", textAlign: "center" }}>
         <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", fontWeight: 700, marginBottom: 12 }}>
           <span style={{ color: "white" }}>Kita</span><span style={{ color: GREEN }}>Bridge</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 12, flexWrap: "wrap" }}>
-          {[["Startseite","/"],["Kontakt","/kontakt"],["Impressum","/impressum"],["Datenschutz","/datenschutz"]].map(([label, href]) => (
-            <a key={label} href={href} style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none", fontSize: "0.82rem" }}>{label}</a>
-          ))}
         </div>
         <p style={{ fontSize: "0.75rem" }}>© 2026 KitaBridge · DSGVO-konform</p>
       </footer>
