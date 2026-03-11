@@ -509,7 +509,7 @@ export default function Dashboard() {
     </div>
   );
 
-  const isAktiv = arbeitgeber?.status === "aktiv" || arbeitgeber?.status === "bestätigt";
+  const isAktiv = arbeitgeber?.status === "aktiv" || arbeitgeber?.status === "bestaetigt";
 
   return (
     <div style={{ minHeight: "100vh", background: "#F0F4F9", fontFamily: "'DM Sans', sans-serif" }}>
