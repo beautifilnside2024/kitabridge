@@ -14,11 +14,18 @@ export default function FachkraftDashboard() {
   const [loading, setLoading] = useState(true);
   const [anfragen, setAnfragen] = useState<any[]>([]);
   const [anfrageLoading, setAnfrageLoading] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"uebersicht" | "anfragen" | "profil" | "konto">("uebersicht");
+  const [activeTab, setActiveTab] = useState<"uebersicht" | "anfragen" | "nachrichten" | "profil" | "konto">("uebersicht");
   const [form, setForm] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState("");
+
+  // Nachrichten state
+  const [nachrichten, setNachrichten] = useState<any[]>([]);
+  const [arbeitgeberMap, setArbeitgeberMap] = useState<any>({});
+  const [antwort, setAntwort] = useState<any>({});
+  const [sendingMsg, setSendingMsg] = useState<string | null>(null);
+  const [msgSent, setMsgSent] = useState<any>({});
 
   useEffect(() => { loadDashboard(); }, []);
 
@@ -31,6 +38,7 @@ export default function FachkraftDashboard() {
     setForm(data);
     setLoading(false);
     loadAnfragen(data.id);
+    loadNachrichten(data.id);
   };
 
   const loadAnfragen = async (id: string) => {
@@ -40,6 +48,27 @@ export default function FachkraftDashboard() {
       .eq("fachkraft_id", id)
       .order("created_at", { ascending: false });
     setAnfragen(data || []);
+  };
+
+  const loadNachrichten = async (fachkraftId: string) => {
+    const res = await fetch(`/api/nachrichten?user_id=${fachkraftId}`);
+    const msgs = await res.json();
+    setNachrichten(msgs || []);
+
+    // Lade Arbeitgeber-Infos für alle Gesprächspartner
+    const arbeitgeberIds = [...new Set((msgs || []).map((m: any) =>
+      m.von_id === fachkraftId ? m.an_id : m.von_id
+    ))].filter(id => id !== fachkraftId);
+
+    if (arbeitgeberIds.length > 0) {
+      const { data: arbeitgeber } = await supabase
+        .from("arbeitgeber")
+        .select("id, einrichtung_name, email")
+        .in("id", arbeitgeberIds as string[]);
+      const map: any = {};
+      (arbeitgeber || []).forEach((a: any) => { map[a.id] = a; });
+      setArbeitgeberMap(map);
+    }
   };
 
   const handleAnfrage = async (anfrageId: string, action: "akzeptiert" | "abgelehnt") => {
@@ -64,6 +93,31 @@ export default function FachkraftDashboard() {
     }
     await loadAnfragen(fachkraft.id);
     setAnfrageLoading(null);
+  };
+
+  const handleAntwort = async (partnerId: string) => {
+    const text = antwort[partnerId];
+    if (!text?.trim()) return;
+    setSendingMsg(partnerId);
+    const ag = arbeitgeberMap[partnerId];
+    await fetch("/api/nachrichten", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        von_id: fachkraft.id,
+        an_id: partnerId,
+        von_typ: "fachkraft",
+        nachricht: text,
+        empfaenger_email: ag?.email || "",
+        empfaenger_name: ag?.einrichtung_name || "Einrichtung",
+        absender_name: fachkraft.vorname || fachkraft.username || "Fachkraft",
+      }),
+    });
+    setAntwort({ ...antwort, [partnerId]: "" });
+    setMsgSent({ ...msgSent, [partnerId]: true });
+    setTimeout(() => setMsgSent((m: any) => ({ ...m, [partnerId]: false })), 2000);
+    setSendingMsg(null);
+    await loadNachrichten(fachkraft.id);
   };
 
   const handleSave = async () => {
@@ -99,6 +153,21 @@ export default function FachkraftDashboard() {
   const bearbeiteteAnfragen = anfragen.filter(a => a.status !== "ausstehend");
   const displayName = fachkraft?.username || `${fachkraft?.vorname || ""} ${fachkraft?.nachname || ""}`.trim() || "Fachkraft";
 
+  // Nachrichten gruppiert nach Gesprächspartner
+  const getKonversationen = () => {
+    if (!fachkraft) return {};
+    const map: any = {};
+    nachrichten.forEach((msg: any) => {
+      const partnerId = msg.von_id === fachkraft.id ? msg.an_id : msg.von_id;
+      if (!map[partnerId]) map[partnerId] = [];
+      map[partnerId].push(msg);
+    });
+    return map;
+  };
+
+  const konversationen = getKonversationen();
+  const ungeleseneNachrichten = nachrichten.filter((m: any) => m.von_id !== fachkraft?.id && m.von_typ === "arbeitgeber").length;
+
   const fieldGroup = (label: string, name: string, type = "text", options?: string[]) => (
     <div style={{ marginBottom: 16 }}>
       <label style={labelStyle}>{label}</label>
@@ -122,6 +191,7 @@ export default function FachkraftDashboard() {
   const tabs = [
     { key: "uebersicht", label: "🏠 Übersicht" },
     { key: "anfragen", label: `📩 Anfragen${offeneAnfragen.length > 0 ? ` (${offeneAnfragen.length})` : ""}` },
+    { key: "nachrichten", label: `💬 Nachrichten${ungeleseneNachrichten > 0 ? ` (${ungeleseneNachrichten})` : ""}` },
     { key: "profil", label: "✏️ Profil" },
     { key: "konto", label: "⚙️ Konto" },
   ];
@@ -143,7 +213,7 @@ export default function FachkraftDashboard() {
           .action-btns { flex-direction: column !important; }
           .header-inner { padding: 0 16px !important; }
           .main-pad { padding: 16px !important; }
-          .tab-btn { font-size: 0.75rem; padding: 12px 4px; }
+          .tab-btn { font-size: 0.72rem; padding: 10px 4px; }
         }
       `}</style>
 
@@ -159,7 +229,6 @@ export default function FachkraftDashboard() {
                 {offeneAnfragen.length} neu
               </div>
             )}
-            <span style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.82rem", display: "none" }} className="header-name">{displayName}</span>
             <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", color: "white", padding: "6px 14px", borderRadius: 8, cursor: "pointer", fontSize: "0.82rem", fontFamily: "'DM Sans', sans-serif" }}>
               Ausloggen
             </button>
@@ -172,7 +241,6 @@ export default function FachkraftDashboard() {
         {/* PROFIL-KARTE */}
         <div style={{ background: `linear-gradient(135deg, #0D1B2A 0%, ${NAVY} 60%, #1a5276 100%)`, borderRadius: 22, padding: "24px 28px", marginBottom: 20, position: "relative", overflow: "hidden", boxShadow: "0 16px 48px rgba(26,63,111,0.3)" }}>
           <div style={{ position: "absolute", top: -50, right: -50, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: -30, left: "40%", width: 160, height: 160, borderRadius: "50%", background: "rgba(39,174,96,0.08)", pointerEvents: "none" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16, position: "relative" }}>
             <div style={{ width: 58, height: 58, borderRadius: 16, background: "rgba(255,255,255,0.12)", border: "2px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: fachkraft?.username ? "1.6rem" : "1.2rem", fontWeight: 800, color: "white", flexShrink: 0 }}>
               {fachkraft?.username ? "🦸" : `${fachkraft?.vorname?.[0] || ""}${fachkraft?.nachname?.[0] || ""}`.toUpperCase() || "👤"}
@@ -233,12 +301,11 @@ export default function FachkraftDashboard() {
             {/* ── ÜBERSICHT ── */}
             {activeTab === "uebersicht" && (
               <div>
-                {/* Stats */}
                 <div className="stats-row" style={{ display: "flex", gap: 10, marginBottom: 20 }}>
                   {[
                     { icon: "📩", label: "Offene Anfragen", value: offeneAnfragen.length, color: offeneAnfragen.length > 0 ? RED : NAVY },
                     { icon: "✅", label: "Angenommen", value: anfragen.filter(a => a.status === "akzeptiert").length, color: GREEN },
-                    { icon: "📊", label: "Anfragen gesamt", value: anfragen.length, color: BLUE },
+                    { icon: "💬", label: "Nachrichten", value: nachrichten.length, color: BLUE },
                   ].map(stat => (
                     <div key={stat.label} className="stat-card">
                       <div style={{ fontSize: "1.4rem", marginBottom: 6 }}>{stat.icon}</div>
@@ -248,7 +315,6 @@ export default function FachkraftDashboard() {
                   ))}
                 </div>
 
-                {/* Neue Anfragen Vorschau */}
                 {offeneAnfragen.length > 0 ? (
                   <div style={{ background: "#FFF8ED", border: "1px solid #FED7AA", borderRadius: 14, padding: 16, marginBottom: 16 }}>
                     <div style={{ fontWeight: 700, color: "#92400E", marginBottom: 10, fontSize: "0.88rem" }}>
@@ -268,15 +334,15 @@ export default function FachkraftDashboard() {
                     <div style={{ fontSize: "2rem", marginBottom: 8 }}>📭</div>
                     <div style={{ fontWeight: 700, color: NAVY, marginBottom: 4, fontSize: "0.9rem" }}>Noch keine neuen Anfragen</div>
                     <div style={{ color: "#9BA8C0", fontSize: "0.82rem", lineHeight: 1.6 }}>
-                      {fachkraft?.aktiv_suchend
-                        ? "Dein Profil ist sichtbar – Kitas können dich jetzt finden."
-                        : "Schalte die Jobsuche ein, damit Kitas dich finden können."}
+                      {fachkraft?.aktiv_suchend ? "Dein Profil ist sichtbar – Kitas können dich jetzt finden." : "Schalte die Jobsuche ein, damit Kitas dich finden können."}
                     </div>
                   </div>
                 )}
 
-                {/* Schnellzugriff */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <button onClick={() => setActiveTab("nachrichten")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", border: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "left" }}>
+                    💬 Nachrichten {nachrichten.length > 0 && <span style={{ background: NAVY, color: "white", borderRadius: 50, padding: "1px 8px", fontSize: "0.72rem" }}>{nachrichten.length}</span>}
+                  </button>
                   <button onClick={() => setActiveTab("profil")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", border: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "left" }}>
                     ✏️ Profil bearbeiten
                   </button>
@@ -297,9 +363,7 @@ export default function FachkraftDashboard() {
                   <div style={{ textAlign: "center", padding: "40px 20px" }}>
                     <div style={{ fontSize: "3rem", marginBottom: 16 }}>📭</div>
                     <div style={{ fontWeight: 700, color: NAVY, marginBottom: 8 }}>Noch keine Anfragen</div>
-                    <div style={{ color: "#9BA8C0", fontSize: "0.85rem", lineHeight: 1.7 }}>
-                      Sobald eine Kita Interesse hat, erscheint die Anfrage hier.
-                    </div>
+                    <div style={{ color: "#9BA8C0", fontSize: "0.85rem", lineHeight: 1.7 }}>Sobald eine Kita Interesse hat, erscheint die Anfrage hier.</div>
                   </div>
                 ) : (
                   <>
@@ -313,9 +377,7 @@ export default function FachkraftDashboard() {
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                               <div>
                                 <div style={{ fontWeight: 800, color: NAVY, fontSize: "1rem", marginBottom: 3 }}>{anfrage.kita_name}</div>
-                                <div style={{ fontSize: "0.76rem", color: "#9BA8C0" }}>
-                                  {new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}
-                                </div>
+                                <div style={{ fontSize: "0.76rem", color: "#9BA8C0" }}>{new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div>
                               </div>
                               <span style={{ background: "#EBF4FF", color: BLUE, borderRadius: 50, padding: "4px 12px", fontSize: "0.72rem", fontWeight: 700 }}>Neu</span>
                             </div>
@@ -328,18 +390,10 @@ export default function FachkraftDashboard() {
                               🔒 Kontaktdaten der Kita werden erst nach deiner Zustimmung sichtbar.
                             </div>
                             <div className="action-btns" style={{ display: "flex", gap: 8 }}>
-                              <button
-                                onClick={() => handleAnfrage(anfrage.id, "akzeptiert")}
-                                disabled={anfrageLoading === anfrage.id}
-                                style={{ flex: 1, padding: "11px", borderRadius: 10, border: "none", background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem" }}
-                              >
+                              <button onClick={() => handleAnfrage(anfrage.id, "akzeptiert")} disabled={anfrageLoading === anfrage.id} style={{ flex: 1, padding: "11px", borderRadius: 10, border: "none", background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem" }}>
                                 {anfrageLoading === anfrage.id ? "..." : "✓ Annehmen"}
                               </button>
-                              <button
-                                onClick={() => handleAnfrage(anfrage.id, "abgelehnt")}
-                                disabled={anfrageLoading === anfrage.id}
-                                style={{ flex: 1, padding: "11px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", color: "#6B7897", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem" }}
-                              >
+                              <button onClick={() => handleAnfrage(anfrage.id, "abgelehnt")} disabled={anfrageLoading === anfrage.id} style={{ flex: 1, padding: "11px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", color: "#6B7897", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem" }}>
                                 {anfrageLoading === anfrage.id ? "..." : "✗ Ablehnen"}
                               </button>
                             </div>
@@ -355,9 +409,7 @@ export default function FachkraftDashboard() {
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                               <div>
                                 <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.92rem", marginBottom: 2 }}>{anfrage.kita_name}</div>
-                                <div style={{ fontSize: "0.75rem", color: "#9BA8C0" }}>
-                                  {new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}
-                                </div>
+                                <div style={{ fontSize: "0.75rem", color: "#9BA8C0" }}>{new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div>
                               </div>
                               <span style={{ background: anfrage.status === "akzeptiert" ? "#EAF7EF" : "#F8F8F8", color: anfrage.status === "akzeptiert" ? GREEN : "#9BA8C0", borderRadius: 50, padding: "4px 13px", fontSize: "0.72rem", fontWeight: 700 }}>
                                 {anfrage.status === "akzeptiert" ? "✓ Angenommen" : "✗ Abgelehnt"}
@@ -365,7 +417,7 @@ export default function FachkraftDashboard() {
                             </div>
                             {anfrage.status === "akzeptiert" && (
                               <div style={{ marginTop: 10, padding: "9px 13px", background: "#EAF7EF", borderRadius: 10, fontSize: "0.8rem", color: GREEN, fontWeight: 600 }}>
-                                Die Kita hat deine Kontaktdaten erhalten und meldet sich bei dir. 🎉
+                                Die Kita hat deine Kontaktdaten erhalten. Du kannst ihr jetzt auch eine Nachricht schicken. 🎉
                               </div>
                             )}
                           </div>
@@ -374,6 +426,68 @@ export default function FachkraftDashboard() {
                     )}
                   </>
                 )}
+              </div>
+            )}
+
+            {/* ── NACHRICHTEN ── */}
+            {activeTab === "nachrichten" && (
+              <div>
+                {Object.keys(konversationen).length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "40px 20px" }}>
+                    <div style={{ fontSize: "3rem", marginBottom: 16 }}>💬</div>
+                    <div style={{ fontWeight: 700, color: NAVY, marginBottom: 8 }}>Noch keine Nachrichten</div>
+                    <div style={{ color: "#9BA8C0", fontSize: "0.85rem", lineHeight: 1.7 }}>
+                      Wenn eine Kita dir eine Nachricht schickt, erscheint sie hier.<br />
+                      Du kannst nur mit Kitas schreiben, deren Anfrage du angenommen hast.
+                    </div>
+                  </div>
+                ) : Object.entries(konversationen).map(([partnerId, msgs]: any) => {
+                  const ag = arbeitgeberMap[partnerId];
+                  const agName = ag?.einrichtung_name || "Einrichtung";
+                  const sortedMsgs = [...msgs].sort((a: any, b: any) => new Date(a.erstellt_am).getTime() - new Date(b.erstellt_am).getTime());
+                  return (
+                    <div key={partnerId} style={{ background: "white", borderRadius: 16, padding: 20, marginBottom: 16, border: "1.5px solid #E8EDF4", boxShadow: "0 2px 8px rgba(26,63,111,0.06)" }}>
+                      <div style={{ fontWeight: 700, color: NAVY, marginBottom: 14, fontSize: "0.95rem" }}>🏫 {agName}</div>
+
+                      {/* Chat-Verlauf */}
+                      <div style={{ marginBottom: 12 }}>
+                        {sortedMsgs.map((msg: any) => (
+                          <div key={msg.id} style={{ marginBottom: 8, display: "flex", justifyContent: msg.von_id === fachkraft.id ? "flex-end" : "flex-start" }}>
+                            <div style={{ maxWidth: "80%", background: msg.von_id === fachkraft.id ? `linear-gradient(135deg, ${NAVY}, ${BLUE})` : "#F0F4F9", color: msg.von_id === fachkraft.id ? "white" : "#444", borderRadius: msg.von_id === fachkraft.id ? "16px 16px 4px 16px" : "16px 16px 16px 4px", padding: "10px 14px", fontSize: "0.88rem", lineHeight: 1.6 }}>
+                              <div>{msg.nachricht}</div>
+                              <div style={{ fontSize: "0.7rem", opacity: 0.6, marginTop: 4 }}>
+                                {new Date(msg.erstellt_am).toLocaleDateString("de-DE", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Antwort-Box */}
+                      {msgSent[partnerId] ? (
+                        <div style={{ color: GREEN, fontWeight: 600, fontSize: "0.85rem", padding: "8px 0" }}>✅ Nachricht gesendet!</div>
+                      ) : (
+                        <div>
+                          <textarea
+                            placeholder={`Antwort an ${agName}...`}
+                            rows={2}
+                            value={antwort[partnerId] || ""}
+                            onChange={e => setAntwort({ ...antwort, [partnerId]: e.target.value })}
+                            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleAntwort(partnerId); } }}
+                            style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #E2E8F0", borderRadius: 10, fontSize: "0.88rem", resize: "none", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box", outline: "none" }}
+                          />
+                          <button
+                            onClick={() => handleAntwort(partnerId)}
+                            disabled={sendingMsg === partnerId || !antwort[partnerId]?.trim()}
+                            style={{ marginTop: 6, width: "100%", padding: "10px", background: sendingMsg === partnerId ? "#ccc" : `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", border: "none", borderRadius: 9, fontWeight: 700, cursor: "pointer", fontSize: "0.85rem", fontFamily: "'DM Sans', sans-serif" }}
+                          >
+                            {sendingMsg === partnerId ? "Wird gesendet..." : "Senden →"}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
 
@@ -403,22 +517,11 @@ export default function FachkraftDashboard() {
                 </div>
                 <div style={{ marginBottom: 16 }}>
                   <label style={labelStyle}>Kurzbeschreibung</label>
-                  <textarea
-                    name="beschreibung"
-                    value={form?.beschreibung || ""}
-                    onChange={e => setForm({ ...form, beschreibung: e.target.value })}
-                    rows={4}
-                    style={{ ...inputStyle, resize: "vertical" }}
-                    placeholder="Beschreibe dich kurz für potenzielle Arbeitgeber..."
-                  />
+                  <textarea name="beschreibung" value={form?.beschreibung || ""} onChange={e => setForm({ ...form, beschreibung: e.target.value })} rows={4} style={{ ...inputStyle, resize: "vertical" }} placeholder="Beschreibe dich kurz für potenzielle Arbeitgeber..." />
                 </div>
                 {saveError && <div style={{ marginBottom: 12, padding: "11px 14px", background: "#FFF5F5", borderRadius: 10, color: "#9B1C1C", fontSize: "0.85rem" }}>⚠️ {saveError}</div>}
                 {saveSuccess && <div style={{ marginBottom: 12, padding: "11px 14px", background: "#EAF7EF", borderRadius: 10, color: GREEN, fontSize: "0.85rem", fontWeight: 600 }}>✓ Profil gespeichert!</div>}
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  style={{ width: "100%", background: saving ? "#9BA8C0" : NAVY, color: "white", border: "none", padding: "13px", borderRadius: 12, fontWeight: 700, fontSize: "0.95rem", cursor: saving ? "not-allowed" : "pointer", fontFamily: "'DM Sans', sans-serif" }}
-                >
+                <button onClick={handleSave} disabled={saving} style={{ width: "100%", background: saving ? "#9BA8C0" : NAVY, color: "white", border: "none", padding: "13px", borderRadius: 12, fontWeight: 700, fontSize: "0.95rem", cursor: saving ? "not-allowed" : "pointer", fontFamily: "'DM Sans', sans-serif" }}>
                   {saving ? "Wird gespeichert..." : "Änderungen speichern"}
                 </button>
               </div>
@@ -433,13 +536,8 @@ export default function FachkraftDashboard() {
                 </div>
                 <div style={{ padding: 16, background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 12 }}>
                   <div style={{ fontWeight: 700, color: "#9B1C1C", marginBottom: 4, fontSize: "0.9rem" }}>Account löschen</div>
-                  <div style={{ color: "#7F1D1D", fontSize: "0.82rem", marginBottom: 14, lineHeight: 1.6 }}>
-                    Dein Account und alle deine Daten werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.
-                  </div>
-                  <button
-                    onClick={handleDeleteAccount}
-                    style={{ background: RED, color: "white", border: "none", padding: "10px 20px", borderRadius: 8, fontWeight: 700, fontSize: "0.86rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", width: "100%" }}
-                  >
+                  <div style={{ color: "#7F1D1D", fontSize: "0.82rem", marginBottom: 14, lineHeight: 1.6 }}>Dein Account und alle deine Daten werden unwiderruflich gelöscht.</div>
+                  <button onClick={handleDeleteAccount} style={{ background: RED, color: "white", border: "none", padding: "10px 20px", borderRadius: 8, fontWeight: 700, fontSize: "0.86rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", width: "100%" }}>
                     Account unwiderruflich löschen
                   </button>
                 </div>

@@ -16,57 +16,208 @@ const inputStyle: any = {
 const selectStyle = { ...inputStyle, cursor: "pointer" };
 const labelStyle: any = { display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", textTransform: "uppercase", marginBottom: 6 };
 
-function NachrichtenTab({ arbeitgeberId }: { arbeitgeberId: string }) {
+function NachrichtenTab({ arbeitgeber }: { arbeitgeber: any }) {
   const [nachrichten, setNachrichten] = useState<any[]>([]);
+  const [akzeptierteAnfragen, setAkzeptierteAnfragen] = useState<any[]>([]);
+  const [fachkraefteMap, setFachkraefteMap] = useState<any>({});
   const [antwort, setAntwort] = useState<any>({});
   const [gesendet, setGesendet] = useState<any>({});
+  const [neueNachricht, setNeueNachricht] = useState<any>({});
+  const [neuGesendet, setNeuGesendet] = useState<any>({});
   const [loading, setLoading] = useState(true);
+  const [subTab, setSubTab] = useState<"konversationen" | "neu">("konversationen");
 
   useEffect(() => {
-    if (!arbeitgeberId) return;
-    fetch(`/api/nachrichten?user_id=${arbeitgeberId}`)
-      .then(r => r.json())
-      .then(data => { setNachrichten(data || []); setLoading(false); });
-  }, [arbeitgeberId]);
+    if (!arbeitgeber?.id) return;
+    loadAll();
+  }, [arbeitgeber]);
+
+  const loadAll = async () => {
+    // Nachrichten laden
+    const res = await fetch(`/api/nachrichten?user_id=${arbeitgeber.id}`);
+    const msgs = await res.json();
+    setNachrichten(msgs || []);
+
+    // Akzeptierte Anfragen laden
+    const { data: anfragen } = await supabase
+      .from("anfragen")
+      .select("*")
+      .eq("kita_id", arbeitgeber.id)
+      .eq("status", "akzeptiert");
+    setAkzeptierteAnfragen(anfragen || []);
+
+    // Fachkraft-Infos laden
+    if (anfragen && anfragen.length > 0) {
+      const ids = anfragen.map((a: any) => a.fachkraft_id);
+      const { data: fachkraefte } = await supabase
+        .from("fachkraefte")
+        .select("id, vorname, nachname, username, email")
+        .in("id", ids);
+      const map: any = {};
+      (fachkraefte || []).forEach((f: any) => { map[f.id] = f; });
+      setFachkraefteMap(map);
+    }
+
+    setLoading(false);
+  };
 
   const handleAntwort = async (msg: any) => {
     const text = antwort[msg.id];
-    if (!text) return;
+    if (!text?.trim()) return;
+    const fk = fachkraefteMap[msg.von_id] || fachkraefteMap[msg.an_id];
     await fetch("/api/nachrichten", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ von_id: arbeitgeberId, an_id: msg.von_id, von_typ: "arbeitgeber", nachricht: text, empfaenger_email: "", empfaenger_name: "", absender_name: "" }),
+      body: JSON.stringify({
+        von_id: arbeitgeber.id,
+        an_id: msg.von_id === arbeitgeber.id ? msg.an_id : msg.von_id,
+        von_typ: "arbeitgeber",
+        nachricht: text,
+        empfaenger_email: fk?.email || "",
+        empfaenger_name: fk?.vorname || fk?.username || "Fachkraft",
+        absender_name: arbeitgeber.einrichtung_name,
+      }),
     });
     setGesendet({ ...gesendet, [msg.id]: true });
     setAntwort({ ...antwort, [msg.id]: "" });
+    await loadAll();
+  };
+
+  const handleNeueNachricht = async (fachkraftId: string) => {
+    const text = neueNachricht[fachkraftId];
+    if (!text?.trim()) return;
+    const fk = fachkraefteMap[fachkraftId];
+    await fetch("/api/nachrichten", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        von_id: arbeitgeber.id,
+        an_id: fachkraftId,
+        von_typ: "arbeitgeber",
+        nachricht: text,
+        empfaenger_email: fk?.email || "",
+        empfaenger_name: fk?.vorname || fk?.username || "Fachkraft",
+        absender_name: arbeitgeber.einrichtung_name,
+      }),
+    });
+    setNeuGesendet({ ...neuGesendet, [fachkraftId]: true });
+    setNeueNachricht({ ...neueNachricht, [fachkraftId]: "" });
+    await loadAll();
+    setSubTab("konversationen");
+  };
+
+  // Nachrichten gruppiert nach Gesprächspartner
+  const getKonversationen = () => {
+    const map: any = {};
+    nachrichten.forEach(msg => {
+      const partnerId = msg.von_id === arbeitgeber.id ? msg.an_id : msg.von_id;
+      if (!map[partnerId]) map[partnerId] = [];
+      map[partnerId].push(msg);
+    });
+    return map;
   };
 
   if (loading) return <div style={{ color: NAVY, padding: 20 }}>Lädt...</div>;
 
+  const konversationen = getKonversationen();
+
   return (
     <div>
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 24 }}>Nachrichten</h2>
-      {nachrichten.length === 0 ? (
-        <div style={{ background: "white", borderRadius: 20, padding: 40, textAlign: "center", color: "#9BA8C0" }}>
-          <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📭</div>
-          <p>Noch keine Nachrichten</p>
-        </div>
-      ) : nachrichten.map(msg => (
-        <div key={msg.id} style={{ background: "white", borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 4 }}>
-            <div style={{ fontWeight: 700, color: NAVY }}>{msg.von_typ === "fachkraft" ? "👤 Fachkraft" : "📢 Du"}</div>
-            <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>{new Date(msg.erstellt_am).toLocaleDateString("de-DE")}</div>
-          </div>
-          <p style={{ color: "#444", lineHeight: 1.7, marginBottom: 16, fontSize: "0.9rem", margin: "0 0 16px 0" }}>{msg.nachricht}</p>
-          {msg.von_typ === "fachkraft" && !gesendet[msg.id] && (
-            <div>
-              <textarea placeholder="Antwort schreiben..." rows={3} value={antwort[msg.id] || ""} onChange={e => setAntwort({ ...antwort, [msg.id]: e.target.value })} style={{ width: "100%", padding: "12px 16px", border: "1px solid #E8EDF4", borderRadius: 12, fontSize: "0.9rem", resize: "vertical", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }} />
-              <button onClick={() => handleAntwort(msg)} style={{ marginTop: 8, padding: "10px 24px", background: NAVY, color: "white", border: "none", borderRadius: 50, fontWeight: 700, cursor: "pointer", fontSize: "0.9rem", width: "100%" }}>Antworten →</button>
+      <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
+        <button onClick={() => setSubTab("konversationen")} style={{ flex: 1, padding: "10px", borderRadius: 9, border: "none", background: subTab === "konversationen" ? NAVY : "white", color: subTab === "konversationen" ? "white" : "#6B7897", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 2px 8px rgba(26,63,111,0.08)" }}>
+          💬 Konversationen
+        </button>
+        <button onClick={() => setSubTab("neu")} style={{ flex: 1, padding: "10px", borderRadius: 9, border: "none", background: subTab === "neu" ? NAVY : "white", color: subTab === "neu" ? "white" : "#6B7897", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 2px 8px rgba(26,63,111,0.08)" }}>
+          ✉️ Neue Nachricht
+        </button>
+      </div>
+
+      {/* KONVERSATIONEN */}
+      {subTab === "konversationen" && (
+        <div>
+          {Object.keys(konversationen).length === 0 ? (
+            <div style={{ background: "white", borderRadius: 20, padding: 40, textAlign: "center", color: "#9BA8C0" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📭</div>
+              <p style={{ margin: 0 }}>Noch keine Nachrichten</p>
+              <p style={{ fontSize: "0.85rem", marginTop: 8 }}>Schreibe einer Fachkraft die deine Anfrage akzeptiert hat.</p>
             </div>
-          )}
-          {gesendet[msg.id] && <div style={{ color: GREEN, fontWeight: 600 }}>✅ Antwort gesendet!</div>}
+          ) : Object.entries(konversationen).map(([partnerId, msgs]: any) => {
+            const fk = fachkraefteMap[partnerId];
+            const name = fk ? (fk.vorname ? `${fk.vorname} ${fk.nachname || ""}`.trim() : fk.username) : "Fachkraft";
+            return (
+              <div key={partnerId} style={{ background: "white", borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
+                <div style={{ fontWeight: 700, color: NAVY, marginBottom: 14, fontSize: "0.95rem" }}>👤 {name}</div>
+                {msgs.sort((a: any, b: any) => new Date(a.erstellt_am).getTime() - new Date(b.erstellt_am).getTime()).map((msg: any) => (
+                  <div key={msg.id} style={{ marginBottom: 10, display: "flex", justifyContent: msg.von_id === arbeitgeber.id ? "flex-end" : "flex-start" }}>
+                    <div style={{ maxWidth: "80%", background: msg.von_id === arbeitgeber.id ? NAVY : "#F0F4F9", color: msg.von_id === arbeitgeber.id ? "white" : "#444", borderRadius: msg.von_id === arbeitgeber.id ? "16px 16px 4px 16px" : "16px 16px 16px 4px", padding: "10px 14px", fontSize: "0.88rem", lineHeight: 1.6 }}>
+                      <div>{msg.nachricht}</div>
+                      <div style={{ fontSize: "0.7rem", opacity: 0.6, marginTop: 4 }}>{new Date(msg.erstellt_am).toLocaleDateString("de-DE", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</div>
+                    </div>
+                  </div>
+                ))}
+                {!gesendet[partnerId] && (
+                  <div style={{ marginTop: 12 }}>
+                    <textarea
+                      placeholder="Antwort schreiben..."
+                      rows={2}
+                      value={antwort[partnerId] || ""}
+                      onChange={e => setAntwort({ ...antwort, [partnerId]: e.target.value })}
+                      style={{ width: "100%", padding: "10px 14px", border: "1px solid #E8EDF4", borderRadius: 10, fontSize: "0.88rem", resize: "vertical", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
+                    />
+                    <button onClick={() => {
+                      const lastMsg = msgs[msgs.length - 1];
+                      handleAntwort({ ...lastMsg, id: partnerId });
+                    }} style={{ marginTop: 6, padding: "9px 20px", background: NAVY, color: "white", border: "none", borderRadius: 50, fontWeight: 700, cursor: "pointer", fontSize: "0.85rem", width: "100%", fontFamily: "'DM Sans', sans-serif" }}>
+                      Senden →
+                    </button>
+                  </div>
+                )}
+                {gesendet[partnerId] && <div style={{ color: GREEN, fontWeight: 600, fontSize: "0.85rem", marginTop: 8 }}>✅ Nachricht gesendet!</div>}
+              </div>
+            );
+          })}
         </div>
-      ))}
+      )}
+
+      {/* NEUE NACHRICHT */}
+      {subTab === "neu" && (
+        <div>
+          {akzeptierteAnfragen.length === 0 ? (
+            <div style={{ background: "white", borderRadius: 20, padding: 40, textAlign: "center", color: "#9BA8C0" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>🔒</div>
+              <div style={{ fontWeight: 700, color: NAVY, marginBottom: 8 }}>Keine akzeptierten Anfragen</div>
+              <div style={{ fontSize: "0.85rem" }}>Du kannst nur Fachkräften schreiben, die deine Anfrage akzeptiert haben.</div>
+            </div>
+          ) : akzeptierteAnfragen.map((anfrage: any) => {
+            const fk = fachkraefteMap[anfrage.fachkraft_id];
+            const name = fk ? (fk.vorname ? `${fk.vorname} ${fk.nachname || ""}`.trim() : fk.username) : "Fachkraft";
+            return (
+              <div key={anfrage.id} style={{ background: "white", borderRadius: 16, padding: 20, marginBottom: 12, boxShadow: "0 2px 8px rgba(26,63,111,0.06)" }}>
+                <div style={{ fontWeight: 700, color: NAVY, marginBottom: 12 }}>👤 {name}</div>
+                {neuGesendet[anfrage.fachkraft_id] ? (
+                  <div style={{ color: GREEN, fontWeight: 600, fontSize: "0.85rem" }}>✅ Nachricht gesendet!</div>
+                ) : (
+                  <>
+                    <textarea
+                      placeholder={`Nachricht an ${name}...`}
+                      rows={3}
+                      value={neueNachricht[anfrage.fachkraft_id] || ""}
+                      onChange={e => setNeueNachricht({ ...neueNachricht, [anfrage.fachkraft_id]: e.target.value })}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #E2E8F0", borderRadius: 10, fontSize: "0.88rem", resize: "vertical", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
+                    />
+                    <button
+                      onClick={() => handleNeueNachricht(anfrage.fachkraft_id)}
+                      style={{ marginTop: 8, width: "100%", padding: "11px", background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", fontSize: "0.88rem", fontFamily: "'DM Sans', sans-serif" }}
+                    >
+                      Nachricht senden →
+                    </button>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -113,33 +264,18 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
   const handleAnfrageSenden = async () => {
     if (!selectedFachkraft) return;
     setSendingAnfrage(true);
-
-    if (hatBereitsAngefragt(selectedFachkraft.id)) {
-      setAnfrageSuccess("bereits");
-      setSendingAnfrage(false);
-      return;
-    }
-
+    if (hatBereitsAngefragt(selectedFachkraft.id)) { setAnfrageSuccess("bereits"); setSendingAnfrage(false); return; }
     const { error } = await supabase.from("anfragen").insert([{
-      kita_id: arbeitgeber.id,
-      fachkraft_id: selectedFachkraft.id,
-      kita_name: arbeitgeber.einrichtung_name,
-      kita_email: arbeitgeber.email,
+      kita_id: arbeitgeber.id, fachkraft_id: selectedFachkraft.id,
+      kita_name: arbeitgeber.einrichtung_name, kita_email: arbeitgeber.email,
       kita_telefon: arbeitgeber.telefon,
-      nachricht: nachricht.trim() || `Hallo! Wir sind ${arbeitgeber?.einrichtung_name} und suchen eine engagierte Fachkraft. Wir würden uns freuen, von Ihnen zu hören!`,
+      nachricht: nachricht.trim() || `Hallo! Wir sind ${arbeitgeber?.einrichtung_name} und suchen eine engagierte Fachkraft.`,
       status: "ausstehend"
     }]);
-
-    if (error) { alert("Fehler beim Senden: " + error.message); setSendingAnfrage(false); return; }
-
+    if (error) { alert("Fehler: " + error.message); setSendingAnfrage(false); return; }
     try {
-      await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "neue_anfrage", data: { fachkraft_id: selectedFachkraft.id, kita_name: arbeitgeber.einrichtung_name, nachricht: nachricht.trim() } })
-      });
+      await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "neue_anfrage", data: { fachkraft_id: selectedFachkraft.id, kita_name: arbeitgeber.einrichtung_name, nachricht: nachricht.trim() } }) });
     } catch (e) {}
-
     await loadGesendeteAnfragen();
     setAnfrageSuccess("ok");
     setSendingAnfrage(false);
@@ -183,19 +319,16 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
               {searching ? "Sucht..." : "🔍 Suchen"}
             </button>
           </div>
-
           {fachkraefte.length === 0 ? (
             <div style={{ background: "white", borderRadius: 20, padding: 40, textAlign: "center", color: "#9BA8C0" }}>
               <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>🔍</div>
               <div style={{ fontWeight: 700, color: NAVY, marginBottom: 6 }}>Keine Ergebnisse</div>
-              <div style={{ fontSize: "0.85rem" }}>Versuche andere Filter oder warte auf neue Registrierungen.</div>
             </div>
           ) : fachkraefte.map(fk => {
             const anonym = fk.anonym || fk.username;
             const name = anonym ? fk.username : `${fk.vorname || ""} ${fk.nachname || ""}`.trim();
             const status = getAnfrageStatus(fk.id);
             const bereitsAngefragt = hatBereitsAngefragt(fk.id);
-
             return (
               <div key={fk.id} style={{ background: "white", borderRadius: 16, padding: 16, marginBottom: 12, border: `1.5px solid ${status === "akzeptiert" ? "#86EFAC" : "#E8EDF4"}`, boxShadow: "0 2px 12px rgba(26,63,111,0.06)" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
@@ -212,14 +345,8 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
                   {fk.bundesland && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>📍 {fk.bundesland}</span>}
                   {fk.arbeitszeit && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>⏱ {fk.arbeitszeit}</span>}
                   {fk.erfahrung_jahre && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>⭐ {fk.erfahrung_jahre} Jahre</span>}
-                  {fk.deutsch && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>🇩🇪 {fk.deutsch}</span>}
-                  {fk.verfuegbar_ab && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>📅 ab {new Date(fk.verfuegbar_ab).toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</span>}
                 </div>
-                {fk.beschreibung && (
-                  <div style={{ fontSize: "0.82rem", color: "#6B7897", lineHeight: 1.6, borderTop: "1px solid #F0F4F9", paddingTop: 8, marginBottom: 10 }}>
-                    {fk.beschreibung.length > 120 ? fk.beschreibung.slice(0, 120) + "..." : fk.beschreibung}
-                  </div>
-                )}
+                {fk.beschreibung && <div style={{ fontSize: "0.82rem", color: "#6B7897", lineHeight: 1.6, borderTop: "1px solid #F0F4F9", paddingTop: 8, marginBottom: 10 }}>{fk.beschreibung.length > 120 ? fk.beschreibung.slice(0, 120) + "..." : fk.beschreibung}</div>}
                 {bereitsAngefragt ? (
                   <div style={{ marginTop: 4 }}>
                     {status === "ausstehend" && <span style={{ display: "inline-block", background: "#EBF4FF", color: BLUE, borderRadius: 50, padding: "6px 14px", fontSize: "0.78rem", fontWeight: 700 }}>⏳ Ausstehend</span>}
@@ -251,7 +378,6 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
             <div style={{ background: "white", borderRadius: 20, padding: 40, textAlign: "center", color: "#9BA8C0" }}>
               <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📤</div>
               <div style={{ fontWeight: 700, color: NAVY, marginBottom: 6 }}>Noch keine Anfragen gesendet</div>
-              <div style={{ fontSize: "0.85rem" }}>Suche Fachkräfte und sende deine erste Anfrage.</div>
             </div>
           ) : gesendeteAnfragen.map(anfrage => (
             <div key={anfrage.id} style={{ background: "white", borderRadius: 14, padding: 16, marginBottom: 12, border: `1.5px solid ${anfrage.status === "akzeptiert" ? "#86EFAC" : anfrage.status === "abgelehnt" ? "#E2E8F0" : "#BFDBFE"}` }}>
@@ -265,7 +391,7 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
               <div style={{ fontSize: "0.75rem", color: "#9BA8C0" }}>{new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div>
               {anfrage.status === "akzeptiert" && (
                 <div style={{ marginTop: 10, background: "#EAF7EF", borderRadius: 8, padding: "10px 14px", fontSize: "0.82rem", color: GREEN, fontWeight: 600 }}>
-                  Die Fachkraft hat Ihre Anfrage angenommen – Kontaktdaten sind in der Suche sichtbar.
+                  ✓ Akzeptiert – Du kannst dieser Fachkraft jetzt im Nachrichten-Tab schreiben.
                 </div>
               )}
             </div>
@@ -274,22 +400,19 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
       )}
 
       {selectedFachkraft && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, padding: 0 }} onClick={e => { if (e.target === e.currentTarget) { setSelectedFachkraft(null); setAnfrageSuccess(null); } }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }} onClick={e => { if (e.target === e.currentTarget) { setSelectedFachkraft(null); setAnfrageSuccess(null); } }}>
           <div style={{ background: "white", borderRadius: "24px 24px 0 0", padding: "24px 20px", width: "100%", maxWidth: 560, maxHeight: "92vh", overflowY: "auto" }}>
             <div style={{ width: 40, height: 4, background: "#E2E8F0", borderRadius: 2, margin: "0 auto 20px" }} />
             {anfrageSuccess === "ok" ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
                 <div style={{ fontSize: "3rem", marginBottom: 16 }}>✅</div>
                 <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", color: NAVY, marginBottom: 12 }}>Anfrage gesendet!</div>
-                <div style={{ color: "#6B7897", fontSize: "0.88rem", lineHeight: 1.7, marginBottom: 20 }}>Die Fachkraft wurde per E-Mail benachrichtigt.</div>
-                <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 14, marginBottom: 20, fontSize: "0.85rem", color: GREEN, fontWeight: 600 }}>🔒 Kontaktdaten werden erst nach Zustimmung sichtbar.</div>
                 <button onClick={() => { setSelectedFachkraft(null); setAnfrageSuccess(null); }} style={{ width: "100%", padding: "14px", borderRadius: 50, border: "none", background: NAVY, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Schließen</button>
               </div>
             ) : anfrageSuccess === "bereits" ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
                 <div style={{ fontSize: "3rem", marginBottom: 16 }}>ℹ️</div>
                 <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 12 }}>Bereits angefragt</div>
-                <div style={{ color: "#6B7897", fontSize: "0.88rem", marginBottom: 20 }}>Sie haben dieser Fachkraft bereits eine Anfrage gesendet.</div>
                 <button onClick={() => { setSelectedFachkraft(null); setAnfrageSuccess(null); }} style={{ width: "100%", padding: "14px", borderRadius: 50, border: "none", background: NAVY, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Schließen</button>
               </div>
             ) : (
@@ -297,8 +420,8 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Anfrage senden an</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 46, height: 46, borderRadius: 12, background: selectedFachkraft.anonym ? `linear-gradient(135deg, ${NAVY}, ${BLUE})` : "#EAF7EF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", flexShrink: 0 }}>
-                      {selectedFachkraft.anonym ? "🦸" : `${selectedFachkraft.vorname?.[0] || ""}${selectedFachkraft.nachname?.[0] || ""}`}
+                    <div style={{ width: 46, height: 46, borderRadius: 12, background: "#EAF7EF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", flexShrink: 0 }}>
+                      {selectedFachkraft.username ? "🦸" : `${selectedFachkraft.vorname?.[0] || ""}${selectedFachkraft.nachname?.[0] || ""}`}
                     </div>
                     <div>
                       <div style={{ fontWeight: 800, color: NAVY }}>{selectedFachkraft.username || `${selectedFachkraft.vorname} ${selectedFachkraft.nachname}`}</div>
@@ -306,12 +429,9 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
                     </div>
                   </div>
                 </div>
-                <div style={{ background: "#FFF8ED", borderRadius: 12, padding: "12px 14px", marginBottom: 16, fontSize: "0.82rem", color: "#92400E", lineHeight: 1.6 }}>
-                  🔒 <strong>Datenschutz:</strong> Die Fachkraft sieht nur Ihren Einrichtungsnamen und Ihre Nachricht.
-                </div>
                 <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "#4A5568", marginBottom: 8, textTransform: "uppercase" as const }}>Persönliche Nachricht (optional)</label>
-                  <textarea value={nachricht} onChange={e => setNachricht(e.target.value)} placeholder={`Hallo! Wir sind ${arbeitgeber?.einrichtung_name} und suchen eine engagierte Fachkraft.`} rows={4} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1.5px solid #E2E8F0", fontSize: "0.88rem", fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", color: "#444", boxSizing: "border-box" }} />
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "#4A5568", marginBottom: 8, textTransform: "uppercase" as const }}>Nachricht (optional)</label>
+                  <textarea value={nachricht} onChange={e => setNachricht(e.target.value)} rows={4} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1.5px solid #E2E8F0", fontSize: "0.88rem", fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", color: "#444", boxSizing: "border-box" }} />
                 </div>
                 <div style={{ display: "flex", gap: 10 }}>
                   <button onClick={() => setSelectedFachkraft(null)} style={{ flex: 1, padding: "13px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", color: "#6B7897", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Abbrechen</button>
@@ -440,7 +560,6 @@ export default function Dashboard() {
         }
       `}</style>
 
-      {/* HEADER */}
       <div className="db-header">
         <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.25rem", fontWeight: 700 }}>
           <span style={{ color: "white" }}>Kita</span><span style={{ color: "#4ADE80" }}>Bridge</span>
@@ -452,7 +571,6 @@ export default function Dashboard() {
       </div>
 
       <div className="db-container">
-
         {!isAktiv && (
           <div className="inactive-banner" style={{ background: "#FFF7ED", border: "1px solid #FED7AA", borderRadius: 16, padding: 16, marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <div>
@@ -462,28 +580,21 @@ export default function Dashboard() {
             <a href="/bezahlung" style={{ background: "#EA580C", color: "white", padding: "10px 18px", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.88rem", whiteSpace: "nowrap", fontFamily: "'DM Sans', sans-serif" }}>Jetzt bezahlen →</a>
           </div>
         )}
-
         {isAktiv && (
           <div style={{ background: "#EAF7EF", border: "1px solid #BBF7D0", borderRadius: 14, padding: 14, marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: "1.1rem" }}>✅</span>
+            <span>✅</span>
             <span style={{ color: GREEN, fontWeight: 700, fontSize: "0.88rem" }}>Konto aktiv – Sie haben vollen Zugang zu allen Fachkräfte-Profilen</span>
           </div>
         )}
-
         {saveSuccess && (
-          <div style={{ background: "#EAF7EF", border: "1px solid #BBF7D0", borderRadius: 12, padding: 12, marginBottom: 16, color: GREEN, fontWeight: 600, fontSize: "0.88rem" }}>
-            ✅ Profil erfolgreich gespeichert!
-          </div>
+          <div style={{ background: "#EAF7EF", border: "1px solid #BBF7D0", borderRadius: 12, padding: 12, marginBottom: 16, color: GREEN, fontWeight: 600, fontSize: "0.88rem" }}>✅ Profil erfolgreich gespeichert!</div>
         )}
 
         <div style={{ marginBottom: 20 }}>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", color: NAVY, marginBottom: 4 }}>
-            Willkommen, {arbeitgeber?.ansprech_name?.split(" ")[0] || ""}! 👋
-          </h1>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", color: NAVY, marginBottom: 4 }}>Willkommen, {arbeitgeber?.ansprech_name?.split(" ")[0] || ""}! 👋</h1>
           <p style={{ color: "#9BA8C0", fontSize: "0.85rem", margin: 0 }}>{arbeitgeber?.einrichtung_name} · {arbeitgeber?.ort}</p>
         </div>
 
-        {/* TABS */}
         <div className="tab-bar-wrapper">
           <div className="tab-bar">
             {[
@@ -500,7 +611,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ÜBERSICHT */}
         {activeTab === "uebersicht" && (
           <div>
             <div className="stats-grid">
@@ -516,35 +626,29 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-
             <div className="quick-grid">
               <div style={{ background: "white", borderRadius: 18, padding: 20, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.05rem", color: NAVY, marginBottom: 14, marginTop: 0 }}>Schnellzugriff</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {[
-                    { icon: "🔍", label: "Fachkräfte suchen & anfragen", tab: "fachkraefte" },
+                    { icon: "🔍", label: "Fachkräfte suchen", tab: "fachkraefte" },
                     { icon: "📩", label: "Nachrichten", tab: "nachrichten" },
-                    { icon: "👁", label: "Visitenkarte ansehen", tab: "visitenkarte" },
+                    { icon: "👁", label: "Visitenkarte", tab: "visitenkarte" },
                     { icon: "✏️", label: "Profil bearbeiten", tab: "profil" },
                   ].map(item => (
                     <button key={item.tab} onClick={() => setActiveTab(item.tab)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", border: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "left" }}>
                       {item.icon} {item.label}
                     </button>
                   ))}
-                  <a href="/kontakt" style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", textDecoration: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem" }}>
-                    ✉️ Support kontaktieren
-                  </a>
+                  <a href="/kontakt" style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", textDecoration: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem" }}>✉️ Support</a>
                 </div>
               </div>
-
               <div className="plan-card" style={{ background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, borderRadius: 18, color: "white" }}>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.05rem", marginBottom: 10, marginTop: 0 }}>Ihr Plan</h3>
                 <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.9rem", fontWeight: 700, marginBottom: 2 }}>299 EUR</div>
                 <div style={{ opacity: 0.7, fontSize: "0.8rem", marginBottom: 16 }}>pro Monat, zzgl. MwSt.</div>
                 {arbeitgeber?.stripe_subscription_id && (
-                  <button onClick={handleKuendigung} style={{ marginBottom: 14, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.3)", color: "white", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.78rem", fontFamily: "'DM Sans', sans-serif", width: "100%" }}>
-                    Abo kündigen
-                  </button>
+                  <button onClick={handleKuendigung} style={{ marginBottom: 14, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.3)", color: "white", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.78rem", fontFamily: "'DM Sans', sans-serif", width: "100%" }}>Abo kündigen</button>
                 )}
                 {["Alle Fachkräfte-Profile", "Direktkontakt", "Keine Provision", "Monatlich kündbar"].map(f => (
                   <div key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7, fontSize: "0.84rem" }}>
@@ -556,7 +660,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* VISITENKARTE */}
         {activeTab === "visitenkarte" && (
           <div style={{ background: "white", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
             <div style={{ background: `linear-gradient(135deg, #0D1B2A 0%, ${NAVY} 60%, ${BLUE} 100%)`, padding: "28px 28px", position: "relative", overflow: "hidden" }}>
@@ -567,11 +670,11 @@ export default function Dashboard() {
                   <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "white", fontFamily: "'Playfair Display', serif" }}>{arbeitgeber?.einrichtung_name}</div>
                   <div style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{arbeitgeber?.einrichtungstyp}</div>
                 </div>
-                <div style={{ background: isAktiv ? "rgba(39,174,96,0.3)" : "rgba(255,255,255,0.1)", border: `1px solid ${isAktiv ? "rgba(39,174,96,0.5)" : "rgba(255,255,255,0.2)"}`, borderRadius: 50, padding: "4px 12px", fontSize: "0.7rem", fontWeight: 800, color: "white", textTransform: "uppercase" as const, letterSpacing: 1, whiteSpace: "nowrap" }}>
+                <div style={{ background: isAktiv ? "rgba(39,174,96,0.3)" : "rgba(255,255,255,0.1)", border: `1px solid ${isAktiv ? "rgba(39,174,96,0.5)" : "rgba(255,255,255,0.2)"}`, borderRadius: 50, padding: "4px 12px", fontSize: "0.7rem", fontWeight: 800, color: "white", textTransform: "uppercase" as const, whiteSpace: "nowrap" }}>
                   {isAktiv ? "✓ Aktiv" : "⏳ In Prüfung"}
                 </div>
               </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, position: "relative" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {arbeitgeber?.ort && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 50, padding: "3px 11px", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>📍 {arbeitgeber.ort}</span>}
                 {arbeitgeber?.bundesland && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 50, padding: "3px 11px", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>🗺 {arbeitgeber.bundesland}</span>}
                 {arbeitgeber?.traeger && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 50, padding: "3px 11px", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>🏢 {arbeitgeber.traeger}</span>}
@@ -579,14 +682,10 @@ export default function Dashboard() {
               </div>
             </div>
             <div style={{ padding: 20 }}>
-              {arbeitgeber?.beschreibung && (
-                <p style={{ color: "#444", lineHeight: 1.75, fontSize: "0.9rem", margin: "0 0 16px" }}>{arbeitgeber.beschreibung}</p>
-              )}
+              {arbeitgeber?.beschreibung && <p style={{ color: "#444", lineHeight: 1.75, fontSize: "0.9rem", margin: "0 0 16px" }}>{arbeitgeber.beschreibung}</p>}
               {arbeitgeber?.ansprech_name && (
                 <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px", background: "#F8FAFF", borderRadius: 12, marginBottom: 16 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 800 }}>
-                    {arbeitgeber.ansprech_name[0]}
-                  </div>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 800 }}>{arbeitgeber.ansprech_name[0]}</div>
                   <div>
                     <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.9rem" }}>{arbeitgeber.ansprech_name}</div>
                     {arbeitgeber.ansprech_rolle && <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>{arbeitgeber.ansprech_rolle}</div>}
@@ -600,10 +699,9 @@ export default function Dashboard() {
           </div>
         )}
 
-        {activeTab === "nachrichten" && <NachrichtenTab arbeitgeberId={arbeitgeber?.id} />}
+        {activeTab === "nachrichten" && <NachrichtenTab arbeitgeber={arbeitgeber} />}
         {activeTab === "fachkraefte" && <FachkraefteTab arbeitgeber={arbeitgeber} />}
 
-        {/* PROFIL */}
         {activeTab === "profil" && (
           <div className="profile-card" style={{ background: "white", borderRadius: 18, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
@@ -617,21 +715,14 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-
             {!editMode ? (
               <div className="profile-grid">
                 {[
-                  ["Einrichtung", arbeitgeber?.einrichtung_name],
-                  ["Einrichtungstyp", arbeitgeber?.einrichtungstyp],
-                  ["Träger", arbeitgeber?.traeger],
-                  ["Ansprechpartner", arbeitgeber?.ansprech_name],
-                  ["Rolle", arbeitgeber?.ansprech_rolle],
-                  ["E-Mail", arbeitgeber?.email],
-                  ["Telefon", arbeitgeber?.telefon],
-                  ["Adresse", `${arbeitgeber?.strasse} ${arbeitgeber?.hausnummer}, ${arbeitgeber?.plz} ${arbeitgeber?.ort}`],
-                  ["Bundesland", arbeitgeber?.bundesland],
-                  ["Offene Stellen", arbeitgeber?.stellen_anzahl],
-                  ["Status", arbeitgeber?.status],
+                  ["Einrichtung", arbeitgeber?.einrichtung_name], ["Einrichtungstyp", arbeitgeber?.einrichtungstyp],
+                  ["Träger", arbeitgeber?.traeger], ["Ansprechpartner", arbeitgeber?.ansprech_name],
+                  ["Rolle", arbeitgeber?.ansprech_rolle], ["E-Mail", arbeitgeber?.email],
+                  ["Telefon", arbeitgeber?.telefon], ["Adresse", `${arbeitgeber?.strasse} ${arbeitgeber?.hausnummer}, ${arbeitgeber?.plz} ${arbeitgeber?.ort}`],
+                  ["Bundesland", arbeitgeber?.bundesland], ["Offene Stellen", arbeitgeber?.stellen_anzahl], ["Status", arbeitgeber?.status],
                 ].map(([k, v]) => v ? (
                   <div key={k} style={{ padding: "12px 0", borderBottom: "1px solid #F0F4F9" }}>
                     <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#9BA8C0", textTransform: "uppercase", marginBottom: 3 }}>{k}</div>
@@ -671,7 +762,6 @@ export default function Dashboard() {
                 {saveError && <div style={{ padding: "12px 14px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.85rem", marginBottom: 14 }}>⚠️ {saveError}</div>}
               </div>
             )}
-
             <div style={{ marginTop: 28, padding: 16, background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 12 }}>
               <div style={{ fontWeight: 700, color: "#9B1C1C", marginBottom: 6, fontSize: "0.92rem" }}>⚠️ Account löschen</div>
               <div style={{ color: "#7F1D1D", fontSize: "0.83rem", marginBottom: 12 }}>Ihr Account und alle Ihre Daten werden unwiderruflich gelöscht.</div>
