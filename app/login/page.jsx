@@ -7,7 +7,6 @@ const NAVY = "#1A3F6F";
 const GREEN = "#1E8449";
 const BLUE = "#2471A3";
 
-// ─── Innere Komponente (verwendet useSearchParams) ───────────────────────────
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -33,11 +32,11 @@ function LoginForm() {
       return;
     }
     if (rolle === "kita") {
-  router.push("/dashboard");
-} else {
-  const { data: { user } } = await supabase.auth.getUser();
-  router.push("/fachkraft/dashboard");
-}
+      router.push("/dashboard");
+    } else {
+      router.push("/fachkraft/dashboard");
+    }
+  };
 
   return (
     <div style={{ width: "100%", maxWidth: 440 }}>
@@ -96,7 +95,6 @@ function LoginForm() {
   );
 }
 
-// ─── Äußere Page-Komponente mit Suspense ─────────────────────────────────────
 export default function LoginPage() {
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #E8EEF8)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "sans-serif", padding: "24px 16px" }}>
