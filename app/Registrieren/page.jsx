@@ -82,7 +82,7 @@ const t = {
     nextSteps: "Nächste Schritte:",
     nextStepsList: ["Wir prüfen dein Profil innerhalb von 24 Stunden","Du erhältst eine Bestätigung per E-Mail","Kitas in ganz Deutschland können dich kontaktieren"],
     viewProfile: "Mein Profil ansehen →", backHome: "Zurück zur Startseite",
-    anonNote: "🔒 Dein echter Name bleibt verborgen bis du eine Kita-Anfrage annimmst.",
+    anonNote: "🔒 Dein echter Name bleibt immer verborgen – Kitas sehen nur deinen Benutzernamen.",
   },
   en: {
     steps: ["Personal Data","Qualification","Language Skills","Work Experience","Availability","Summary"],
@@ -158,7 +158,7 @@ const t = {
     nextSteps: "Next Steps:",
     nextStepsList: ["We review your profile within 24 hours","You will receive a confirmation by email","Daycare centers across Germany can contact you"],
     viewProfile: "View my profile →", backHome: "Back to home page",
-    anonNote: "🔒 Your real name stays hidden until you accept a daycare request.",
+    anonNote: "Your real name stays always hidden – daycares only see your username.",
   }
 };
 
