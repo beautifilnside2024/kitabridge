@@ -75,7 +75,7 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
   const [fachkraefte, setFachkraefte] = useState<any[]>([]);
   const [gesendeteAnfragen, setGesendeteAnfragen] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
-  const [subTab, setSubTab] = useState<"suche"|"anfragen">("suche");
+  const [subTab, setSubTab] = useState<"suche" | "anfragen">("suche");
   const [filterQual, setFilterQual] = useState("");
   const [filterBundesland, setFilterBundesland] = useState("");
   const [filterArbeitszeit, setFilterArbeitszeit] = useState("");
@@ -113,7 +113,12 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
   const handleAnfrageSenden = async () => {
     if (!selectedFachkraft) return;
     setSendingAnfrage(true);
-    if (hatBereitsAngefragt(selectedFachkraft.id)) { setAnfrageSuccess("bereits"); setSendingAnfrage(false); return; }
+
+    if (hatBereitsAngefragt(selectedFachkraft.id)) {
+      setAnfrageSuccess("bereits");
+      setSendingAnfrage(false);
+      return;
+    }
 
     const { error } = await supabase.from("anfragen").insert([{
       kita_id: arbeitgeber.id,
@@ -121,11 +126,17 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
       kita_name: arbeitgeber.einrichtung_name,
       kita_email: arbeitgeber.email,
       kita_telefon: arbeitgeber.telefon,
-      nachricht: nachricht.trim(),
+      nachricht: nachricht.trim() || `Hallo! Wir sind ${arbeitgeber?.einrichtung_name} und suchen eine engagierte Fachkraft. Wir würden uns freuen, von Ihnen zu hören!`,
       status: "ausstehend"
     }]);
 
-    if (!error) {
+    if (error) {
+      alert("Fehler beim Senden: " + error.message);
+      setSendingAnfrage(false);
+      return;
+    }
+
+    try {
       await fetch("/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -139,15 +150,18 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
           }
         })
       });
-      await loadGesendeteAnfragen();
-      setAnfrageSuccess("ok");
+    } catch (e) {
+      // E-Mail Fehler ignorieren, Anfrage wurde trotzdem gespeichert
     }
+
+    await loadGesendeteAnfragen();
+    setAnfrageSuccess("ok");
     setSendingAnfrage(false);
   };
 
-  const qualifikationen = ["Staatlich anerkannte/r Erzieher/in","Kindheitspädagoge/in","Sozialpädagoge/in","Heilpädagoge/in","Kinderpflegerin / Kinderpfleger","Sozialarbeiterin / Sozialarbeiter","Kita-Leitung","Sonstige pädagogische Fachkraft"];
-  const bundeslaender = ["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"];
-  const arbeitszeiten = ["Vollzeit","Teilzeit","Vollzeit & Teilzeit","Minijob"];
+  const qualifikationen = ["Staatlich anerkannte/r Erzieher/in", "Kindheitspädagoge/in", "Sozialpädagoge/in", "Heilpädagoge/in", "Kinderpflegerin / Kinderpfleger", "Sozialarbeiterin / Sozialarbeiter", "Kita-Leitung", "Sonstige pädagogische Fachkraft"];
+  const bundeslaender = ["Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen"];
+  const arbeitszeiten = ["Vollzeit", "Teilzeit", "Vollzeit & Teilzeit", "Minijob"];
 
   const akzeptierteAnfragen = gesendeteAnfragen.filter(a => a.status === "akzeptiert");
 
@@ -167,7 +181,6 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
       {/* SUCHE */}
       {subTab === "suche" && (
         <div>
-          {/* Filter */}
           <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
             <select value={filterQual} onChange={e => setFilterQual(e.target.value)} style={{ ...selectStyle, flex: 2, minWidth: 180, marginBottom: 0 }}>
               <option value="">Alle Qualifikationen</option>
@@ -186,7 +199,6 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
             </button>
           </div>
 
-          {/* Results */}
           {fachkraefte.length === 0 ? (
             <div style={{ background: "white", borderRadius: 20, padding: 40, textAlign: "center", color: "#9BA8C0" }}>
               <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>🔍</div>
@@ -204,7 +216,7 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                     <div style={{ width: 50, height: 50, borderRadius: 14, background: anonym ? `linear-gradient(135deg, ${NAVY}, ${BLUE})` : "#EAF7EF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: anonym ? "1.4rem" : "1rem", fontWeight: 800, color: anonym ? "white" : GREEN, flexShrink: 0 }}>
-                      {anonym ? "🦸" : name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0,2)}
+                      {anonym ? "🦸" : name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)}
                     </div>
                     <div>
                       <div style={{ fontWeight: 800, color: NAVY, fontSize: "0.98rem" }}>{name}</div>
@@ -240,7 +252,6 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
                   </div>
                 )}
 
-                {/* Kontaktdaten nach Akzeptierung */}
                 {status === "akzeptiert" && (
                   <div style={{ marginTop: 12, background: "#EAF7EF", borderRadius: 10, padding: "12px 16px", fontSize: "0.85rem" }}>
                     <div style={{ fontWeight: 700, color: GREEN, marginBottom: 6 }}>✓ Kontaktdaten freigegeben</div>
@@ -286,7 +297,7 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
 
       {/* MODAL */}
       {selectedFachkraft && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20 }} onClick={e => { if (e.target === e.currentTarget) { setSelectedFachkraft(null); setAnfrageSuccess(null); }}}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20 }} onClick={e => { if (e.target === e.currentTarget) { setSelectedFachkraft(null); setAnfrageSuccess(null); } }}>
           <div style={{ background: "white", borderRadius: 24, padding: 32, maxWidth: 500, width: "100%", maxHeight: "90vh", overflowY: "auto" }}>
             {anfrageSuccess === "ok" ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
@@ -324,12 +335,21 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
 
                 <div style={{ marginBottom: 20 }}>
                   <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "#4A5568", marginBottom: 8, textTransform: "uppercase" as const }}>Persönliche Nachricht (optional)</label>
-                  <textarea value={nachricht} onChange={e => setNachricht(e.target.value)} placeholder={`Hallo! Wir sind ${arbeitgeber?.einrichtung_name} und suchen eine engagierte Fachkraft. Wir würden uns freuen, von Ihnen zu hören!`} rows={5} style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "1.5px solid #E2E8F0", fontSize: "0.88rem", fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", color: "#444" }} />
+                  <textarea
+                    value={nachricht}
+                    onChange={e => setNachricht(e.target.value)}
+                    placeholder={`Hallo! Wir sind ${arbeitgeber?.einrichtung_name} und suchen eine engagierte Fachkraft. Wir würden uns freuen, von Ihnen zu hören!`}
+                    rows={5}
+                    style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "1.5px solid #E2E8F0", fontSize: "0.88rem", fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", color: "#444" }}
+                  />
                 </div>
 
                 <div style={{ display: "flex", gap: 10 }}>
                   <button onClick={() => setSelectedFachkraft(null)} style={{ flex: 1, padding: "12px 20px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", color: "#6B7897", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Abbrechen</button>
-                  <button onClick={handleAnfrageSenden} disabled={sendingAnfrage} style={{ flex: 2, padding: "12px 20px", borderRadius: 10, border: "none", background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
+                  <button
+                    onClick={handleAnfrageSenden}
+                    disabled={sendingAnfrage}
+                    style={{ flex: 2, padding: "12px 20px", borderRadius: 10, border: "none", background: sendingAnfrage ? "#ccc" : `linear-gradient(135deg, ${GREEN}, #27AE60)`, color: "white", fontWeight: 700, cursor: sendingAnfrage ? "not-allowed" : "pointer", fontFamily: "'DM Sans', sans-serif" }}>
                     {sendingAnfrage ? "Wird gesendet..." : "Anfrage senden →"}
                   </button>
                 </div>
@@ -588,8 +608,8 @@ export default function Dashboard() {
                 <div style={{ height: 1, background: "#F0F4F9", marginBottom: 16 }} />
                 <div style={{ marginBottom: 16 }}><label style={labelStyle}>Name der Einrichtung</label><input style={inputStyle} value={form.einrichtung_name || ""} onChange={e => set("einrichtung_name", e.target.value)} /></div>
                 <div className="two-col-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-                  <div><label style={labelStyle}>Einrichtungstyp</label><select style={selectStyle} value={form.einrichtungstyp || ""} onChange={e => set("einrichtungstyp", e.target.value)}><option value="">– bitte wählen –</option>{["Krippe (0-3 Jahre)","Kindergarten (3-6 Jahre)","Kita (0-6 Jahre)","Hort (6-12 Jahre)","Integrationskita","Waldkita","Montessori Kita","Betriebskita"].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
-                  <div><label style={labelStyle}>Träger</label><select style={selectStyle} value={form.traeger || ""} onChange={e => set("traeger", e.target.value)}><option value="">– bitte wählen –</option>{["Öffentlich (kommunal)","AWO","Caritas","Diakonie","DRK","Paritätischer Wohlfahrtsverband","Privat / Eigenträger","Sonstiger freier Träger"].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                  <div><label style={labelStyle}>Einrichtungstyp</label><select style={selectStyle} value={form.einrichtungstyp || ""} onChange={e => set("einrichtungstyp", e.target.value)}><option value="">– bitte wählen –</option>{["Krippe (0-3 Jahre)", "Kindergarten (3-6 Jahre)", "Kita (0-6 Jahre)", "Hort (6-12 Jahre)", "Integrationskita", "Waldkita", "Montessori Kita", "Betriebskita"].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                  <div><label style={labelStyle}>Träger</label><select style={selectStyle} value={form.traeger || ""} onChange={e => set("traeger", e.target.value)}><option value="">– bitte wählen –</option>{["Öffentlich (kommunal)", "AWO", "Caritas", "Diakonie", "DRK", "Paritätischer Wohlfahrtsverband", "Privat / Eigenträger", "Sonstiger freier Träger"].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
                 </div>
                 <div style={{ marginBottom: 16 }}><label style={labelStyle}>Beschreibung</label><textarea style={{ ...inputStyle, height: 90, resize: "vertical" }} value={form.beschreibung || ""} onChange={e => set("beschreibung", e.target.value)} /></div>
                 <div style={{ marginTop: 8, marginBottom: 8, fontWeight: 700, color: BLUE, fontSize: "0.82rem", textTransform: "uppercase", letterSpacing: 1 }}>Adresse</div>
@@ -602,15 +622,15 @@ export default function Dashboard() {
                   <div><label style={labelStyle}>PLZ</label><input style={inputStyle} value={form.plz || ""} onChange={e => set("plz", e.target.value)} /></div>
                   <div><label style={labelStyle}>Ort</label><input style={inputStyle} value={form.ort || ""} onChange={e => set("ort", e.target.value)} /></div>
                 </div>
-                <div style={{ marginBottom: 16 }}><label style={labelStyle}>Bundesland</label><select style={selectStyle} value={form.bundesland || ""} onChange={e => set("bundesland", e.target.value)}><option value="">– bitte wählen –</option>{["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}</select></div>
+                <div style={{ marginBottom: 16 }}><label style={labelStyle}>Bundesland</label><select style={selectStyle} value={form.bundesland || ""} onChange={e => set("bundesland", e.target.value)}><option value="">– bitte wählen –</option>{["Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}</select></div>
                 <div style={{ marginTop: 8, marginBottom: 8, fontWeight: 700, color: BLUE, fontSize: "0.82rem", textTransform: "uppercase", letterSpacing: 1 }}>Ansprechpartner</div>
                 <div style={{ height: 1, background: "#F0F4F9", marginBottom: 16 }} />
                 <div className="two-col-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
                   <div><label style={labelStyle}>Name</label><input style={inputStyle} value={form.ansprech_name || ""} onChange={e => set("ansprech_name", e.target.value)} /></div>
-                  <div><label style={labelStyle}>Rolle</label><select style={selectStyle} value={form.ansprech_rolle || ""} onChange={e => set("ansprech_rolle", e.target.value)}><option value="">– bitte wählen –</option>{["Kita-Leitung","Stellv. Leitung","Träger-Geschäftsführung","HR / Personal","Sonstiges"].map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                  <div><label style={labelStyle}>Rolle</label><select style={selectStyle} value={form.ansprech_rolle || ""} onChange={e => set("ansprech_rolle", e.target.value)}><option value="">– bitte wählen –</option>{["Kita-Leitung", "Stellv. Leitung", "Träger-Geschäftsführung", "HR / Personal", "Sonstiges"].map(r => <option key={r} value={r}>{r}</option>)}</select></div>
                 </div>
                 <div style={{ marginBottom: 16 }}><label style={labelStyle}>Telefon</label><input style={inputStyle} value={form.telefon || ""} onChange={e => set("telefon", e.target.value)} /></div>
-                <div style={{ marginBottom: 16 }}><label style={labelStyle}>Offene Stellen</label><select style={selectStyle} value={form.stellen_anzahl || ""} onChange={e => set("stellen_anzahl", e.target.value)}><option value="">– bitte wählen –</option>{["1 Stelle","2-3 Stellen","4-5 Stellen","6-10 Stellen","Mehr als 10 Stellen"].map(s => <option key={s} value={s}>{s}</option>)}</select></div>
+                <div style={{ marginBottom: 16 }}><label style={labelStyle}>Offene Stellen</label><select style={selectStyle} value={form.stellen_anzahl || ""} onChange={e => set("stellen_anzahl", e.target.value)}><option value="">– bitte wählen –</option>{["1 Stelle", "2-3 Stellen", "4-5 Stellen", "6-10 Stellen", "Mehr als 10 Stellen"].map(s => <option key={s} value={s}>{s}</option>)}</select></div>
                 {saveError && <div style={{ padding: "12px 16px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.88rem", marginBottom: 16 }}>⚠️ {saveError}</div>}
               </div>
             )}
