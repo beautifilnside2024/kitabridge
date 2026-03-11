@@ -36,7 +36,7 @@ function LoginForm() {
   router.push("/dashboard");
 } else {
   const { data: { user } } = await supabase.auth.getUser();
-  router.push(`/fachkraft/${user.id}`);
+  router.push("/fachkraft/dashboard");
 }
 
   return (
