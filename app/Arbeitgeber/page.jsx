@@ -253,6 +253,7 @@ export default function Arbeitgeber() {
     if (form.passwort.length < 6) { alert(t.errors.passLength); return; }
     setLoading(true);
 
+    // 1. Auth-User anlegen
     const createRes = await fetch("/api/create-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -270,6 +271,7 @@ export default function Arbeitgeber() {
       return;
     }
 
+    // 2. Einloggen
     const { error: loginError } = await supabase.auth.signInWithPassword({
       email: form.email,
       password: form.passwort
@@ -281,6 +283,7 @@ export default function Arbeitgeber() {
       return;
     }
 
+    // 3. In Datenbank speichern
     const { data: insertedData, error } = await supabase.from("arbeitgeber").insert([{
       einrichtung_name: form.einrichtung_name, einrichtungstyp: form.einrichtungstyp,
       traeger: form.traeger, beschreibung: form.beschreibung,
@@ -293,8 +296,27 @@ export default function Arbeitgeber() {
 
     if (error) { setLoading(false); alert(t.errors.authError + error.message); return; }
 
-    await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "arbeitgeber", data: form }) });
-    await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "willkommen_arbeitgeber", data: { ...form, id: insertedData.id } }) });
+    // 4. E-Mails senden – interne Benachrichtigung + Willkommensmail an Arbeitgeber
+    await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "arbeitgeber", data: form })
+    });
+
+    // FIX: Willkommensmail an Arbeitgeber mit korrekten Feldern
+    await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "willkommen_arbeitgeber",
+        data: {
+          email: form.email,
+          ansprech_name: form.ansprech_name,
+          einrichtung_name: form.einrichtung_name,
+          id: insertedData.id,
+        }
+      })
+    });
 
     setLoading(false);
     router.push(`/bezahlung?id=${insertedData.id}&email=${encodeURIComponent(form.email)}&name=${encodeURIComponent(form.einrichtung_name)}`);

@@ -13,6 +13,9 @@ export async function POST(request) {
     const { type, data } = await request.json();
 
     if (type === "willkommen_fachkraft") {
+      // FIX: supports both real name and anonymous username
+      const displayName = data.vorname || data.username || "dort";
+
       await resend.emails.send({
         from: "KitaBridge <onboarding@resend.dev>",
         to: data.email,
@@ -27,14 +30,14 @@ export async function POST(request) {
   <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
     <div style="text-align:center;font-size:48px;margin-bottom:16px;">🎉</div>
     <div style="border-left:4px solid #1A3F6F;padding-left:20px;margin-bottom:32px;">
-      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Herzlich willkommen bei KitaBridge, ${data.vorname}!</p>
+      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Herzlich willkommen bei KitaBridge, ${displayName}!</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">Wir freuen uns sehr, dich in unserer Community begrüßen zu dürfen! 🌟</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">Bei KitaBridge kannst du dein Profil erstellen und wirst direkt von Kitas und sozialen Einrichtungen in ganz Deutschland kontaktiert – <strong>kein Lebenslauf, kein Anschreiben</strong> nötig.</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">Einfach sichtbar sein – und die passende Einrichtung meldet sich bei dir. 💪</p>
     </div>
     <hr style="border:none;border-top:2px dashed #E8EDF4;margin:0 0 32px;">
     <div style="border-left:4px solid #27AE60;padding-left:20px;margin-bottom:32px;">
-      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Welcome to KitaBridge, ${data.vorname}!</p>
+      <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Welcome to KitaBridge, ${displayName}!</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">We are so happy to have you here! 🌟</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">At KitaBridge, you can create your profile and get contacted directly by daycare centers and social institutions across Germany – <strong>no CV, no cover letter</strong> required.</p>
       <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">Simply be visible – and the right employer will reach out to you. 💪</p>
@@ -91,7 +94,7 @@ export async function POST(request) {
       🔍 Profile durchsuchen: kitabridge.de/suche<br>
       📩 Fachkraft direkt kontaktieren<br>
       📄 Zeugnisse per E-Mail vor der Hospitation anfordern<br>
-      🤝 Hospitation vereinbaren & einstellen
+      🤝 Hospitation vereinbaren &amp; einstellen
     </p>
     <div style="text-align:center;">
       <a href="https://kitabridge.de/suche" style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Jetzt Fachkräfte suchen →</a>
@@ -199,9 +202,9 @@ export async function POST(request) {
       await resend.emails.send({
         from: "KitaBridge <onboarding@resend.dev>",
         to: "hallo@kitabridge.de",
-        subject: `Neue Fachkraft: ${data.vorname} ${data.nachname}`,
+        subject: `Neue Fachkraft: ${data.vorname || data.username}`,
         html: `<h2>Neue Registrierung</h2>
-          <p><strong>Name:</strong> ${data.vorname} ${data.nachname}</p>
+          <p><strong>Name:</strong> ${data.vorname ? `${data.vorname} ${data.nachname}` : `@${data.username} (anonym)`}</p>
           <p><strong>Email:</strong> ${data.email}</p>
           <p><strong>Qualifikation:</strong> ${data.qualifikation}</p>`
       });
