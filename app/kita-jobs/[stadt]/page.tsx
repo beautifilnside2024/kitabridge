@@ -21,7 +21,7 @@ const stadtDaten: Record<string, { name: string; bundesland: string; kitas: numb
 
 export default function StadtPage() {
   const params = useParams();
-  const stadtKey = (params?.stadt as string)?.toLowerCase() ?? "";
+  const stadtKey = typeof rawStadt === "string" ? rawStadt.toLowerCase() : Array.isArray(rawStadt) ? rawStadt[0].toLowerCase() : ""
   const stadt = stadtDaten[stadtKey];
 
   if (!stadt) {
