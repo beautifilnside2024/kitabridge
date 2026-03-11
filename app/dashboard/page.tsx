@@ -130,24 +130,13 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
       status: "ausstehend"
     }]);
 
-    if (error) {
-      alert("Fehler beim Senden: " + error.message);
-      setSendingAnfrage(false);
-      return;
-    }
+    if (error) { alert("Fehler beim Senden: " + error.message); setSendingAnfrage(false); return; }
 
     try {
       await fetch("/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "neue_anfrage",
-          data: {
-            fachkraft_id: selectedFachkraft.id,
-            kita_name: arbeitgeber.einrichtung_name,
-            nachricht: nachricht.trim(),
-          }
-        })
+        body: JSON.stringify({ type: "neue_anfrage", data: { fachkraft_id: selectedFachkraft.id, kita_name: arbeitgeber.einrichtung_name, nachricht: nachricht.trim() } })
       });
     } catch (e) {}
 
@@ -163,7 +152,6 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
 
   return (
     <div>
-      {/* Sub-Tabs */}
       <div style={{ display: "flex", gap: 6, marginBottom: 20, flexWrap: "wrap" }}>
         <button onClick={() => setSubTab("suche")} style={{ flex: 1, minWidth: 130, padding: "10px 14px", borderRadius: 9, border: "none", background: subTab === "suche" ? NAVY : "white", color: subTab === "suche" ? "white" : "#6B7897", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 2px 8px rgba(26,63,111,0.08)" }}>
           🔍 Fachkräfte suchen
@@ -174,10 +162,8 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
         </button>
       </div>
 
-      {/* SUCHE */}
       {subTab === "suche" && (
         <div>
-          {/* Filter – stacks on mobile */}
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
             <select value={filterQual} onChange={e => setFilterQual(e.target.value)} style={{ ...selectStyle, marginBottom: 0 }}>
               <option value="">Alle Qualifikationen</option>
@@ -212,7 +198,6 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
 
             return (
               <div key={fk.id} style={{ background: "white", borderRadius: 16, padding: 16, marginBottom: 12, border: `1.5px solid ${status === "akzeptiert" ? "#86EFAC" : "#E8EDF4"}`, boxShadow: "0 2px 12px rgba(26,63,111,0.06)" }}>
-                {/* Avatar + Name row */}
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
                   <div style={{ width: 46, height: 46, borderRadius: 12, background: anonym ? `linear-gradient(135deg, ${NAVY}, ${BLUE})` : "#EAF7EF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: anonym ? "1.3rem" : "0.95rem", fontWeight: 800, color: anonym ? "white" : GREEN, flexShrink: 0 }}>
                     {anonym ? "🦸" : name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)}
@@ -223,8 +208,6 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
                     <div style={{ fontSize: "0.8rem", color: "#6B7897", marginTop: 2 }}>{fk.qualifikation}</div>
                   </div>
                 </div>
-
-                {/* Tags */}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 10 }}>
                   {fk.bundesland && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>📍 {fk.bundesland}</span>}
                   {fk.arbeitszeit && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>⏱ {fk.arbeitszeit}</span>}
@@ -232,14 +215,11 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
                   {fk.deutsch && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>🇩🇪 {fk.deutsch}</span>}
                   {fk.verfuegbar_ab && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>📅 ab {new Date(fk.verfuegbar_ab).toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</span>}
                 </div>
-
                 {fk.beschreibung && (
                   <div style={{ fontSize: "0.82rem", color: "#6B7897", lineHeight: 1.6, borderTop: "1px solid #F0F4F9", paddingTop: 8, marginBottom: 10 }}>
                     {fk.beschreibung.length > 120 ? fk.beschreibung.slice(0, 120) + "..." : fk.beschreibung}
                   </div>
                 )}
-
-                {/* Status / Button – full width on mobile */}
                 {bereitsAngefragt ? (
                   <div style={{ marginTop: 4 }}>
                     {status === "ausstehend" && <span style={{ display: "inline-block", background: "#EBF4FF", color: BLUE, borderRadius: 50, padding: "6px 14px", fontSize: "0.78rem", fontWeight: 700 }}>⏳ Ausstehend</span>}
@@ -251,7 +231,6 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
                     Anfrage senden →
                   </button>
                 )}
-
                 {status === "akzeptiert" && (
                   <div style={{ marginTop: 10, background: "#EAF7EF", borderRadius: 10, padding: "12px 14px", fontSize: "0.85rem" }}>
                     <div style={{ fontWeight: 700, color: GREEN, marginBottom: 6 }}>✓ Kontaktdaten freigegeben</div>
@@ -266,7 +245,6 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
         </div>
       )}
 
-      {/* ANFRAGEN */}
       {subTab === "anfragen" && (
         <div>
           {gesendeteAnfragen.length === 0 ? (
@@ -295,19 +273,16 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
         </div>
       )}
 
-      {/* MODAL – slides up from bottom on mobile */}
       {selectedFachkraft && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, padding: 0 }} onClick={e => { if (e.target === e.currentTarget) { setSelectedFachkraft(null); setAnfrageSuccess(null); } }}>
           <div style={{ background: "white", borderRadius: "24px 24px 0 0", padding: "24px 20px", width: "100%", maxWidth: 560, maxHeight: "92vh", overflowY: "auto" }}>
-            {/* Handle bar */}
             <div style={{ width: 40, height: 4, background: "#E2E8F0", borderRadius: 2, margin: "0 auto 20px" }} />
-
             {anfrageSuccess === "ok" ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
                 <div style={{ fontSize: "3rem", marginBottom: 16 }}>✅</div>
                 <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", color: NAVY, marginBottom: 12 }}>Anfrage gesendet!</div>
-                <div style={{ color: "#6B7897", fontSize: "0.88rem", lineHeight: 1.7, marginBottom: 20 }}>Die Fachkraft wurde per E-Mail benachrichtigt und entscheidet, ob sie Kontakt aufnehmen möchte.</div>
-                <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 14, marginBottom: 20, fontSize: "0.85rem", color: GREEN, fontWeight: 600 }}>🔒 Kontaktdaten werden erst nach Zustimmung der Fachkraft sichtbar.</div>
+                <div style={{ color: "#6B7897", fontSize: "0.88rem", lineHeight: 1.7, marginBottom: 20 }}>Die Fachkraft wurde per E-Mail benachrichtigt.</div>
+                <div style={{ background: "#EAF7EF", borderRadius: 12, padding: 14, marginBottom: 20, fontSize: "0.85rem", color: GREEN, fontWeight: 600 }}>🔒 Kontaktdaten werden erst nach Zustimmung sichtbar.</div>
                 <button onClick={() => { setSelectedFachkraft(null); setAnfrageSuccess(null); }} style={{ width: "100%", padding: "14px", borderRadius: 50, border: "none", background: NAVY, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Schließen</button>
               </div>
             ) : anfrageSuccess === "bereits" ? (
@@ -332,17 +307,11 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
                   </div>
                 </div>
                 <div style={{ background: "#FFF8ED", borderRadius: 12, padding: "12px 14px", marginBottom: 16, fontSize: "0.82rem", color: "#92400E", lineHeight: 1.6 }}>
-                  🔒 <strong>Datenschutz:</strong> Die Fachkraft sieht nur Ihren Einrichtungsnamen und Ihre Nachricht. Kontaktdaten werden erst nach Zustimmung ausgetauscht.
+                  🔒 <strong>Datenschutz:</strong> Die Fachkraft sieht nur Ihren Einrichtungsnamen und Ihre Nachricht.
                 </div>
                 <div style={{ marginBottom: 16 }}>
                   <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "#4A5568", marginBottom: 8, textTransform: "uppercase" as const }}>Persönliche Nachricht (optional)</label>
-                  <textarea
-                    value={nachricht}
-                    onChange={e => setNachricht(e.target.value)}
-                    placeholder={`Hallo! Wir sind ${arbeitgeber?.einrichtung_name} und suchen eine engagierte Fachkraft.`}
-                    rows={4}
-                    style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1.5px solid #E2E8F0", fontSize: "0.88rem", fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", color: "#444", boxSizing: "border-box" }}
-                  />
+                  <textarea value={nachricht} onChange={e => setNachricht(e.target.value)} placeholder={`Hallo! Wir sind ${arbeitgeber?.einrichtung_name} und suchen eine engagierte Fachkraft.`} rows={4} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1.5px solid #E2E8F0", fontSize: "0.88rem", fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", color: "#444", boxSizing: "border-box" }} />
                 </div>
                 <div style={{ display: "flex", gap: 10 }}>
                   <button onClick={() => setSelectedFachkraft(null)} style={{ flex: 1, padding: "13px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", color: "#6B7897", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Abbrechen</button>
@@ -402,7 +371,7 @@ export default function Dashboard() {
     if (!session) return;
     const res = await fetch("/api/account/delete", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: session.user.email, rolle: "arbeitgeber" }) });
     if (res.ok) { await supabase.auth.signOut(); alert("Ihr Account wurde erfolgreich gelöscht."); router.push("/"); }
-    else { alert("Fehler beim Löschen. Bitte kontaktieren Sie uns unter kitabridge@protonmail.com"); }
+    else { alert("Fehler beim Löschen. Bitte kontaktieren Sie uns unter hallo@kitabridge.de"); }
   };
 
   const handleKuendigung = async () => {
@@ -411,7 +380,7 @@ export default function Dashboard() {
     if (!session) return;
     const res = await fetch("/api/stripe/kuendigung", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: session.user.email }) });
     if (res.ok) { alert("Ihr Abo wurde erfolgreich gekündigt."); loadDashboard(); }
-    else { alert("Fehler beim Kündigen. Bitte kontaktieren Sie uns unter kitabridge@protonmail.com"); }
+    else { alert("Fehler beim Kündigen. Bitte kontaktieren Sie uns unter hallo@kitabridge.de"); }
   };
 
   if (loading) return (
@@ -428,8 +397,6 @@ export default function Dashboard() {
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; }
         input:focus, select:focus, textarea:focus { border-color: #2471A3 !important; }
-
-        /* ── MOBILE BASE ── */
         .db-header { background: ${NAVY}; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 50; }
         .db-header-name { display: none; }
         .db-container { padding: 16px; }
@@ -449,8 +416,6 @@ export default function Dashboard() {
         .profile-card { padding: 16px; }
         .inactive-banner { flex-direction: column !important; }
         .inactive-banner a { text-align: center; }
-
-        /* ── TABLET ── */
         @media (min-width: 600px) {
           .db-header { padding: 0 24px; height: 64px; }
           .db-header-name { display: inline; }
@@ -468,8 +433,6 @@ export default function Dashboard() {
           .inactive-banner { flex-direction: row !important; }
           .profile-grid { grid-template-columns: 1fr 1fr; }
         }
-
-        /* ── DESKTOP ── */
         @media (min-width: 1024px) {
           .db-header { padding: 0 32px; }
           .db-container { padding: 32px 24px; max-width: 1100px; margin: 0 auto; }
@@ -490,7 +453,6 @@ export default function Dashboard() {
 
       <div className="db-container">
 
-        {/* Banners */}
         {!isAktiv && (
           <div className="inactive-banner" style={{ background: "#FFF7ED", border: "1px solid #FED7AA", borderRadius: 16, padding: 16, marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <div>
@@ -514,7 +476,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Welcome */}
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", color: NAVY, marginBottom: 4 }}>
             Willkommen, {arbeitgeber?.ansprech_name?.split(" ")[0] || ""}! 👋
@@ -522,11 +483,12 @@ export default function Dashboard() {
           <p style={{ color: "#9BA8C0", fontSize: "0.85rem", margin: 0 }}>{arbeitgeber?.einrichtung_name} · {arbeitgeber?.ort}</p>
         </div>
 
-        {/* TABS – sticky on mobile, static on desktop */}
+        {/* TABS */}
         <div className="tab-bar-wrapper">
           <div className="tab-bar">
             {[
               { key: "uebersicht", label: "📊 Übersicht" },
+              { key: "visitenkarte", label: "👁 Visitenkarte" },
               { key: "profil", label: "👤 Mein Profil" },
               { key: "fachkraefte", label: "🔍 Fachkräfte" },
               { key: "nachrichten", label: "📩 Nachrichten" },
@@ -562,6 +524,7 @@ export default function Dashboard() {
                   {[
                     { icon: "🔍", label: "Fachkräfte suchen & anfragen", tab: "fachkraefte" },
                     { icon: "📩", label: "Nachrichten", tab: "nachrichten" },
+                    { icon: "👁", label: "Visitenkarte ansehen", tab: "visitenkarte" },
                     { icon: "✏️", label: "Profil bearbeiten", tab: "profil" },
                   ].map(item => (
                     <button key={item.tab} onClick={() => setActiveTab(item.tab)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", border: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "left" }}>
@@ -569,9 +532,6 @@ export default function Dashboard() {
                     </button>
                   ))}
                   <a href="/kontakt" style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", textDecoration: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem" }}>
-                    <a href={`/arbeitgeber/${arbeitgeber?.id}`} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", textDecoration: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem" }}>
-  👁 Meine Visitenkarte ansehen
-</a>
                     ✉️ Support kontaktieren
                   </a>
                 </div>
@@ -592,6 +552,50 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* VISITENKARTE */}
+        {activeTab === "visitenkarte" && (
+          <div style={{ background: "white", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
+            <div style={{ background: `linear-gradient(135deg, #0D1B2A 0%, ${NAVY} 60%, ${BLUE} 100%)`, padding: "28px 28px", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: -50, right: -50, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16, position: "relative" }}>
+                <div style={{ width: 58, height: 58, borderRadius: 16, background: "rgba(255,255,255,0.12)", border: "2px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem", flexShrink: 0 }}>🏫</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "white", fontFamily: "'Playfair Display', serif" }}>{arbeitgeber?.einrichtung_name}</div>
+                  <div style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{arbeitgeber?.einrichtungstyp}</div>
+                </div>
+                <div style={{ background: isAktiv ? "rgba(39,174,96,0.3)" : "rgba(255,255,255,0.1)", border: `1px solid ${isAktiv ? "rgba(39,174,96,0.5)" : "rgba(255,255,255,0.2)"}`, borderRadius: 50, padding: "4px 12px", fontSize: "0.7rem", fontWeight: 800, color: "white", textTransform: "uppercase" as const, letterSpacing: 1, whiteSpace: "nowrap" }}>
+                  {isAktiv ? "✓ Aktiv" : "⏳ In Prüfung"}
+                </div>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, position: "relative" }}>
+                {arbeitgeber?.ort && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 50, padding: "3px 11px", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>📍 {arbeitgeber.ort}</span>}
+                {arbeitgeber?.bundesland && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 50, padding: "3px 11px", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>🗺 {arbeitgeber.bundesland}</span>}
+                {arbeitgeber?.traeger && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 50, padding: "3px 11px", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>🏢 {arbeitgeber.traeger}</span>}
+                {arbeitgeber?.stellen_anzahl && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 50, padding: "3px 11px", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>💼 {arbeitgeber.stellen_anzahl}</span>}
+              </div>
+            </div>
+            <div style={{ padding: 20 }}>
+              {arbeitgeber?.beschreibung && (
+                <p style={{ color: "#444", lineHeight: 1.75, fontSize: "0.9rem", margin: "0 0 16px" }}>{arbeitgeber.beschreibung}</p>
+              )}
+              {arbeitgeber?.ansprech_name && (
+                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px", background: "#F8FAFF", borderRadius: 12, marginBottom: 16 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 800 }}>
+                    {arbeitgeber.ansprech_name[0]}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.9rem" }}>{arbeitgeber.ansprech_name}</div>
+                    {arbeitgeber.ansprech_rolle && <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>{arbeitgeber.ansprech_rolle}</div>}
+                  </div>
+                </div>
+              )}
+              <a href={`/arbeitgeber/${arbeitgeber?.id}`} target="_blank" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 10, background: "#F0F4F9", color: NAVY, fontWeight: 600, fontSize: "0.85rem", textDecoration: "none" }}>
+                🔗 Öffentliche Visitenkarte öffnen →
+              </a>
             </div>
           </div>
         )}
@@ -645,7 +649,6 @@ export default function Dashboard() {
                   <div style={{ marginBottom: 14 }}><label style={labelStyle}>Träger</label><select style={selectStyle} value={form.traeger || ""} onChange={e => set("traeger", e.target.value)}><option value="">– bitte wählen –</option>{["Öffentlich (kommunal)", "AWO", "Caritas", "Diakonie", "DRK", "Paritätischer Wohlfahrtsverband", "Privat / Eigenträger", "Sonstiger freier Träger"].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
                 </div>
                 <div style={{ marginBottom: 14 }}><label style={labelStyle}>Beschreibung</label><textarea style={{ ...inputStyle, height: 88, resize: "vertical" }} value={form.beschreibung || ""} onChange={e => set("beschreibung", e.target.value)} /></div>
-
                 <div style={{ marginTop: 4, marginBottom: 6, fontWeight: 700, color: BLUE, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: 1 }}>Adresse</div>
                 <div style={{ height: 1, background: "#F0F4F9", marginBottom: 14 }} />
                 <div className="three-one-grid" style={{ marginBottom: 14 }}>
@@ -657,7 +660,6 @@ export default function Dashboard() {
                   <div style={{ marginBottom: 14 }}><label style={labelStyle}>Ort</label><input style={inputStyle} value={form.ort || ""} onChange={e => set("ort", e.target.value)} /></div>
                 </div>
                 <div style={{ marginBottom: 14 }}><label style={labelStyle}>Bundesland</label><select style={selectStyle} value={form.bundesland || ""} onChange={e => set("bundesland", e.target.value)}><option value="">– bitte wählen –</option>{["Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}</select></div>
-
                 <div style={{ marginTop: 4, marginBottom: 6, fontWeight: 700, color: BLUE, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: 1 }}>Ansprechpartner</div>
                 <div style={{ height: 1, background: "#F0F4F9", marginBottom: 14 }} />
                 <div className="two-col-grid" style={{ marginBottom: 14 }}>
