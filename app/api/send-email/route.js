@@ -16,71 +16,41 @@ export async function POST(request) {
 <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-
   <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
     <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
     <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-top:6px;">Die Plattform für pädagogische Fachkräfte · The platform for childcare professionals</div>
   </td></tr>
-
   <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
-
     <div style="text-align:center;font-size:48px;margin-bottom:16px;">🎉</div>
-
-    <!-- DEUTSCH -->
     <div style="border-left:4px solid #1A3F6F;padding-left:20px;margin-bottom:32px;">
       <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Herzlich willkommen bei KitaBridge, ${data.vorname}!</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">
-        Wir freuen uns sehr, dich in unserer Community begrüßen zu dürfen! 🌟
-      </p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">
-        Bei KitaBridge kannst du dein Profil erstellen und wirst direkt von Kitas und sozialen Einrichtungen in ganz Deutschland kontaktiert – <strong>kein Lebenslauf, kein Anschreiben</strong> nötig.
-      </p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">
-        Einfach sichtbar sein – und die passende Einrichtung meldet sich bei dir. 💪
-      </p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">Wir freuen uns sehr, dich in unserer Community begrüßen zu dürfen! 🌟</p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">Bei KitaBridge kannst du dein Profil erstellen und wirst direkt von Kitas und sozialen Einrichtungen in ganz Deutschland kontaktiert – <strong>kein Lebenslauf, kein Anschreiben</strong> nötig.</p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">Einfach sichtbar sein – und die passende Einrichtung meldet sich bei dir. 💪</p>
     </div>
-
     <hr style="border:none;border-top:2px dashed #E8EDF4;margin:0 0 32px;">
-
-    <!-- ENGLISH -->
     <div style="border-left:4px solid #27AE60;padding-left:20px;margin-bottom:32px;">
       <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Welcome to KitaBridge, ${data.vorname}!</p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">
-        We are so happy to have you here! 🌟
-      </p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">
-        At KitaBridge, you can create your profile and get contacted directly by daycare centers and social institutions across Germany – <strong>no CV, no cover letter</strong> required.
-      </p>
-      <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">
-        Simply be visible – and the right employer will reach out to you. 💪
-      </p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">We are so happy to have you here! 🌟</p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 12px;">At KitaBridge, you can create your profile and get contacted directly by daycare centers and social institutions across Germany – <strong>no CV, no cover letter</strong> required.</p>
+      <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">Simply be visible – and the right employer will reach out to you. 💪</p>
     </div>
-
     <hr style="border:none;border-top:1px solid #E8EDF4;margin:0 0 32px;">
-
-    <p style="font-size:15px;font-weight:700;color:#1A3F6F;margin:0 0 16px;">
-      Deine nächsten Schritte · Your next steps:
-    </p>
+    <p style="font-size:15px;font-weight:700;color:#1A3F6F;margin:0 0 16px;">Deine nächsten Schritte · Your next steps:</p>
     <p style="font-size:14px;color:#444;line-height:2;margin:0 0 32px;">
       ✏️ Profil vervollständigen · Complete your profile<br>
       🔍 Von Kitas gefunden werden · Get found by daycare centers<br>
       📩 Kontaktiert werden · Get contacted directly<br>
       🤝 Deinen Traumjob finden · Find your dream job
     </p>
-
     <div style="text-align:center;">
-      <a href="https://kitabridge.de/fachkraft/einstellungen" style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">
-        Jetzt Profil vervollständigen · Complete Profile →
-      </a>
+      <a href="https://kitabridge.de/fachkraft/einstellungen" style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Jetzt Profil vervollständigen · Complete Profile →</a>
     </div>
-
   </td></tr>
-
   <tr><td style="padding:24px 40px;text-align:center;">
     <p style="font-size:12px;color:#9BA8C0;margin:0 0 8px;">Bei Fragen · Questions: <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
     <p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p>
   </td></tr>
-
 </table>
 </td></tr>
 </table>
@@ -135,20 +105,17 @@ export async function POST(request) {
     <div style="background:#EAF7EF;border-left:4px solid #1E8449;border-radius:0 12px 12px 0;padding:20px 24px;margin-bottom:24px;">
       <p style="font-size:13px;font-weight:800;color:#1E8449;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px;">📋 Unser Ansatz – bitte kurz lesen</p>
       <p style="font-size:14px;color:#2D4A2D;line-height:1.75;margin:0 0 10px;">Bei KitaBridge bitten wir Sie, Fachkräfte die über uns zu Ihnen kommen <strong>ausschließlich nach ihren Zeugnissen und Qualifikationsnachweisen</strong> zu beurteilen – kein Lebenslauf, kein Anschreiben erforderlich.</p>
-      <p style="font-size:14px;color:#2D4A2D;line-height:1.75;margin:0 0 10px;">So finden beide Seiten schneller zusammen. 🤝</p>
       <p style="font-size:14px;color:#2D4A2D;line-height:1.75;margin:0;">Wenn eine Fachkraft von sich aus ein Anschreiben oder Lebenslauf einreichen möchte, ist das selbstverständlich willkommen.</p>
     </div>
-    <p style="font-size:13px;color:#9BA8C0;font-style:italic;margin:0 0 32px;">Da Sie sich registriert haben, gehen wir davon aus dass Sie mit diesem Ansatz einverstanden sind. Vielen Dank!</p>
-    <hr style="border:none;border-top:1px solid #E8EDF4;margin:0 0 24px;">
     <p style="font-size:15px;font-weight:700;color:#1A3F6F;margin:0 0 16px;">Ihre nächsten Schritte:</p>
     <p style="font-size:14px;color:#444;line-height:1.8;margin:0 0 32px;">
-      🔍 Profile durchsuchen: kitabridge.de/suche<br>
-      📩 Fachkraft direkt kontaktieren<br>
+      🔍 Fachkräfte suchen & anfragen: kitabridge.de/dashboard<br>
+      📩 Anfrage senden – Fachkraft entscheidet ob sie Kontakt aufnimmt<br>
       📄 Zeugnisse per E-Mail vor der Hospitation anfordern<br>
       🤝 Hospitation vereinbaren & einstellen
     </p>
     <div style="text-align:center;">
-      <a href="https://kitabridge.de/suche" style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Jetzt Fachkräfte suchen →</a>
+      <a href="https://kitabridge.de/dashboard" style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Jetzt Fachkräfte suchen →</a>
     </div>
   </td></tr>
   <tr><td style="padding:24px 40px;text-align:center;">
@@ -162,6 +129,103 @@ export async function POST(request) {
 </html>`
       });
     }
+
+    // ── NEU: ANFRAGEN-SYSTEM ──────────────────────────────────────
+
+    if (type === "neue_anfrage") {
+      await resend.emails.send({
+        from: "KitaBridge <onboarding@resend.dev>",
+        to: data.fachkraft_email,
+        subject: `${data.kita_name} möchte dich kennenlernen! 📩`,
+        html: `<html><body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+    <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
+  </td></tr>
+  <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
+    <div style="text-align:center;font-size:48px;margin-bottom:16px;">📩</div>
+    <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Hey ${data.fachkraft_name}, du hast eine neue Anfrage!</p>
+    <p style="font-size:15px;color:#6B7897;line-height:1.7;margin:0 0 24px;"><strong>${data.kita_name}</strong> hat Interesse an deinem Profil und möchte Kontakt aufnehmen.</p>
+    ${data.nachricht ? `<div style="background:#F8FAFF;border-left:4px solid #2471A3;border-radius:0 12px 12px 0;padding:16px 20px;margin-bottom:24px;font-size:14px;color:#444;line-height:1.7;font-style:italic;">"${data.nachricht}"</div>` : ""}
+    <div style="background:#FFF8ED;border-radius:12px;padding:16px 20px;margin-bottom:24px;font-size:13px;color:#92400E;">
+      🔒 <strong>Deine Daten sind sicher:</strong> Die Kita sieht noch keinen Namen oder Kontaktdaten von dir. Du entscheidest!
+    </div>
+    <div style="text-align:center;">
+      <a href="https://kitabridge.de/fachkraft/einstellungen" style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Anfrage ansehen & entscheiden →</a>
+    </div>
+  </td></tr>
+  <tr><td style="padding:24px 40px;text-align:center;">
+    <p style="font-size:12px;color:#9BA8C0;margin:0;">© 2026 KitaBridge · <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
+  </td></tr>
+</table></td></tr></table>
+</body></html>`
+      });
+    }
+
+    if (type === "anfrage_akzeptiert") {
+      await resend.emails.send({
+        from: "KitaBridge <onboarding@resend.dev>",
+        to: data.kita_email,
+        subject: `✅ Anfrage angenommen – Kontaktdaten verfügbar`,
+        html: `<html><body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+    <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
+  </td></tr>
+  <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
+    <div style="text-align:center;font-size:48px;margin-bottom:16px;">✅</div>
+    <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Die Fachkraft hat Ihre Anfrage angenommen!</p>
+    <p style="font-size:15px;color:#6B7897;line-height:1.7;margin:0 0 24px;">Hier sind die Kontaktdaten der Fachkraft:</p>
+    <div style="background:#EAF7EF;border-radius:12px;padding:20px 24px;margin-bottom:24px;">
+      ${data.fachkraft_name ? `<p style="margin:0 0 8px;font-size:15px;color:#1A3F6F;"><strong>👤 Name:</strong> ${data.fachkraft_name}</p>` : ""}
+      ${data.fachkraft_email ? `<p style="margin:0 0 8px;font-size:15px;color:#1A3F6F;"><strong>✉️ E-Mail:</strong> <a href="mailto:${data.fachkraft_email}" style="color:#2471A3;">${data.fachkraft_email}</a></p>` : ""}
+      ${data.fachkraft_telefon ? `<p style="margin:0;font-size:15px;color:#1A3F6F;"><strong>📞 Telefon:</strong> ${data.fachkraft_telefon}</p>` : ""}
+    </div>
+    <div style="text-align:center;">
+      <a href="https://kitabridge.de/dashboard" style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Zum Dashboard →</a>
+    </div>
+  </td></tr>
+  <tr><td style="padding:24px 40px;text-align:center;">
+    <p style="font-size:12px;color:#9BA8C0;margin:0;">© 2026 KitaBridge · <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
+  </td></tr>
+</table></td></tr></table>
+</body></html>`
+      });
+    }
+
+    if (type === "anfrage_abgelehnt") {
+      await resend.emails.send({
+        from: "KitaBridge <onboarding@resend.dev>",
+        to: data.kita_email,
+        subject: `Anfrage – Fachkraft derzeit nicht verfügbar`,
+        html: `<html><body style="margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <tr><td style="background:linear-gradient(135deg,#1A3F6F,#2471A3);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+    <div style="font-size:28px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div>
+  </td></tr>
+  <tr><td style="background:white;padding:40px;border-radius:0 0 16px 16px;">
+    <div style="text-align:center;font-size:48px;margin-bottom:16px;">😔</div>
+    <p style="font-size:18px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Die Fachkraft ist derzeit nicht verfügbar</p>
+    <p style="font-size:15px;color:#6B7897;line-height:1.7;margin:0 0 24px;">Leider hat die Fachkraft Ihre Anfrage diesmal abgelehnt. Das kann verschiedene Gründe haben – vielleicht ist die Stelle schon vergeben oder der Zeitpunkt passt nicht.</p>
+    <div style="background:#F8FAFF;border-radius:12px;padding:16px 20px;margin-bottom:24px;font-size:14px;color:#6B7897;">
+      💡 <strong>Tipp:</strong> Es gibt viele weitere Fachkräfte auf KitaBridge. Schauen Sie sich weitere Profile an!
+    </div>
+    <div style="text-align:center;">
+      <a href="https://kitabridge.de/dashboard" style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Weitere Fachkräfte suchen →</a>
+    </div>
+  </td></tr>
+  <tr><td style="padding:24px 40px;text-align:center;">
+    <p style="font-size:12px;color:#9BA8C0;margin:0;">© 2026 KitaBridge · <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p>
+  </td></tr>
+</table></td></tr></table>
+</body></html>`
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
 
     if (type === "kontakt") {
       await resend.emails.send({
