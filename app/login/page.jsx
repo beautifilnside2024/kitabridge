@@ -33,11 +33,11 @@ function LoginForm() {
       return;
     }
     if (rolle === "kita") {
-      router.push("/dashboard");
-    } else {
-      router.push("/dashboard");
-    }
-  };
+  router.push("/dashboard");
+} else {
+  const { data: { user } } = await supabase.auth.getUser();
+  router.push(`/fachkraft/${user.id}`);
+}
 
   return (
     <div style={{ width: "100%", maxWidth: 440 }}>
