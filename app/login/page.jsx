@@ -35,7 +35,7 @@ function LoginForm() {
     if (rolle === "kita") {
       router.push("/dashboard");
     } else {
-      router.push("/fachkraft/einstellungen");
+      router.push("/dashboard");
     }
   };
 
