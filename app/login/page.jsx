@@ -1,7 +1,7 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const NAVY = "#1A3F6F";
 const GREEN = "#1E8449";
@@ -9,11 +9,18 @@ const BLUE = "#2471A3";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [rolle, setRolle] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const rolleParam = searchParams.get("rolle");
+    if (rolleParam === "fachkraft") setRolle("fachkraft");
+    if (rolleParam === "kita") setRolle("kita");
+  }, [searchParams]);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -79,7 +86,6 @@ export default function LoginPage() {
             </div>
           )}
         </div>
-        
       </div>
     </div>
   );

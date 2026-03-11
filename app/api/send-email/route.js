@@ -109,7 +109,7 @@ export async function POST(request) {
       🔒 <strong>Datenschutz:</strong> Deine Kontaktdaten bleiben verborgen. Erst wenn du die Anfrage annimmst, werden deine Daten weitergegeben.
     </div>
     <div style="text-align:center;">
-      <a href="https://kitabridge.de/login" style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">
+      <a href="https://kitabridge.de/login?rolle=fachkraft" style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">
         Anfrage ansehen &amp; antworten →
       </a>
     </div>
