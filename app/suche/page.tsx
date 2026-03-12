@@ -7,11 +7,11 @@ const C = {
   green: "#16A34A", surface: "#F7F9FC", border: "#E4EAF4", muted: "#8A96B0", text: "#1C2B4A",
 };
 
-const selectStyle = {
+const selectStyle: React.CSSProperties = {
   width: "100%", padding: "9px 12px", border: `1.5px solid ${C.border}`, borderRadius: 10,
   fontSize: "0.83rem", color: C.text, background: "white", outline: "none",
   fontFamily: "'Sora', sans-serif", cursor: "pointer",
-  appearance: "none",
+  appearance: "none" as const,
   backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A96B0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
   backgroundRepeat: "no-repeat", backgroundPosition: "right 11px center", paddingRight: 32,
 };
