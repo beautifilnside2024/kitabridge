@@ -48,7 +48,6 @@ const Icon = {
   pin: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
   building: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
   edit: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
-  externalLink: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
 };
 
 // ── Nachrichten Sub-Component ──────────────────────────────────────────────────
@@ -131,7 +130,6 @@ function NachrichtenTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
         <p style={{ fontSize: "0.82rem", color: C.muted, marginTop: 3 }}>Deine Unterhaltungen mit Fachkräften.</p>
       </div>
 
-      {/* Sub-Tabs */}
       <div style={{ display: "flex", gap: 6, marginBottom: 20, background: "white", padding: 4, borderRadius: 12, border: `1.5px solid ${C.border}` }}>
         {[{ key: "konversationen", label: "Konversationen" }, { key: "neu", label: "Neue Nachricht" }].map(t => (
           <button key={t.key} onClick={() => setSubTab(t.key as any)} style={{ flex: 1, padding: "9px 14px", borderRadius: 9, border: "none", background: subTab === t.key ? C.navyMid : "transparent", color: subTab === t.key ? "white" : C.muted, fontWeight: 700, fontSize: "0.83rem", cursor: "pointer", fontFamily: "'Sora', sans-serif", transition: "all 0.15s" }}>
@@ -277,7 +275,6 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
         <p style={{ fontSize: "0.82rem", color: C.muted, marginTop: 3 }}>Finde passende Fachkräfte und sende Anfragen.</p>
       </div>
 
-      {/* Sub-Tabs */}
       <div style={{ display: "flex", gap: 6, marginBottom: 20, background: "white", padding: 4, borderRadius: 12, border: `1.5px solid ${C.border}` }}>
         {[{ key: "suche", label: "Suche" }, { key: "anfragen", label: `Meine Anfragen${akzeptierteAnfragen.length > 0 ? ` (${akzeptierteAnfragen.length})` : ""}` }].map(t => (
           <button key={t.key} onClick={() => setSubTab(t.key as any)} style={{ flex: 1, padding: "9px 14px", borderRadius: 9, border: "none", background: subTab === t.key ? C.navyMid : "transparent", color: subTab === t.key ? "white" : C.muted, fontWeight: 700, fontSize: "0.83rem", cursor: "pointer", fontFamily: "'Sora', sans-serif", transition: "all 0.15s" }}>
@@ -288,7 +285,6 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
 
       {subTab === "suche" && (
         <div>
-          {/* Filters */}
           <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 16, padding: 18, marginBottom: 16 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10 }}>
               <select value={filterQual} onChange={e => setFilterQual(e.target.value)} style={selectStyle}>
@@ -514,8 +510,6 @@ export default function Dashboard() {
     </div>
   );
 
-  const initials = arbeitgeber?.einrichtung_name ? arbeitgeber.einrichtung_name.slice(0, 2).toUpperCase() : "KB";
-
   return (
     <div style={{ minHeight: "100vh", background: C.surface, fontFamily: "'Sora', sans-serif", display: "flex", flexDirection: "column" }}>
       <style>{`
@@ -554,7 +548,6 @@ export default function Dashboard() {
 
         {/* SIDEBAR */}
         <aside style={{ width: 240, flexShrink: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-          {/* Profile card */}
           <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 20, marginBottom: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
               <div style={{ width: 46, height: 46, borderRadius: 14, background: `linear-gradient(135deg, ${C.navyMid}, ${C.blue})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", fontWeight: 800, color: "white", flexShrink: 0 }}>
@@ -572,7 +565,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Nav */}
           <nav style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 8 }}>
             {navItems.map(item => (
               <button key={item.key} className={`nav-item${activeTab === item.key ? " active" : ""}`} onClick={() => setActiveTab(item.key)}>
@@ -581,7 +573,6 @@ export default function Dashboard() {
             ))}
           </nav>
 
-          {/* Plan card */}
           <div style={{ background: `linear-gradient(135deg, ${C.navy}, ${C.navyMid})`, borderRadius: 16, padding: "16px 18px", marginTop: 2 }}>
             <div style={{ fontSize: "0.65rem", fontWeight: 800, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 6 }}>Ihr Plan</div>
             <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.5rem", fontWeight: 800, color: "white", marginBottom: 2 }}>299 €</div>
@@ -602,7 +593,6 @@ export default function Dashboard() {
         {/* MAIN */}
         <main style={{ flex: 1, minWidth: 0 }}>
 
-          {/* Inactive banner */}
           {!isAktiv && (
             <div style={{ background: "#FFFBEB", border: "1.5px solid #FDE68A", borderRadius: 14, padding: "16px 20px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
               <div>
@@ -616,7 +606,6 @@ export default function Dashboard() {
           {/* ÜBERSICHT */}
           {activeTab === "uebersicht" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              {/* Welcome */}
               <div style={{ background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 55%, #1B5E98 100%)`, borderRadius: 22, padding: "28px 30px", position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", top: -60, right: -60, width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
                 <div style={{ position: "relative" }}>
@@ -632,7 +621,6 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Stats */}
               <div style={{ display: "flex", gap: 12 }}>
                 {[
                   { label: "Einrichtungstyp", value: arbeitgeber?.einrichtungstyp || "–", bg: "#EFF6FF", color: C.blue },
@@ -646,7 +634,6 @@ export default function Dashboard() {
                 ))}
               </div>
 
-              {/* Quick links */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <button className="quick-link" onClick={() => setActiveTab("fachkraefte")}><span style={{ color: C.blue }}><Icon.search /></span>Fachkräfte suchen</button>
                 <button className="quick-link" onClick={() => setActiveTab("nachrichten")}><span style={{ color: C.navyMid }}><Icon.chat /></span>Nachrichten</button>
@@ -692,7 +679,7 @@ export default function Dashboard() {
                 <div style={{ padding: 24 }}>
                   {arbeitgeber?.beschreibung && <p style={{ color: "#4B5563", lineHeight: 1.75, fontSize: "0.9rem", marginBottom: 20 }}>{arbeitgeber.beschreibung}</p>}
                   {arbeitgeber?.ansprech_name && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 14, background: C.surface, borderRadius: 12, marginBottom: 20 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 14, background: C.surface, borderRadius: 12 }}>
                       <div style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${C.navyMid}, ${C.blue})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 800, flexShrink: 0 }}>{arbeitgeber.ansprech_name[0]}</div>
                       <div>
                         <div style={{ fontWeight: 700, color: C.text, fontSize: "0.88rem" }}>{arbeitgeber.ansprech_name}</div>
@@ -700,9 +687,6 @@ export default function Dashboard() {
                       </div>
                     </div>
                   )}
-                  <a href={`/arbeitgeber/${arbeitgeber?.id}`} target="_blank" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 10, background: C.surface, border: `1.5px solid ${C.border}`, color: C.navyMid, fontWeight: 700, fontSize: "0.85rem", textDecoration: "none" }}>
-                    <Icon.externalLink />Öffentliche Visitenkarte öffnen
-                  </a>
                 </div>
               </div>
             </div>
