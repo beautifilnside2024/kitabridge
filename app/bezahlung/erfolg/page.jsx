@@ -1,52 +1,63 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter } from "next/navigation";
 
-export default function BezahlungErfolgPage() {
-  const [countdown, setCountdown] = useState(10);
+const NAVY = "#1A3F6F";
+const BLUE = "#2471A3";
+const GREEN = "#1E8449";
+
+function ErfolgInner() {
+  const [countdown, setCountdown] = useState(5);
+  const router = useRouter();
 
   useEffect(() => {
-    // Pending-Daten aus localStorage löschen
-    localStorage.removeItem("kitabridge_pending_arbeitgeber");
-
-    // Countdown für automatische Weiterleitung
     const timer = setInterval(() => {
-      setCountdown((prev) => {
+      setCountdown(prev => {
         if (prev <= 1) {
           clearInterval(timer);
-          window.location.href = "/suche";
+          router.push("/dashboard");
         }
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <div style={styles.logo}>KitaBridge</div>
+    <div style={{ minHeight: "100vh", background: "#F0F4F9", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif", padding: "24px" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap'); * { box-sizing: border-box; }`}</style>
 
-        <div style={styles.successIcon}>✅</div>
-        <h1 style={styles.title}>Zahlung erfolgreich!</h1>
-        <p style={styles.text}>
-          Herzlich willkommen bei KitaBridge! Ihr Account ist jetzt aktiv und Sie haben
-          vollen Zugang zur Fachkräfte-Datenbank.
+      <div style={{ background: "white", borderRadius: 20, boxShadow: "0 4px 24px rgba(26,63,111,0.10)", padding: 40, maxWidth: 480, width: "100%", textAlign: "center" }}>
+
+        <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: 700, display: "block", marginBottom: 28 }}>
+          <span style={{ color: NAVY }}>Kita</span><span style={{ color: "#4ADE80" }}>Bridge</span>
+        </a>
+
+        <div style={{ fontSize: "4rem", marginBottom: 16 }}>🎉</div>
+        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", color: NAVY, margin: "0 0 12px" }}>
+          Zahlung erfolgreich!
+        </h1>
+        <p style={{ color: "#6B7897", fontSize: "0.92rem", margin: "0 0 24px", lineHeight: 1.6 }}>
+          Herzlich willkommen bei KitaBridge! Ihr Account ist jetzt aktiv.
         </p>
 
-        <div style={styles.infoBox}>
-          <p style={styles.infoText}>
-            Sie erhalten in Kürze eine Bestätigungs-E-Mail von Stripe mit Ihrer Rechnung.
-          </p>
+        <div style={{ background: "#EAF7EF", border: "1px solid #BBF7D0", borderRadius: 12, padding: 16, marginBottom: 24 }}>
+          <div style={{ color: GREEN, fontWeight: 700, fontSize: "0.9rem", marginBottom: 4 }}>✅ Account aktiviert</div>
+          <div style={{ color: "#444", fontSize: "0.85rem", lineHeight: 1.6 }}>
+            Sie haben jetzt vollen Zugang zur Fachkräfte-Datenbank.<br />
+            Stripe schickt Ihnen eine Rechnung per E-Mail.
+          </div>
         </div>
 
-        <Link href="/suche" style={styles.btn}>
-          Jetzt Fachkräfte suchen →
-        </Link>
+        <button
+          onClick={() => router.push("/dashboard")}
+          style={{ width: "100%", background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", border: "none", padding: "16px", borderRadius: 12, fontWeight: 700, fontSize: "1rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", marginBottom: 12 }}
+        >
+          Zum Dashboard →
+        </button>
 
-        <p style={styles.hint}>
+        <p style={{ fontSize: "0.78rem", color: "#9BA8C0", margin: 0 }}>
           Automatische Weiterleitung in {countdown} Sekunden...
         </p>
       </div>
@@ -54,73 +65,10 @@ export default function BezahlungErfolgPage() {
   );
 }
 
-const styles = {
-  page: {
-    minHeight: "100vh",
-    backgroundColor: "#f8fafc",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontFamily: "'Segoe UI', sans-serif",
-    padding: "24px",
-  },
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: "16px",
-    boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-    padding: "40px",
-    maxWidth: "480px",
-    width: "100%",
-    textAlign: "center",
-  },
-  logo: {
-    fontSize: "20px",
-    fontWeight: "800",
-    color: "#2563eb",
-    marginBottom: "28px",
-  },
-  successIcon: {
-    fontSize: "64px",
-    marginBottom: "16px",
-  },
-  title: {
-    fontSize: "26px",
-    fontWeight: "700",
-    color: "#111827",
-    margin: "0 0 12px",
-  },
-  text: {
-    fontSize: "15px",
-    color: "#6b7280",
-    lineHeight: "1.6",
-    margin: "0 0 24px",
-  },
-  infoBox: {
-    backgroundColor: "#f0fdf4",
-    border: "1px solid #bbf7d0",
-    borderRadius: "10px",
-    padding: "16px",
-    marginBottom: "24px",
-  },
-  infoText: {
-    fontSize: "14px",
-    color: "#166534",
-    margin: 0,
-  },
-  btn: {
-    backgroundColor: "#2563eb",
-    color: "#ffffff",
-    padding: "14px 32px",
-    borderRadius: "10px",
-    fontSize: "16px",
-    fontWeight: "700",
-    textDecoration: "none",
-    display: "block",
-    marginBottom: "16px",
-  },
-  hint: {
-    fontSize: "12px",
-    color: "#9ca3af",
-    margin: 0,
-  },
-};
+export default function BezahlungErfolgPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Lädt...</div>}>
+      <ErfolgInner />
+    </Suspense>
+  );
+}
