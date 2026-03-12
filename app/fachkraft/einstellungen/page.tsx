@@ -20,16 +20,19 @@ export default function FachkraftEinstellungen() {
   const [anfrageLoading, setAnfrageLoading] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"anfragen"|"profil"|"konto">("anfragen");
 
-  useEffect(() => { loadProfil(); }, []);
-
-  const loadProfil = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { router.push("/login"); return; }
-    const { data } = await supabase.from("fachkraefte").select("*").eq("email", session.user.email).single();
-    if (!data) { router.push("/login"); return; }
-    setFachkraft(data); setForm(data); setLoading(false);
-    loadAnfragen(data.id);
-  };
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_OUT") { router.push("/login"); return; }
+      if (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        if (!session) { router.push("/login"); return; }
+        const { data } = await supabase.from("fachkraefte").select("*").eq("email", session.user.email).single();
+        if (!data) { router.push("/login"); return; }
+        setFachkraft(data); setForm(data); setLoading(false);
+        loadAnfragen(data.id);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const loadAnfragen = async (fachkraftId: string) => {
     const { data } = await supabase
@@ -43,8 +46,6 @@ export default function FachkraftEinstellungen() {
   const handleAnfrage = async (anfrageId: string, action: "akzeptiert" | "abgelehnt") => {
     setAnfrageLoading(anfrageId);
     await supabase.from("anfragen").update({ status: action }).eq("id", anfrageId);
-
-    // Send notification email
     const anfrage = anfragen.find(a => a.id === anfrageId);
     if (anfrage) {
       await fetch("/api/send-email", {
@@ -64,8 +65,6 @@ export default function FachkraftEinstellungen() {
         })
       });
     }
-
-    // Reload
     await loadAnfragen(fachkraft.id);
     setAnfrageLoading(null);
   };
@@ -117,7 +116,6 @@ export default function FachkraftEinstellungen() {
 
   const offeneAnfragen = anfragen.filter(a => a.status === "ausstehend");
   const bearbeiteteAnfragen = anfragen.filter(a => a.status !== "ausstehend");
-
   const displayName = fachkraft?.username || `${fachkraft?.vorname || ""} ${fachkraft?.nachname || ""}`.trim();
 
   if (loading || !form) {
@@ -145,10 +143,11 @@ export default function FachkraftEinstellungen() {
 
       {/* HEADER */}
       <div style={{ background: NAVY, padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
-        <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 700 }}>
+        <a href="/fachkraft/dashboard" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 700 }}>
           <span style={{ color: "white" }}>Kita</span><span style={{ color: "#4ADE80" }}>Bridge</span>
         </a>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <a href="/fachkraft/dashboard" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.85rem", textDecoration: "none" }}>← Dashboard</a>
           <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem" }}>{displayName}</span>
           {offeneAnfragen.length > 0 && (
             <div style={{ background: RED, color: "white", borderRadius: 50, padding: "2px 10px", fontSize: "0.78rem", fontWeight: 800 }}>
@@ -201,7 +200,7 @@ export default function FachkraftEinstellungen() {
         <div style={{ background: "white", borderRadius: 16, marginBottom: 24, boxShadow: "0 2px 12px rgba(26,63,111,0.08)", overflow: "hidden" }}>
           <div style={{ display: "flex", borderBottom: "1px solid #E8EDF4" }}>
             <button className={`tab-btn${activeTab === "anfragen" ? " active" : ""}`} onClick={() => setActiveTab("anfragen")}>
-              Anfragen von Kitas {offeneAnfragen.length > 0 && <span style={{ background: RED, color: "white", borderRadius: 50, padding: "1px 7px", fontSize: "0.72rem", marginLeft: 6 }}>{offeneAnfragen.length}</span>}
+              Anfragen {offeneAnfragen.length > 0 && <span style={{ background: RED, color: "white", borderRadius: 50, padding: "1px 7px", fontSize: "0.72rem", marginLeft: 6 }}>{offeneAnfragen.length}</span>}
             </button>
             <button className={`tab-btn${activeTab === "profil" ? " active" : ""}`} onClick={() => setActiveTab("profil")}>Profil bearbeiten</button>
             <button className={`tab-btn${activeTab === "konto" ? " active" : ""}`} onClick={() => setActiveTab("konto")}>Konto</button>
@@ -209,60 +208,39 @@ export default function FachkraftEinstellungen() {
 
           <div style={{ padding: 24 }}>
 
-            {/* ── ANFRAGEN TAB ── */}
             {activeTab === "anfragen" && (
               <div>
                 {anfragen.length === 0 ? (
                   <div style={{ textAlign: "center", padding: "40px 20px" }}>
                     <div style={{ fontSize: "3rem", marginBottom: 16 }}>📭</div>
                     <div style={{ fontWeight: 700, color: NAVY, marginBottom: 8 }}>Noch keine Anfragen</div>
-                    <div style={{ color: "#9BA8C0", fontSize: "0.85rem", lineHeight: 1.7 }}>
-                      Sobald eine Kita Interesse an deinem Profil hat,<br/>erscheint die Anfrage hier – du entscheidest dann ob du Kontakt aufnehmen möchtest.
-                    </div>
+                    <div style={{ color: "#9BA8C0", fontSize: "0.85rem", lineHeight: 1.7 }}>Sobald eine Kita Interesse hat, erscheint die Anfrage hier.</div>
                   </div>
                 ) : (
                   <div>
-                    {/* OFFENE ANFRAGEN */}
                     {offeneAnfragen.length > 0 && (
                       <div style={{ marginBottom: 28 }}>
-                        <div style={{ fontSize: "0.78rem", fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: 1, marginBottom: 14 }}>
-                          Neue Anfragen — {offeneAnfragen.length} offen
-                        </div>
+                        <div style={{ fontSize: "0.78rem", fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: 1, marginBottom: 14 }}>Neue Anfragen — {offeneAnfragen.length} offen</div>
                         {offeneAnfragen.map(anfrage => (
                           <div key={anfrage.id} className="anfrage-card offen">
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                               <div>
                                 <div style={{ fontWeight: 800, color: NAVY, fontSize: "1rem", marginBottom: 4 }}>{anfrage.kita_name}</div>
-                                <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>
-                                  {new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}
-                                </div>
+                                <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>{new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div>
                               </div>
                               <span style={{ background: "#EBF4FF", color: BLUE, borderRadius: 50, padding: "4px 12px", fontSize: "0.75rem", fontWeight: 700 }}>Neu</span>
                             </div>
-
                             {anfrage.nachricht && (
-                              <div style={{ background: "#F8FAFF", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: "0.88rem", color: "#444", lineHeight: 1.7, borderLeft: `3px solid ${BLUE}` }}>
-                                "{anfrage.nachricht}"
-                              </div>
+                              <div style={{ background: "#F8FAFF", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: "0.88rem", color: "#444", lineHeight: 1.7, borderLeft: `3px solid ${BLUE}` }}>"{anfrage.nachricht}"</div>
                             )}
-
                             <div style={{ background: "#FFF8ED", borderRadius: 10, padding: "10px 14px", marginBottom: 16, fontSize: "0.8rem", color: "#92400E" }}>
-                              🔒 Der Name und die Kontaktdaten der Kita werden erst nach deiner Zustimmung vollständig sichtbar.
+                              🔒 Kontaktdaten der Kita werden erst nach deiner Zustimmung sichtbar.
                             </div>
-
                             <div className="action-btns" style={{ display: "flex", gap: 10 }}>
-                              <button
-                                onClick={() => handleAnfrage(anfrage.id, "akzeptiert")}
-                                disabled={anfrageLoading === anfrage.id}
-                                style={{ flex: 1, padding: "12px 20px", borderRadius: 10, border: "none", background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem" }}
-                              >
+                              <button onClick={() => handleAnfrage(anfrage.id, "akzeptiert")} disabled={anfrageLoading === anfrage.id} style={{ flex: 1, padding: "12px 20px", borderRadius: 10, border: "none", background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem" }}>
                                 {anfrageLoading === anfrage.id ? "..." : "✓ Annehmen"}
                               </button>
-                              <button
-                                onClick={() => handleAnfrage(anfrage.id, "abgelehnt")}
-                                disabled={anfrageLoading === anfrage.id}
-                                style={{ flex: 1, padding: "12px 20px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", color: "#6B7897", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem" }}
-                              >
+                              <button onClick={() => handleAnfrage(anfrage.id, "abgelehnt")} disabled={anfrageLoading === anfrage.id} style={{ flex: 1, padding: "12px 20px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", color: "#6B7897", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem" }}>
                                 {anfrageLoading === anfrage.id ? "..." : "✗ Ablehnen"}
                               </button>
                             </div>
@@ -270,27 +248,17 @@ export default function FachkraftEinstellungen() {
                         ))}
                       </div>
                     )}
-
-                    {/* BEARBEITETE ANFRAGEN */}
                     {bearbeiteteAnfragen.length > 0 && (
                       <div>
-                        <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "#9BA8C0", textTransform: "uppercase", letterSpacing: 1, marginBottom: 14 }}>
-                          Bearbeitet
-                        </div>
+                        <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "#9BA8C0", textTransform: "uppercase", letterSpacing: 1, marginBottom: 14 }}>Bearbeitet</div>
                         {bearbeiteteAnfragen.map(anfrage => (
                           <div key={anfrage.id} className={`anfrage-card ${anfrage.status}`}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                               <div>
                                 <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.95rem", marginBottom: 2 }}>{anfrage.kita_name}</div>
-                                <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>
-                                  {new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}
-                                </div>
+                                <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>{new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div>
                               </div>
-                              <span style={{
-                                background: anfrage.status === "akzeptiert" ? "#EAF7EF" : "#F8F8F8",
-                                color: anfrage.status === "akzeptiert" ? GREEN : "#9BA8C0",
-                                borderRadius: 50, padding: "4px 14px", fontSize: "0.75rem", fontWeight: 700
-                              }}>
+                              <span style={{ background: anfrage.status === "akzeptiert" ? "#EAF7EF" : "#F8F8F8", color: anfrage.status === "akzeptiert" ? GREEN : "#9BA8C0", borderRadius: 50, padding: "4px 14px", fontSize: "0.75rem", fontWeight: 700 }}>
                                 {anfrage.status === "akzeptiert" ? "✓ Angenommen" : "✗ Abgelehnt"}
                               </span>
                             </div>
@@ -308,7 +276,6 @@ export default function FachkraftEinstellungen() {
               </div>
             )}
 
-            {/* ── PROFIL TAB ── */}
             {activeTab === "profil" && (
               <div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 20px" }} className="two-col">
@@ -344,7 +311,6 @@ export default function FachkraftEinstellungen() {
               </div>
             )}
 
-            {/* ── KONTO TAB ── */}
             {activeTab === "konto" && (
               <div>
                 <div style={{ padding: 20, background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 12 }}>
