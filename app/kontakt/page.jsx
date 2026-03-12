@@ -85,7 +85,7 @@ export default function Kontakt() {
           {/* Contact info chips */}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 24 }}>
             {[
-              { icon: "✉️", text: "info@kitabridge.de" },
+              { icon: "✉️", text: "hallo@kitabridge.de" },
               { icon: "⏱", text: "Antwort in 24h" },
             ].map(item => (
               <div key={item.text} style={{ display: "flex", alignItems: "center", gap: 7, padding: "8px 14px", background: "white", border: `1.5px solid ${C.border}`, borderRadius: 99, fontSize: "0.82rem", color: C.text, fontWeight: 600 }}>
