@@ -30,12 +30,10 @@ export default function FachkraftDashboard() {
   useEffect(() => { loadDashboard(); }, []);
 
   const loadDashboard = async () => {
-    let { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      await new Promise(r => setTimeout(r, 800));
-      session = (await supabase.auth.getSession()).data.session;
-    }
+    const { data: { session } } = await supabase.auth.getSession();
     if (!session) { router.push("/login?rolle=fachkraft"); return; }
+    const { data } = await supabase.from("fachkraefte").select("*").eq("email", session.user.email).single();
+    if (!data) { router.push("/login?rolle=fachkraft"); return; }
     setFachkraft(data);
     setForm(data);
     setLoading(false);
