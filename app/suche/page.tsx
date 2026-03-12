@@ -62,11 +62,24 @@ export default function Suche() {
   const handleNachrichtSenden = async () => {
     if (!nachrichtText || !arbeitgeberId || !selected) return;
     setSendLoading(true);
+
     await fetch("/api/nachrichten", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ von_id: arbeitgeberId, an_id: selected.id, von_typ: "arbeitgeber", nachricht: nachrichtText, empfaenger_email: selected.email, empfaenger_name: selected.vorname, absender_name: arbeitgeberName }),
+      body: JSON.stringify({
+        von_id: arbeitgeberId,
+        an_id: selected.id,
+        von_typ: "arbeitgeber",
+        nachricht: nachrichtText,
+        empfaenger_email: selected.email,
+        empfaenger_name: selected.vorname,
+        absender_name: arbeitgeberName,
+        arbeitgeber_id: arbeitgeberId,
+        fachkraft_id: selected.id,
+        kita_name: arbeitgeberName,
+      }),
     });
+
     setSendLoading(false);
     setGesendet(true);
     setNachrichtText("");
