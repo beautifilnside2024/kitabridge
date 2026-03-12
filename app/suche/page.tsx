@@ -63,6 +63,25 @@ export default function Suche() {
     if (!nachrichtText || !arbeitgeberId || !selected) return;
     setSendLoading(true);
 
+    // 1. Arbeitgeber-Daten holen (email + telefon für anfragen tabelle)
+    const { data: ag } = await supabase
+      .from("arbeitgeber")
+      .select("email, telefon")
+      .eq("id", arbeitgeberId)
+      .single();
+
+    // 2. Anfrage in DB speichern und ID holen
+    const { data: anfrage } = await supabase.from("anfragen").insert({
+      kita_id: arbeitgeberId,
+      fachkraft_id: selected.id,
+      kita_name: arbeitgeberName,
+      kita_email: ag?.email || "",
+      kita_telefon: ag?.telefon || "",
+      nachricht: nachrichtText,
+      status: "ausstehend",
+    }).select().single();
+
+    // 3. Nachricht mit anfrage_id und arbeitgeber_id senden → triggert Visitenkarte in Email
     await fetch("/api/nachrichten", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -75,8 +94,7 @@ export default function Suche() {
         empfaenger_name: selected.vorname,
         absender_name: arbeitgeberName,
         arbeitgeber_id: arbeitgeberId,
-        fachkraft_id: selected.id,
-        kita_name: arbeitgeberName,
+        anfrage_id: anfrage?.id, // ✅ Fix: Visitenkarte wird jetzt angezeigt
       }),
     });
 
