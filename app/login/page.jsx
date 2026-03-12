@@ -115,11 +115,16 @@ function LoginForm() {
               </button>
             </div>
 
-            <div style={{ marginTop: 24, padding: "14px 16px", background: C.surface, borderRadius: 12, fontSize: "0.79rem", color: C.muted, textAlign: "center", lineHeight: 1.6 }}>
-              Noch kein Konto?{" "}
-              <a href="/arbeitgeber/registrieren" style={{ color: C.navyMid, fontWeight: 700, textDecoration: "none" }}>Als Kita registrieren</a>
-              {" · "}
-              <a href="/Registrieren" style={{ color: C.green, fontWeight: 700, textDecoration: "none" }}>Als Fachkraft registrieren</a>
+            <div style={{ marginTop: 24, padding: "16px", background: C.surface, borderRadius: 12, fontSize: "0.79rem", color: C.muted, textAlign: "center" }}>
+              <div style={{ marginBottom: 10, fontWeight: 600 }}>Noch kein Konto?</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <a href="/arbeitgeber/registrieren" style={{ display: "block", padding: "9px 14px", background: "white", border: `1.5px solid ${C.border}`, borderRadius: 10, color: C.navyMid, fontWeight: 700, textDecoration: "none", fontSize: "0.82rem" }}>
+                  🏫 Als Kita registrieren
+                </a>
+                <a href="/Registrieren" style={{ display: "block", padding: "9px 14px", background: "white", border: `1.5px solid ${C.border}`, borderRadius: 10, color: C.green, fontWeight: 700, textDecoration: "none", fontSize: "0.82rem" }}>
+                  👩‍🍼 Als Fachkraft registrieren
+                </a>
+              </div>
             </div>
           </div>
         )}
