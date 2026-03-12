@@ -3,84 +3,98 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-const NAVY = "#1A3F6F";
-const BLUE = "#2471A3";
-const GREEN = "#1E8449";
-const RED = "#DC2626";
+// ── Types ──────────────────────────────────────────────────────────────────────
+interface Arbeitgeber {
+  id: string; email: string; einrichtung_name?: string; einrichtungstyp?: string;
+  traeger?: string; beschreibung?: string; strasse?: string; hausnummer?: string;
+  plz?: string; ort?: string; bundesland?: string; ansprech_name?: string;
+  ansprech_rolle?: string; telefon?: string; stellen_anzahl?: string;
+  status?: string; stripe_subscription_id?: string;
+}
+interface Fachkraft {
+  id: string; username?: string; vorname?: string; nachname?: string; anonym?: boolean;
+  email?: string; telefon?: string; qualifikation?: string; erfahrung_jahre?: number;
+  bundesland?: string; wohnort?: string; arbeitszeit?: string; deutsch?: string;
+  beschreibung?: string; verfuegbar_ab?: string; aktiv_suchend?: boolean; kita_alter?: string;
+}
+interface Anfrage {
+  id: string; fachkraft_id: string; kita_id: string; kita_name: string;
+  kita_email: string; kita_telefon?: string; nachricht?: string;
+  status: "ausstehend" | "akzeptiert" | "abgelehnt"; created_at: string;
+}
+interface Nachricht {
+  id: string; von_id: string; an_id: string; von_typ: string; nachricht: string; erstellt_am: string;
+}
 
-const inputStyle: any = {
-  width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E2E8F0",
-  fontSize: "0.9rem", outline: "none", fontFamily: "'DM Sans', sans-serif",
-  color: "#1a1a2e", background: "white", marginBottom: 4, boxSizing: "border-box"
+type Tab = "uebersicht" | "fachkraefte" | "nachrichten" | "profil" | "visitenkarte";
+
+// ── Design tokens ──────────────────────────────────────────────────────────────
+const C = {
+  navy: "#0F2442", navyMid: "#1A3F6F", blue: "#2471A3",
+  green: "#16A34A", red: "#DC2626", amber: "#D97706",
+  surface: "#F7F9FC", border: "#E4EAF4", muted: "#8A96B0", text: "#1C2B4A",
 };
-const selectStyle = { ...inputStyle, cursor: "pointer" };
-const labelStyle: any = { display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", textTransform: "uppercase", marginBottom: 6 };
 
-function NachrichtenTab({ arbeitgeber }: { arbeitgeber: any }) {
-  const [nachrichten, setNachrichten] = useState<any[]>([]);
-  const [akzeptierteAnfragen, setAkzeptierteAnfragen] = useState<any[]>([]);
-  const [fachkraefteMap, setFachkraefteMap] = useState<any>({});
-  const [antwort, setAntwort] = useState<any>({});
-  const [gesendet, setGesendet] = useState<any>({});
-  const [neueNachricht, setNeueNachricht] = useState<any>({});
-  const [neuGesendet, setNeuGesendet] = useState<any>({});
+// ── Icons ──────────────────────────────────────────────────────────────────────
+const Icon = {
+  home: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+  search: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  chat: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+  user: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  eye: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+  logout: () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+  check: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  send: () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+  pin: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+  building: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
+  edit: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+  externalLink: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
+};
+
+// ── Nachrichten Sub-Component ──────────────────────────────────────────────────
+function NachrichtenTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
+  const [nachrichten, setNachrichten] = useState<Nachricht[]>([]);
+  const [akzeptierteAnfragen, setAkzeptierteAnfragen] = useState<Anfrage[]>([]);
+  const [fachkraefteMap, setFachkraefteMap] = useState<Record<string, Fachkraft>>({});
+  const [antwort, setAntwort] = useState<Record<string, string>>({});
+  const [gesendet, setGesendet] = useState<Record<string, boolean>>({});
+  const [neueNachricht, setNeueNachricht] = useState<Record<string, string>>({});
+  const [neuGesendet, setNeuGesendet] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [subTab, setSubTab] = useState<"konversationen" | "neu">("konversationen");
 
-  useEffect(() => {
-    if (!arbeitgeber?.id) return;
-    loadAll();
-  }, [arbeitgeber]);
+  useEffect(() => { if (arbeitgeber?.id) loadAll(); }, [arbeitgeber]);
 
   const loadAll = async () => {
-    // Nachrichten laden
     const res = await fetch(`/api/nachrichten?user_id=${arbeitgeber.id}`);
     const msgs = await res.json();
     setNachrichten(msgs || []);
-
-    // Akzeptierte Anfragen laden
-    const { data: anfragen } = await supabase
-      .from("anfragen")
-      .select("*")
-      .eq("kita_id", arbeitgeber.id)
-      .eq("status", "akzeptiert");
+    const { data: anfragen } = await supabase.from("anfragen").select("*").eq("kita_id", arbeitgeber.id).eq("status", "akzeptiert");
     setAkzeptierteAnfragen(anfragen || []);
-
-    // Fachkraft-Infos laden
     if (anfragen && anfragen.length > 0) {
-      const ids = anfragen.map((a: any) => a.fachkraft_id);
-      const { data: fachkraefte } = await supabase
-        .from("fachkraefte")
-        .select("id, vorname, nachname, username, email")
-        .in("id", ids);
-      const map: any = {};
-      (fachkraefte || []).forEach((f: any) => { map[f.id] = f; });
+      const ids = anfragen.map((a: Anfrage) => a.fachkraft_id);
+      const { data: fk } = await supabase.from("fachkraefte").select("id, vorname, nachname, username, email").in("id", ids);
+      const map: Record<string, Fachkraft> = {};
+      (fk || []).forEach((f: Fachkraft) => { map[f.id] = f; });
       setFachkraefteMap(map);
     }
-
     setLoading(false);
   };
 
-  const handleAntwort = async (msg: any) => {
-    const text = antwort[msg.id];
+  const getFkName = (fk?: Fachkraft) => fk ? (fk.vorname ? `${fk.vorname} ${fk.nachname || ""}`.trim() : fk.username || "Fachkraft") : "Fachkraft";
+
+  const handleAntwort = async (partnerId: string) => {
+    const text = antwort[partnerId];
     if (!text?.trim()) return;
-    const fk = fachkraefteMap[msg.von_id] || fachkraefteMap[msg.an_id];
+    const fk = fachkraefteMap[partnerId];
     await fetch("/api/nachrichten", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        von_id: arbeitgeber.id,
-        an_id: msg.von_id === arbeitgeber.id ? msg.an_id : msg.von_id,
-        von_typ: "arbeitgeber",
-        nachricht: text,
-        empfaenger_email: fk?.email || "",
-        empfaenger_name: fk?.vorname || fk?.username || "Fachkraft",
-        absender_name: arbeitgeber.einrichtung_name,
-      }),
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ von_id: arbeitgeber.id, an_id: partnerId, von_typ: "arbeitgeber", nachricht: text, empfaenger_email: fk?.email || "", empfaenger_name: getFkName(fk), absender_name: arbeitgeber.einrichtung_name }),
     });
-    setGesendet({ ...gesendet, [msg.id]: true });
-    setAntwort({ ...antwort, [msg.id]: "" });
+    setGesendet(p => ({ ...p, [partnerId]: true }));
+    setAntwort(p => ({ ...p, [partnerId]: "" }));
     await loadAll();
+    setTimeout(() => setGesendet(p => ({ ...p, [partnerId]: false })), 2000);
   };
 
   const handleNeueNachricht = async (fachkraftId: string) => {
@@ -88,163 +102,133 @@ function NachrichtenTab({ arbeitgeber }: { arbeitgeber: any }) {
     if (!text?.trim()) return;
     const fk = fachkraefteMap[fachkraftId];
     await fetch("/api/nachrichten", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        von_id: arbeitgeber.id,
-        an_id: fachkraftId,
-        von_typ: "arbeitgeber",
-        nachricht: text,
-        empfaenger_email: fk?.email || "",
-        empfaenger_name: fk?.vorname || fk?.username || "Fachkraft",
-        absender_name: arbeitgeber.einrichtung_name,
-      }),
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ von_id: arbeitgeber.id, an_id: fachkraftId, von_typ: "arbeitgeber", nachricht: text, empfaenger_email: fk?.email || "", empfaenger_name: getFkName(fk), absender_name: arbeitgeber.einrichtung_name }),
     });
-    setNeuGesendet({ ...neuGesendet, [fachkraftId]: true });
-    setNeueNachricht({ ...neueNachricht, [fachkraftId]: "" });
+    setNeuGesendet(p => ({ ...p, [fachkraftId]: true }));
+    setNeueNachricht(p => ({ ...p, [fachkraftId]: "" }));
     await loadAll();
     setSubTab("konversationen");
   };
 
-  // Nachrichten gruppiert nach Gesprächspartner
   const getKonversationen = () => {
-    const map: any = {};
+    const map: Record<string, Nachricht[]> = {};
     nachrichten.forEach(msg => {
-      const partnerId = msg.von_id === arbeitgeber.id ? msg.an_id : msg.von_id;
-      if (!map[partnerId]) map[partnerId] = [];
-      map[partnerId].push(msg);
+      const pid = msg.von_id === arbeitgeber.id ? msg.an_id : msg.von_id;
+      if (!map[pid]) map[pid] = [];
+      map[pid].push(msg);
     });
     return map;
   };
 
-  if (loading) return <div style={{ color: NAVY, padding: 20 }}>Lädt...</div>;
-
+  if (loading) return <div style={{ color: C.muted, padding: 20, fontSize: "0.85rem" }}>Lädt...</div>;
   const konversationen = getKonversationen();
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
-        <button onClick={() => setSubTab("konversationen")} style={{ flex: 1, padding: "10px", borderRadius: 9, border: "none", background: subTab === "konversationen" ? NAVY : "white", color: subTab === "konversationen" ? "white" : "#6B7897", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 2px 8px rgba(26,63,111,0.08)" }}>
-          💬 Konversationen
-        </button>
-        <button onClick={() => setSubTab("neu")} style={{ flex: 1, padding: "10px", borderRadius: 9, border: "none", background: subTab === "neu" ? NAVY : "white", color: subTab === "neu" ? "white" : "#6B7897", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 2px 8px rgba(26,63,111,0.08)" }}>
-          ✉️ Neue Nachricht
-        </button>
+      <div style={{ marginBottom: 22 }}>
+        <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: C.text }}>Nachrichten</h2>
+        <p style={{ fontSize: "0.82rem", color: C.muted, marginTop: 3 }}>Deine Unterhaltungen mit Fachkräften.</p>
       </div>
 
-      {/* KONVERSATIONEN */}
+      {/* Sub-Tabs */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 20, background: "white", padding: 4, borderRadius: 12, border: `1.5px solid ${C.border}` }}>
+        {[{ key: "konversationen", label: "Konversationen" }, { key: "neu", label: "Neue Nachricht" }].map(t => (
+          <button key={t.key} onClick={() => setSubTab(t.key as any)} style={{ flex: 1, padding: "9px 14px", borderRadius: 9, border: "none", background: subTab === t.key ? C.navyMid : "transparent", color: subTab === t.key ? "white" : C.muted, fontWeight: 700, fontSize: "0.83rem", cursor: "pointer", fontFamily: "'Sora', sans-serif", transition: "all 0.15s" }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
       {subTab === "konversationen" && (
-        <div>
-          {Object.keys(konversationen).length === 0 ? (
-            <div style={{ background: "white", borderRadius: 20, padding: 40, textAlign: "center", color: "#9BA8C0" }}>
-              <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📭</div>
-              <p style={{ margin: 0 }}>Noch keine Nachrichten</p>
-              <p style={{ fontSize: "0.85rem", marginTop: 8 }}>Schreibe einer Fachkraft die deine Anfrage akzeptiert hat.</p>
-            </div>
-          ) : Object.entries(konversationen).map(([partnerId, msgs]: any) => {
-            const fk = fachkraefteMap[partnerId];
-            const name = fk ? (fk.vorname ? `${fk.vorname} ${fk.nachname || ""}`.trim() : fk.username) : "Fachkraft";
-            return (
-              <div key={partnerId} style={{ background: "white", borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
-                <div style={{ fontWeight: 700, color: NAVY, marginBottom: 14, fontSize: "0.95rem" }}>👤 {name}</div>
-                {msgs.sort((a: any, b: any) => new Date(a.erstellt_am).getTime() - new Date(b.erstellt_am).getTime()).map((msg: any) => (
-                  <div key={msg.id} style={{ marginBottom: 10, display: "flex", justifyContent: msg.von_id === arbeitgeber.id ? "flex-end" : "flex-start" }}>
-                    <div style={{ maxWidth: "80%", background: msg.von_id === arbeitgeber.id ? NAVY : "#F0F4F9", color: msg.von_id === arbeitgeber.id ? "white" : "#444", borderRadius: msg.von_id === arbeitgeber.id ? "16px 16px 4px 16px" : "16px 16px 16px 4px", padding: "10px 14px", fontSize: "0.88rem", lineHeight: 1.6 }}>
+        Object.keys(konversationen).length === 0 ? (
+          <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: "50px 24px", textAlign: "center" }}>
+            <div style={{ fontSize: "2rem", marginBottom: 12 }}>📭</div>
+            <div style={{ fontWeight: 700, color: C.text, marginBottom: 6 }}>Noch keine Nachrichten</div>
+            <div style={{ color: C.muted, fontSize: "0.84rem" }}>Schreibe einer Fachkraft die deine Anfrage akzeptiert hat.</div>
+          </div>
+        ) : Object.entries(konversationen).map(([partnerId, msgs]) => {
+          const fk = fachkraefteMap[partnerId];
+          const name = getFkName(fk);
+          const sorted = [...msgs].sort((a, b) => new Date(a.erstellt_am).getTime() - new Date(b.erstellt_am).getTime());
+          return (
+            <div key={partnerId} style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 22, marginBottom: 16 }}>
+              <div style={{ fontWeight: 800, color: C.text, marginBottom: 18, fontSize: "0.95rem", paddingBottom: 14, borderBottom: `1px solid ${C.border}` }}>{name}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                {sorted.map(msg => (
+                  <div key={msg.id} style={{ display: "flex", justifyContent: msg.von_id === arbeitgeber.id ? "flex-end" : "flex-start" }}>
+                    <div style={{ maxWidth: "78%", padding: "10px 14px", fontSize: "0.87rem", lineHeight: 1.6, background: msg.von_id === arbeitgeber.id ? C.navyMid : "white", color: msg.von_id === arbeitgeber.id ? "white" : C.text, borderRadius: msg.von_id === arbeitgeber.id ? "16px 16px 4px 16px" : "16px 16px 16px 4px", border: msg.von_id !== arbeitgeber.id ? `1.5px solid ${C.border}` : "none" }}>
                       <div>{msg.nachricht}</div>
-                      <div style={{ fontSize: "0.7rem", opacity: 0.6, marginTop: 4 }}>{new Date(msg.erstellt_am).toLocaleDateString("de-DE", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</div>
+                      <div style={{ fontSize: "0.68rem", opacity: 0.55, marginTop: 5 }}>{new Date(msg.erstellt_am).toLocaleString("de-DE", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</div>
                     </div>
                   </div>
                 ))}
-                {!gesendet[partnerId] && (
-                  <div style={{ marginTop: 12 }}>
-                    <textarea
-                      placeholder="Antwort schreiben..."
-                      rows={2}
-                      value={antwort[partnerId] || ""}
-                      onChange={e => setAntwort({ ...antwort, [partnerId]: e.target.value })}
-                      style={{ width: "100%", padding: "10px 14px", border: "1px solid #E8EDF4", borderRadius: 10, fontSize: "0.88rem", resize: "vertical", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
-                    />
-                    <button onClick={() => {
-                      const lastMsg = msgs[msgs.length - 1];
-                      handleAntwort({ ...lastMsg, id: partnerId });
-                    }} style={{ marginTop: 6, padding: "9px 20px", background: NAVY, color: "white", border: "none", borderRadius: 50, fontWeight: 700, cursor: "pointer", fontSize: "0.85rem", width: "100%", fontFamily: "'DM Sans', sans-serif" }}>
-                      Senden →
-                    </button>
-                  </div>
-                )}
-                {gesendet[partnerId] && <div style={{ color: GREEN, fontWeight: 600, fontSize: "0.85rem", marginTop: 8 }}>✅ Nachricht gesendet!</div>}
               </div>
-            );
-          })}
-        </div>
+              {gesendet[partnerId] ? (
+                <div style={{ color: C.green, fontWeight: 700, fontSize: "0.83rem", display: "flex", alignItems: "center", gap: 6 }}><Icon.check /> Gesendet!</div>
+              ) : (
+                <div style={{ display: "flex", gap: 8 }}>
+                  <textarea placeholder="Antwort schreiben..." rows={2} value={antwort[partnerId] || ""} onChange={e => setAntwort(p => ({ ...p, [partnerId]: e.target.value }))} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleAntwort(partnerId); } }} style={{ flex: 1, padding: "10px 13px", border: `1.5px solid ${C.border}`, borderRadius: 11, fontSize: "0.86rem", resize: "none", fontFamily: "'Sora', sans-serif", outline: "none" }} />
+                  <button onClick={() => handleAntwort(partnerId)} disabled={!antwort[partnerId]?.trim()} style={{ padding: "0 18px", background: C.navyMid, color: "white", border: "none", borderRadius: 11, cursor: "pointer", opacity: !antwort[partnerId]?.trim() ? 0.4 : 1 }}>
+                    <Icon.send />
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })
       )}
 
-      {/* NEUE NACHRICHT */}
       {subTab === "neu" && (
-        <div>
-          {akzeptierteAnfragen.length === 0 ? (
-            <div style={{ background: "white", borderRadius: 20, padding: 40, textAlign: "center", color: "#9BA8C0" }}>
-              <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>🔒</div>
-              <div style={{ fontWeight: 700, color: NAVY, marginBottom: 8 }}>Keine akzeptierten Anfragen</div>
-              <div style={{ fontSize: "0.85rem" }}>Du kannst nur Fachkräften schreiben, die deine Anfrage akzeptiert haben.</div>
+        akzeptierteAnfragen.length === 0 ? (
+          <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: "50px 24px", textAlign: "center" }}>
+            <div style={{ fontSize: "2rem", marginBottom: 12 }}>🔒</div>
+            <div style={{ fontWeight: 700, color: C.text, marginBottom: 6 }}>Keine akzeptierten Anfragen</div>
+            <div style={{ color: C.muted, fontSize: "0.84rem" }}>Du kannst nur Fachkräften schreiben, die deine Anfrage akzeptiert haben.</div>
+          </div>
+        ) : akzeptierteAnfragen.map(anfrage => {
+          const fk = fachkraefteMap[anfrage.fachkraft_id];
+          const name = getFkName(fk);
+          return (
+            <div key={anfrage.id} style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 22, marginBottom: 12 }}>
+              <div style={{ fontWeight: 800, color: C.text, marginBottom: 14 }}>{name}</div>
+              {neuGesendet[anfrage.fachkraft_id] ? (
+                <div style={{ color: C.green, fontWeight: 700, fontSize: "0.85rem", display: "flex", alignItems: "center", gap: 6 }}><Icon.check /> Gesendet!</div>
+              ) : (
+                <div style={{ display: "flex", gap: 8 }}>
+                  <textarea placeholder={`Nachricht an ${name}...`} rows={3} value={neueNachricht[anfrage.fachkraft_id] || ""} onChange={e => setNeueNachricht(p => ({ ...p, [anfrage.fachkraft_id]: e.target.value }))} style={{ flex: 1, padding: "10px 13px", border: `1.5px solid ${C.border}`, borderRadius: 11, fontSize: "0.86rem", resize: "none", fontFamily: "'Sora', sans-serif", outline: "none" }} />
+                  <button onClick={() => handleNeueNachricht(anfrage.fachkraft_id)} disabled={!neueNachricht[anfrage.fachkraft_id]?.trim()} style={{ padding: "0 18px", background: C.navyMid, color: "white", border: "none", borderRadius: 11, cursor: "pointer", opacity: !neueNachricht[anfrage.fachkraft_id]?.trim() ? 0.4 : 1 }}>
+                    <Icon.send />
+                  </button>
+                </div>
+              )}
             </div>
-          ) : akzeptierteAnfragen.map((anfrage: any) => {
-            const fk = fachkraefteMap[anfrage.fachkraft_id];
-            const name = fk ? (fk.vorname ? `${fk.vorname} ${fk.nachname || ""}`.trim() : fk.username) : "Fachkraft";
-            return (
-              <div key={anfrage.id} style={{ background: "white", borderRadius: 16, padding: 20, marginBottom: 12, boxShadow: "0 2px 8px rgba(26,63,111,0.06)" }}>
-                <div style={{ fontWeight: 700, color: NAVY, marginBottom: 12 }}>👤 {name}</div>
-                {neuGesendet[anfrage.fachkraft_id] ? (
-                  <div style={{ color: GREEN, fontWeight: 600, fontSize: "0.85rem" }}>✅ Nachricht gesendet!</div>
-                ) : (
-                  <>
-                    <textarea
-                      placeholder={`Nachricht an ${name}...`}
-                      rows={3}
-                      value={neueNachricht[anfrage.fachkraft_id] || ""}
-                      onChange={e => setNeueNachricht({ ...neueNachricht, [anfrage.fachkraft_id]: e.target.value })}
-                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #E2E8F0", borderRadius: 10, fontSize: "0.88rem", resize: "vertical", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
-                    />
-                    <button
-                      onClick={() => handleNeueNachricht(anfrage.fachkraft_id)}
-                      style={{ marginTop: 8, width: "100%", padding: "11px", background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", fontSize: "0.88rem", fontFamily: "'DM Sans', sans-serif" }}
-                    >
-                      Nachricht senden →
-                    </button>
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
+          );
+        })
       )}
     </div>
   );
 }
 
-function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
-  const [fachkraefte, setFachkraefte] = useState<any[]>([]);
-  const [gesendeteAnfragen, setGesendeteAnfragen] = useState<any[]>([]);
+// ── Fachkräfte Sub-Component ───────────────────────────────────────────────────
+function FachkraefteTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
+  const [fachkraefte, setFachkraefte] = useState<Fachkraft[]>([]);
+  const [gesendeteAnfragen, setGesendeteAnfragen] = useState<Anfrage[]>([]);
   const [searching, setSearching] = useState(false);
   const [subTab, setSubTab] = useState<"suche" | "anfragen">("suche");
   const [filterQual, setFilterQual] = useState("");
   const [filterBundesland, setFilterBundesland] = useState("");
   const [filterArbeitszeit, setFilterArbeitszeit] = useState("");
-  const [selectedFachkraft, setSelectedFachkraft] = useState<any>(null);
+  const [selectedFachkraft, setSelectedFachkraft] = useState<Fachkraft | null>(null);
   const [nachricht, setNachricht] = useState("");
   const [sendingAnfrage, setSendingAnfrage] = useState(false);
-  const [anfrageSuccess, setAnfrageSuccess] = useState<string | null>(null);
+  const [anfrageSuccess, setAnfrageSuccess] = useState<"ok" | "bereits" | null>(null);
 
-  useEffect(() => {
-    loadFachkraefte();
-    loadGesendeteAnfragen();
-  }, []);
+  useEffect(() => { loadFachkraefte(); loadGesendeteAnfragen(); }, []);
 
   const loadFachkraefte = async (qual = "", land = "", zeit = "") => {
     setSearching(true);
-    let query = supabase.from("fachkraefte")
-      .select("id, username, vorname, nachname, anonym, email, telefon, qualifikation, erfahrung_jahre, bundesland, wohnort, arbeitszeit, deutsch, beschreibung, verfuegbar_ab, aktiv_suchend, kita_alter")
-      .eq("aktiv_suchend", true);
+    let query = supabase.from("fachkraefte").select("id, username, vorname, nachname, anonym, email, telefon, qualifikation, erfahrung_jahre, bundesland, wohnort, arbeitszeit, deutsch, beschreibung, verfuegbar_ab, aktiv_suchend, kita_alter").eq("aktiv_suchend", true);
     if (qual) query = query.eq("qualifikation", qual);
     if (land) query = query.eq("bundesland", land);
     if (zeit) query = query.eq("arbeitszeit", zeit);
@@ -258,8 +242,8 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
     setGesendeteAnfragen(data || []);
   };
 
-  const getAnfrageStatus = (fachkraftId: string) => gesendeteAnfragen.find(a => a.fachkraft_id === fachkraftId)?.status;
-  const hatBereitsAngefragt = (fachkraftId: string) => gesendeteAnfragen.some(a => a.fachkraft_id === fachkraftId);
+  const getAnfrageStatus = (id: string) => gesendeteAnfragen.find(a => a.fachkraft_id === id)?.status;
+  const hatBereitsAngefragt = (id: string) => gesendeteAnfragen.some(a => a.fachkraft_id === id);
 
   const handleAnfrageSenden = async () => {
     if (!selectedFachkraft) return;
@@ -269,13 +253,11 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
       kita_id: arbeitgeber.id, fachkraft_id: selectedFachkraft.id,
       kita_name: arbeitgeber.einrichtung_name, kita_email: arbeitgeber.email,
       kita_telefon: arbeitgeber.telefon,
-      nachricht: nachricht.trim() || `Hallo! Wir sind ${arbeitgeber?.einrichtung_name} und suchen eine engagierte Fachkraft.`,
-      status: "ausstehend"
+      nachricht: nachricht.trim() || `Hallo! Wir sind ${arbeitgeber.einrichtung_name} und suchen eine engagierte Fachkraft.`,
+      status: "ausstehend",
     }]);
     if (error) { alert("Fehler: " + error.message); setSendingAnfrage(false); return; }
-    try {
-      await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "neue_anfrage", data: { fachkraft_id: selectedFachkraft.id, kita_name: arbeitgeber.einrichtung_name, nachricht: nachricht.trim() } }) });
-    } catch (e) {}
+    try { await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "neue_anfrage", data: { fachkraft_id: selectedFachkraft.id, kita_name: arbeitgeber.einrichtung_name, nachricht: nachricht.trim() } }) }); } catch {}
     await loadGesendeteAnfragen();
     setAnfrageSuccess("ok");
     setSendingAnfrage(false);
@@ -286,85 +268,98 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
   const arbeitszeiten = ["Vollzeit", "Teilzeit", "Vollzeit & Teilzeit", "Minijob"];
   const akzeptierteAnfragen = gesendeteAnfragen.filter(a => a.status === "akzeptiert");
 
+  const selectStyle: React.CSSProperties = { width: "100%", padding: "10px 36px 10px 13px", border: `1.5px solid ${C.border}`, borderRadius: 10, fontSize: "0.87rem", color: C.text, background: "white", outline: "none", fontFamily: "'Sora', sans-serif", appearance: "none" as any, backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A96B0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" };
+
   return (
     <div>
-      <div style={{ display: "flex", gap: 6, marginBottom: 20, flexWrap: "wrap" }}>
-        <button onClick={() => setSubTab("suche")} style={{ flex: 1, minWidth: 130, padding: "10px 14px", borderRadius: 9, border: "none", background: subTab === "suche" ? NAVY : "white", color: subTab === "suche" ? "white" : "#6B7897", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 2px 8px rgba(26,63,111,0.08)" }}>
-          🔍 Fachkräfte suchen
-        </button>
-        <button onClick={() => setSubTab("anfragen")} style={{ flex: 1, minWidth: 130, padding: "10px 14px", borderRadius: 9, border: "none", background: subTab === "anfragen" ? NAVY : "white", color: subTab === "anfragen" ? "white" : "#6B7897", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 2px 8px rgba(26,63,111,0.08)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-          📤 Meine Anfragen
-          {akzeptierteAnfragen.length > 0 && <span style={{ background: GREEN, color: "white", borderRadius: 50, padding: "1px 8px", fontSize: "0.72rem", fontWeight: 800 }}>{akzeptierteAnfragen.length} neu</span>}
-        </button>
+      <div style={{ marginBottom: 22 }}>
+        <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: C.text }}>Fachkräfte</h2>
+        <p style={{ fontSize: "0.82rem", color: C.muted, marginTop: 3 }}>Finde passende Fachkräfte und sende Anfragen.</p>
+      </div>
+
+      {/* Sub-Tabs */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 20, background: "white", padding: 4, borderRadius: 12, border: `1.5px solid ${C.border}` }}>
+        {[{ key: "suche", label: "Suche" }, { key: "anfragen", label: `Meine Anfragen${akzeptierteAnfragen.length > 0 ? ` (${akzeptierteAnfragen.length})` : ""}` }].map(t => (
+          <button key={t.key} onClick={() => setSubTab(t.key as any)} style={{ flex: 1, padding: "9px 14px", borderRadius: 9, border: "none", background: subTab === t.key ? C.navyMid : "transparent", color: subTab === t.key ? "white" : C.muted, fontWeight: 700, fontSize: "0.83rem", cursor: "pointer", fontFamily: "'Sora', sans-serif", transition: "all 0.15s" }}>
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {subTab === "suche" && (
         <div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-            <select value={filterQual} onChange={e => setFilterQual(e.target.value)} style={{ ...selectStyle, marginBottom: 0 }}>
-              <option value="">Alle Qualifikationen</option>
-              {qualifikationen.map(q => <option key={q} value={q}>{q}</option>)}
-            </select>
-            <div style={{ display: "flex", gap: 8 }}>
-              <select value={filterBundesland} onChange={e => setFilterBundesland(e.target.value)} style={{ ...selectStyle, flex: 1, marginBottom: 0 }}>
-                <option value="">Alle Bundesländer</option>
-                {bundeslaender.map(b => <option key={b} value={b}>{b}</option>)}
+          {/* Filters */}
+          <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 16, padding: 18, marginBottom: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10 }}>
+              <select value={filterQual} onChange={e => setFilterQual(e.target.value)} style={selectStyle}>
+                <option value="">Alle Qualifikationen</option>
+                {qualifikationen.map(q => <option key={q} value={q}>{q}</option>)}
               </select>
-              <select value={filterArbeitszeit} onChange={e => setFilterArbeitszeit(e.target.value)} style={{ ...selectStyle, flex: 1, marginBottom: 0 }}>
-                <option value="">Alle Zeiten</option>
-                {arbeitszeiten.map(a => <option key={a} value={a}>{a}</option>)}
-              </select>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <select value={filterBundesland} onChange={e => setFilterBundesland(e.target.value)} style={selectStyle}>
+                  <option value="">Alle Bundesländer</option>
+                  {bundeslaender.map(b => <option key={b} value={b}>{b}</option>)}
+                </select>
+                <select value={filterArbeitszeit} onChange={e => setFilterArbeitszeit(e.target.value)} style={selectStyle}>
+                  <option value="">Alle Zeiten</option>
+                  {arbeitszeiten.map(a => <option key={a} value={a}>{a}</option>)}
+                </select>
+              </div>
+              <button onClick={() => loadFachkraefte(filterQual, filterBundesland, filterArbeitszeit)} disabled={searching} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "11px", background: C.navyMid, color: "white", border: "none", borderRadius: 11, fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>
+                <Icon.search />{searching ? "Sucht..." : "Suchen"}
+              </button>
             </div>
-            <button onClick={() => loadFachkraefte(filterQual, filterBundesland, filterArbeitszeit)} disabled={searching} style={{ padding: "12px", borderRadius: 10, border: "none", background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem" }}>
-              {searching ? "Sucht..." : "🔍 Suchen"}
-            </button>
           </div>
+
           {fachkraefte.length === 0 ? (
-            <div style={{ background: "white", borderRadius: 20, padding: 40, textAlign: "center", color: "#9BA8C0" }}>
-              <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>🔍</div>
-              <div style={{ fontWeight: 700, color: NAVY, marginBottom: 6 }}>Keine Ergebnisse</div>
+            <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: "50px 24px", textAlign: "center" }}>
+              <div style={{ fontSize: "2rem", marginBottom: 12 }}>🔍</div>
+              <div style={{ fontWeight: 700, color: C.text }}>Keine Ergebnisse</div>
+              <div style={{ color: C.muted, fontSize: "0.84rem", marginTop: 6 }}>Versuche andere Filter.</div>
             </div>
           ) : fachkraefte.map(fk => {
             const anonym = fk.anonym || fk.username;
             const name = anonym ? fk.username : `${fk.vorname || ""} ${fk.nachname || ""}`.trim();
+            const initials = name ? name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : "FK";
             const status = getAnfrageStatus(fk.id);
             const bereitsAngefragt = hatBereitsAngefragt(fk.id);
             return (
-              <div key={fk.id} style={{ background: "white", borderRadius: 16, padding: 16, marginBottom: 12, border: `1.5px solid ${status === "akzeptiert" ? "#86EFAC" : "#E8EDF4"}`, boxShadow: "0 2px 12px rgba(26,63,111,0.06)" }}>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
-                  <div style={{ width: 46, height: 46, borderRadius: 12, background: anonym ? `linear-gradient(135deg, ${NAVY}, ${BLUE})` : "#EAF7EF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: anonym ? "1.3rem" : "0.95rem", fontWeight: 800, color: anonym ? "white" : GREEN, flexShrink: 0 }}>
-                    {anonym ? "🦸" : name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)}
+              <div key={fk.id} style={{ background: "white", border: `1.5px solid ${status === "akzeptiert" ? "#A7F3D0" : C.border}`, borderRadius: 16, padding: 18, marginBottom: 12, transition: "box-shadow 0.2s" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 13, marginBottom: 12 }}>
+                  <div style={{ width: 46, height: 46, borderRadius: 13, background: anonym ? `linear-gradient(135deg, ${C.navyMid}, ${C.blue})` : "#ECFDF5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.95rem", fontWeight: 800, color: anonym ? "white" : C.green, flexShrink: 0 }}>
+                    {anonym ? "?" : initials}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 800, color: NAVY, fontSize: "0.95rem" }}>{name}</div>
-                    {anonym && <div style={{ fontSize: "0.7rem", color: BLUE, fontWeight: 700, textTransform: "uppercase" }}>Anonym</div>}
-                    <div style={{ fontSize: "0.8rem", color: "#6B7897", marginTop: 2 }}>{fk.qualifikation}</div>
+                    <div style={{ fontWeight: 800, color: C.text, fontSize: "0.95rem" }}>{name}</div>
+                    {anonym && <div style={{ fontSize: "0.68rem", color: C.blue, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", marginTop: 1 }}>Anonym</div>}
+                    <div style={{ fontSize: "0.79rem", color: C.muted, marginTop: 2 }}>{fk.qualifikation}</div>
                   </div>
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 10 }}>
-                  {fk.bundesland && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>📍 {fk.bundesland}</span>}
-                  {fk.arbeitszeit && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>⏱ {fk.arbeitszeit}</span>}
-                  {fk.erfahrung_jahre && <span style={{ background: "#F0F4F9", borderRadius: 50, padding: "3px 10px", fontSize: "0.73rem", color: "#6B7897", fontWeight: 600 }}>⭐ {fk.erfahrung_jahre} Jahre</span>}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 10 }}>
+                  {fk.bundesland && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: C.surface, borderRadius: 99, padding: "3px 10px", fontSize: "0.72rem", color: C.muted, fontWeight: 600 }}><Icon.pin />{fk.bundesland}</span>}
+                  {fk.arbeitszeit && <span style={{ background: C.surface, borderRadius: 99, padding: "3px 10px", fontSize: "0.72rem", color: C.muted, fontWeight: 600 }}>{fk.arbeitszeit}</span>}
+                  {fk.erfahrung_jahre && <span style={{ background: C.surface, borderRadius: 99, padding: "3px 10px", fontSize: "0.72rem", color: C.muted, fontWeight: 600 }}>{fk.erfahrung_jahre} Jahre</span>}
                 </div>
-                {fk.beschreibung && <div style={{ fontSize: "0.82rem", color: "#6B7897", lineHeight: 1.6, borderTop: "1px solid #F0F4F9", paddingTop: 8, marginBottom: 10 }}>{fk.beschreibung.length > 120 ? fk.beschreibung.slice(0, 120) + "..." : fk.beschreibung}</div>}
+                {fk.beschreibung && <div style={{ fontSize: "0.81rem", color: "#6B7897", lineHeight: 1.65, borderTop: `1px solid ${C.border}`, paddingTop: 10, marginBottom: 12 }}>{fk.beschreibung.length > 120 ? fk.beschreibung.slice(0, 120) + "…" : fk.beschreibung}</div>}
+
                 {bereitsAngefragt ? (
-                  <div style={{ marginTop: 4 }}>
-                    {status === "ausstehend" && <span style={{ display: "inline-block", background: "#EBF4FF", color: BLUE, borderRadius: 50, padding: "6px 14px", fontSize: "0.78rem", fontWeight: 700 }}>⏳ Ausstehend</span>}
-                    {status === "akzeptiert" && <span style={{ display: "inline-block", background: "#EAF7EF", color: GREEN, borderRadius: 50, padding: "6px 14px", fontSize: "0.78rem", fontWeight: 700 }}>✓ Akzeptiert</span>}
-                    {status === "abgelehnt" && <span style={{ display: "inline-block", background: "#F8F8F8", color: "#9BA8C0", borderRadius: 50, padding: "6px 14px", fontSize: "0.78rem", fontWeight: 700 }}>✗ Abgelehnt</span>}
+                  <div>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 99, fontSize: "0.78rem", fontWeight: 700, background: status === "akzeptiert" ? "#ECFDF5" : status === "abgelehnt" ? C.surface : "#EFF6FF", color: status === "akzeptiert" ? C.green : status === "abgelehnt" ? C.muted : C.blue }}>
+                      {status === "akzeptiert" ? <><Icon.check /> Akzeptiert</> : status === "abgelehnt" ? "Abgelehnt" : "⏳ Ausstehend"}
+                    </span>
+                    {status === "akzeptiert" && (
+                      <div style={{ marginTop: 12, padding: "12px 14px", background: "#ECFDF5", borderRadius: 12, fontSize: "0.82rem" }}>
+                        <div style={{ fontWeight: 700, color: C.green, marginBottom: 6 }}>Kontaktdaten freigegeben</div>
+                        {(fk.vorname || fk.nachname) && <div style={{ color: C.text, marginBottom: 3 }}>👤 {fk.vorname} {fk.nachname}</div>}
+                        {fk.email && <div style={{ marginBottom: 3 }}><a href={`mailto:${fk.email}`} style={{ color: C.blue, fontWeight: 600 }}>{fk.email}</a></div>}
+                        {fk.telefon && <div style={{ color: C.text }}>📞 {fk.telefon}</div>}
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <button onClick={() => { setSelectedFachkraft(fk); setNachricht(""); setAnfrageSuccess(null); }} style={{ width: "100%", padding: "11px", borderRadius: 10, border: "none", background: `linear-gradient(135deg, ${GREEN}, #27AE60)`, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "0.88rem" }}>
-                    Anfrage senden →
+                  <button onClick={() => { setSelectedFachkraft(fk); setNachricht(""); setAnfrageSuccess(null); }} style={{ width: "100%", padding: "11px", borderRadius: 11, border: "none", background: C.green, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif", fontSize: "0.87rem" }}>
+                    Anfrage senden
                   </button>
-                )}
-                {status === "akzeptiert" && (
-                  <div style={{ marginTop: 10, background: "#EAF7EF", borderRadius: 10, padding: "12px 14px", fontSize: "0.85rem" }}>
-                    <div style={{ fontWeight: 700, color: GREEN, marginBottom: 6 }}>✓ Kontaktdaten freigegeben</div>
-                    {(fk.vorname || fk.nachname) && <div style={{ color: "#444", marginBottom: 2 }}>👤 {fk.vorname} {fk.nachname}</div>}
-                    {fk.email && <div style={{ color: "#444", marginBottom: 2, wordBreak: "break-all" }}>✉️ <a href={`mailto:${fk.email}`} style={{ color: BLUE }}>{fk.email}</a></div>}
-                    {fk.telefon && <div style={{ color: "#444" }}>📞 {fk.telefon}</div>}
-                  </div>
                 )}
               </div>
             );
@@ -373,70 +368,66 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
       )}
 
       {subTab === "anfragen" && (
-        <div>
-          {gesendeteAnfragen.length === 0 ? (
-            <div style={{ background: "white", borderRadius: 20, padding: 40, textAlign: "center", color: "#9BA8C0" }}>
-              <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📤</div>
-              <div style={{ fontWeight: 700, color: NAVY, marginBottom: 6 }}>Noch keine Anfragen gesendet</div>
+        gesendeteAnfragen.length === 0 ? (
+          <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: "50px 24px", textAlign: "center" }}>
+            <div style={{ fontSize: "2rem", marginBottom: 12 }}>📤</div>
+            <div style={{ fontWeight: 700, color: C.text }}>Noch keine Anfragen gesendet</div>
+          </div>
+        ) : gesendeteAnfragen.map(anfrage => (
+          <div key={anfrage.id} style={{ background: "white", border: `1.5px solid ${anfrage.status === "akzeptiert" ? "#A7F3D0" : anfrage.status === "abgelehnt" ? C.border : "#BFDBFE"}`, borderRadius: 16, padding: 18, marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, gap: 8, flexWrap: "wrap" }}>
+              <div style={{ fontWeight: 700, color: C.text }}>Anfrage an Fachkraft</div>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 12px", borderRadius: 99, fontSize: "0.73rem", fontWeight: 700, background: anfrage.status === "akzeptiert" ? "#ECFDF5" : anfrage.status === "abgelehnt" ? C.surface : "#EFF6FF", color: anfrage.status === "akzeptiert" ? C.green : anfrage.status === "abgelehnt" ? C.muted : C.blue }}>
+                {anfrage.status === "akzeptiert" ? <><Icon.check /> Akzeptiert</> : anfrage.status === "abgelehnt" ? "Abgelehnt" : "⏳ Ausstehend"}
+              </span>
             </div>
-          ) : gesendeteAnfragen.map(anfrage => (
-            <div key={anfrage.id} style={{ background: "white", borderRadius: 14, padding: 16, marginBottom: 12, border: `1.5px solid ${anfrage.status === "akzeptiert" ? "#86EFAC" : anfrage.status === "abgelehnt" ? "#E2E8F0" : "#BFDBFE"}` }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, gap: 8, flexWrap: "wrap" }}>
-                <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.92rem" }}>Anfrage an Fachkraft</div>
-                <span style={{ flexShrink: 0, background: anfrage.status === "akzeptiert" ? "#EAF7EF" : anfrage.status === "abgelehnt" ? "#F8F8F8" : "#EBF4FF", color: anfrage.status === "akzeptiert" ? GREEN : anfrage.status === "abgelehnt" ? "#9BA8C0" : BLUE, borderRadius: 50, padding: "4px 12px", fontSize: "0.75rem", fontWeight: 700 }}>
-                  {anfrage.status === "akzeptiert" ? "✓ Akzeptiert" : anfrage.status === "abgelehnt" ? "✗ Abgelehnt" : "⏳ Ausstehend"}
-                </span>
+            {anfrage.nachricht && <div style={{ fontSize: "0.81rem", color: C.muted, lineHeight: 1.65, marginBottom: 8, fontStyle: "italic" }}>"{anfrage.nachricht}"</div>}
+            <div style={{ fontSize: "0.73rem", color: C.muted }}>{new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div>
+            {anfrage.status === "akzeptiert" && (
+              <div style={{ marginTop: 10, background: "#ECFDF5", borderRadius: 10, padding: "9px 12px", fontSize: "0.8rem", color: "#065F46", fontWeight: 600 }}>
+                ✓ Akzeptiert – Du kannst dieser Fachkraft jetzt im Nachrichten-Tab schreiben.
               </div>
-              {anfrage.nachricht && <div style={{ fontSize: "0.82rem", color: "#6B7897", lineHeight: 1.6, marginBottom: 6 }}>"{anfrage.nachricht}"</div>}
-              <div style={{ fontSize: "0.75rem", color: "#9BA8C0" }}>{new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div>
-              {anfrage.status === "akzeptiert" && (
-                <div style={{ marginTop: 10, background: "#EAF7EF", borderRadius: 8, padding: "10px 14px", fontSize: "0.82rem", color: GREEN, fontWeight: 600 }}>
-                  ✓ Akzeptiert – Du kannst dieser Fachkraft jetzt im Nachrichten-Tab schreiben.
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+            )}
+          </div>
+        ))
       )}
 
+      {/* Anfrage Modal */}
       {selectedFachkraft && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }} onClick={e => { if (e.target === e.currentTarget) { setSelectedFachkraft(null); setAnfrageSuccess(null); } }}>
-          <div style={{ background: "white", borderRadius: "24px 24px 0 0", padding: "24px 20px", width: "100%", maxWidth: 560, maxHeight: "92vh", overflowY: "auto" }}>
-            <div style={{ width: 40, height: 4, background: "#E2E8F0", borderRadius: 2, margin: "0 auto 20px" }} />
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,36,66,0.6)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => { if (e.target === e.currentTarget) { setSelectedFachkraft(null); setAnfrageSuccess(null); } }}>
+          <div style={{ background: "white", borderRadius: "24px 24px 0 0", padding: "28px 24px 32px", width: "100%", maxWidth: 560, maxHeight: "92vh", overflowY: "auto" }}>
+            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 24px" }} />
             {anfrageSuccess === "ok" ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
-                <div style={{ fontSize: "3rem", marginBottom: 16 }}>✅</div>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", color: NAVY, marginBottom: 12 }}>Anfrage gesendet!</div>
-                <button onClick={() => { setSelectedFachkraft(null); setAnfrageSuccess(null); }} style={{ width: "100%", padding: "14px", borderRadius: 50, border: "none", background: NAVY, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Schließen</button>
+                <div style={{ width: 60, height: 60, borderRadius: "50%", background: "#ECFDF5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: C.green }}><Icon.check /></div>
+                <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.4rem", color: C.text, marginBottom: 8 }}>Anfrage gesendet!</div>
+                <div style={{ color: C.muted, fontSize: "0.85rem", marginBottom: 24 }}>Die Fachkraft wird benachrichtigt.</div>
+                <button onClick={() => { setSelectedFachkraft(null); setAnfrageSuccess(null); }} style={{ width: "100%", padding: "13px", borderRadius: 12, border: "none", background: C.navyMid, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Schließen</button>
               </div>
             ) : anfrageSuccess === "bereits" ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
-                <div style={{ fontSize: "3rem", marginBottom: 16 }}>ℹ️</div>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: NAVY, marginBottom: 12 }}>Bereits angefragt</div>
-                <button onClick={() => { setSelectedFachkraft(null); setAnfrageSuccess(null); }} style={{ width: "100%", padding: "14px", borderRadius: 50, border: "none", background: NAVY, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Schließen</button>
+                <div style={{ fontSize: "2.5rem", marginBottom: 16 }}>ℹ️</div>
+                <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.3rem", color: C.text, marginBottom: 24 }}>Bereits angefragt</div>
+                <button onClick={() => { setSelectedFachkraft(null); setAnfrageSuccess(null); }} style={{ width: "100%", padding: "13px", borderRadius: 12, border: "none", background: C.navyMid, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Schließen</button>
               </div>
             ) : (
               <>
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Anfrage senden an</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 46, height: 46, borderRadius: 12, background: "#EAF7EF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", flexShrink: 0 }}>
-                      {selectedFachkraft.username ? "🦸" : `${selectedFachkraft.vorname?.[0] || ""}${selectedFachkraft.nachname?.[0] || ""}`}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 800, color: NAVY }}>{selectedFachkraft.username || `${selectedFachkraft.vorname} ${selectedFachkraft.nachname}`}</div>
-                      <div style={{ fontSize: "0.8rem", color: "#6B7897" }}>{selectedFachkraft.qualifikation}</div>
-                    </div>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 14 }}>Anfrage senden an</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22, padding: "14px", background: C.surface, borderRadius: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(135deg, ${C.navyMid}, ${C.blue})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 800, fontSize: "0.95rem", flexShrink: 0 }}>
+                    {selectedFachkraft.username ? "?" : `${selectedFachkraft.vorname?.[0] || ""}${selectedFachkraft.nachname?.[0] || ""}`}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 800, color: C.text }}>{selectedFachkraft.username || `${selectedFachkraft.vorname} ${selectedFachkraft.nachname}`}</div>
+                    <div style={{ fontSize: "0.79rem", color: C.muted, marginTop: 2 }}>{selectedFachkraft.qualifikation}</div>
                   </div>
                 </div>
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "#4A5568", marginBottom: 8, textTransform: "uppercase" as const }}>Nachricht (optional)</label>
-                  <textarea value={nachricht} onChange={e => setNachricht(e.target.value)} rows={4} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1.5px solid #E2E8F0", fontSize: "0.88rem", fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", color: "#444", boxSizing: "border-box" }} />
-                </div>
+                <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Nachricht (optional)</label>
+                <textarea value={nachricht} onChange={e => setNachricht(e.target.value)} rows={4} placeholder="Stell deine Einrichtung kurz vor..." style={{ width: "100%", padding: "12px 14px", borderRadius: 11, border: `1.5px solid ${C.border}`, fontSize: "0.87rem", fontFamily: "'Sora', sans-serif", resize: "vertical", outline: "none", color: C.text, marginBottom: 16 }} />
                 <div style={{ display: "flex", gap: 10 }}>
-                  <button onClick={() => setSelectedFachkraft(null)} style={{ flex: 1, padding: "13px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", color: "#6B7897", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Abbrechen</button>
-                  <button onClick={handleAnfrageSenden} disabled={sendingAnfrage} style={{ flex: 2, padding: "13px", borderRadius: 10, border: "none", background: sendingAnfrage ? "#ccc" : `linear-gradient(135deg, ${GREEN}, #27AE60)`, color: "white", fontWeight: 700, cursor: sendingAnfrage ? "not-allowed" : "pointer", fontFamily: "'DM Sans', sans-serif" }}>
-                    {sendingAnfrage ? "Wird gesendet..." : "Anfrage senden →"}
+                  <button onClick={() => setSelectedFachkraft(null)} style={{ flex: 1, padding: "13px", borderRadius: 11, border: `1.5px solid ${C.border}`, background: "white", color: C.muted, fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Abbrechen</button>
+                  <button onClick={handleAnfrageSenden} disabled={sendingAnfrage} style={{ flex: 2, padding: "13px", borderRadius: 11, border: "none", background: sendingAnfrage ? C.border : C.green, color: "white", fontWeight: 700, cursor: sendingAnfrage ? "not-allowed" : "pointer", fontFamily: "'Sora', sans-serif" }}>
+                    {sendingAnfrage ? "Wird gesendet..." : "Anfrage senden"}
                   </button>
                 </div>
               </>
@@ -448,12 +439,13 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: any }) {
   );
 }
 
+// ── Main Dashboard ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const router = useRouter();
-  const [arbeitgeber, setArbeitgeber] = useState<any>(null);
-  const [form, setForm] = useState<any>(null);
+  const [arbeitgeber, setArbeitgeber] = useState<Arbeitgeber | null>(null);
+  const [form, setForm] = useState<Arbeitgeber | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("uebersicht");
+  const [activeTab, setActiveTab] = useState<Tab>("uebersicht");
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -469,19 +461,14 @@ export default function Dashboard() {
   };
 
   const handleLogout = async () => { await supabase.auth.signOut(); router.push("/login"); };
-  const set = (key: string, value: any) => setForm((f: any) => ({ ...f, [key]: value }));
+  const set = (key: keyof Arbeitgeber, value: string) => setForm(f => f ? ({ ...f, [key]: value }) : f);
 
   const handleSave = async () => {
+    if (!form || !arbeitgeber) return;
     setSaving(true); setSaveError(""); setSaveSuccess(false);
-    const { error } = await supabase.from("arbeitgeber").update({
-      einrichtung_name: form.einrichtung_name, einrichtungstyp: form.einrichtungstyp,
-      traeger: form.traeger, beschreibung: form.beschreibung, strasse: form.strasse,
-      hausnummer: form.hausnummer, plz: form.plz, ort: form.ort, bundesland: form.bundesland,
-      ansprech_name: form.ansprech_name, ansprech_rolle: form.ansprech_rolle,
-      telefon: form.telefon, stellen_anzahl: form.stellen_anzahl,
-    }).eq("email", arbeitgeber.email);
+    const { error } = await supabase.from("arbeitgeber").update({ einrichtung_name: form.einrichtung_name, einrichtungstyp: form.einrichtungstyp, traeger: form.traeger, beschreibung: form.beschreibung, strasse: form.strasse, hausnummer: form.hausnummer, plz: form.plz, ort: form.ort, bundesland: form.bundesland, ansprech_name: form.ansprech_name, ansprech_rolle: form.ansprech_rolle, telefon: form.telefon, stellen_anzahl: form.stellen_anzahl }).eq("email", arbeitgeber.email);
     setSaving(false);
-    if (error) { setSaveError("Fehler beim Speichern: " + error.message); }
+    if (error) setSaveError("Fehler: " + error.message);
     else { setArbeitgeber({ ...arbeitgeber, ...form }); setEditMode(false); setSaveSuccess(true); setTimeout(() => setSaveSuccess(false), 3000); }
   };
 
@@ -490,8 +477,8 @@ export default function Dashboard() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     const res = await fetch("/api/account/delete", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: session.user.email, rolle: "arbeitgeber" }) });
-    if (res.ok) { await supabase.auth.signOut(); alert("Ihr Account wurde erfolgreich gelöscht."); router.push("/"); }
-    else { alert("Fehler beim Löschen. Bitte kontaktieren Sie uns unter hallo@kitabridge.de"); }
+    if (res.ok) { await supabase.auth.signOut(); router.push("/"); }
+    else alert("Fehler beim Löschen. Bitte kontaktiere uns unter hallo@kitabridge.de");
   };
 
   const handleKuendigung = async () => {
@@ -500,275 +487,301 @@ export default function Dashboard() {
     if (!session) return;
     const res = await fetch("/api/stripe/kuendigung", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: session.user.email }) });
     if (res.ok) { alert("Ihr Abo wurde erfolgreich gekündigt."); loadDashboard(); }
-    else { alert("Fehler beim Kündigen. Bitte kontaktieren Sie uns unter hallo@kitabridge.de"); }
+    else alert("Fehler beim Kündigen. Bitte kontaktieren Sie uns unter hallo@kitabridge.de");
   };
-
-  if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F0F4F9", fontFamily: "'DM Sans', sans-serif" }}>
-      <div style={{ color: NAVY }}>Lädt...</div>
-    </div>
-  );
 
   const isAktiv = arbeitgeber?.status === "aktiv" || arbeitgeber?.status === "bestaetigt";
 
+  const fieldStyle: React.CSSProperties = { width: "100%", padding: "10px 13px", border: `1.5px solid ${C.border}`, borderRadius: 10, fontSize: "0.87rem", color: C.text, background: "white", outline: "none", fontFamily: "'Sora', sans-serif" };
+  const selectFieldStyle: React.CSSProperties = { ...fieldStyle, appearance: "none" as any, backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A96B0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", paddingRight: 36 };
+  const labelStyle: React.CSSProperties = { display: "block", fontSize: "0.72rem", fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 6 };
+
+  const navItems: { key: Tab; label: string; icon: () => JSX.Element }[] = [
+    { key: "uebersicht", label: "Übersicht", icon: Icon.home },
+    { key: "fachkraefte", label: "Fachkräfte", icon: Icon.search },
+    { key: "nachrichten", label: "Nachrichten", icon: Icon.chat },
+    { key: "visitenkarte", label: "Visitenkarte", icon: Icon.eye },
+    { key: "profil", label: "Mein Profil", icon: Icon.user },
+  ];
+
+  if (loading) return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: C.surface, fontFamily: "'Sora', sans-serif" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+        <div style={{ width: 40, height: 40, border: `3px solid ${C.border}`, borderTopColor: C.navyMid, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <span style={{ fontSize: "0.85rem", color: C.muted, fontWeight: 600 }}>Einen Moment...</span>
+      </div>
+    </div>
+  );
+
+  const initials = arbeitgeber?.einrichtung_name ? arbeitgeber.einrichtung_name.slice(0, 2).toUpperCase() : "KB";
+
   return (
-    <div style={{ minHeight: "100vh", background: "#F0F4F9", fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: C.surface, fontFamily: "'Sora', sans-serif", display: "flex", flexDirection: "column" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-        * { box-sizing: border-box; }
-        input:focus, select:focus, textarea:focus { border-color: #2471A3 !important; }
-        .db-header { background: ${NAVY}; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 50; }
-        .db-header-name { display: none; }
-        .db-container { padding: 16px; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .quick-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
-        .plan-card { padding: 20px; }
-        .tab-bar-wrapper { position: sticky; top: 56px; z-index: 40; background: #F0F4F9; padding: 10px 0 4px; margin-bottom: 16px; }
-        .tab-bar { display: flex; gap: 4px; background: white; border-radius: 12px; padding: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; box-shadow: 0 2px 8px rgba(26,63,111,0.08); }
-        .tab-bar::-webkit-scrollbar { display: none; }
-        .tab-bar button { white-space: nowrap; padding: 8px 13px; border-radius: 9px; border: none; font-weight: 600; font-size: 0.82rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; flex-shrink: 0; }
-        .profile-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
-        .two-col-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
-        .three-one-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
-        .one-two-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
-        .edit-btns { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-        .edit-btns button { width: 100%; }
-        .profile-card { padding: 16px; }
-        .inactive-banner { flex-direction: column !important; }
-        .inactive-banner a { text-align: center; }
-        @media (min-width: 600px) {
-          .db-header { padding: 0 24px; height: 64px; }
-          .db-header-name { display: inline; }
-          .db-container { padding: 24px; }
-          .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
-          .quick-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
-          .tab-bar-wrapper { position: static; padding: 0; margin-bottom: 24px; }
-          .tab-bar { width: fit-content; }
-          .two-col-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
-          .three-one-grid { grid-template-columns: 3fr 1fr; gap: 16px; }
-          .one-two-grid { grid-template-columns: 1fr 2fr; gap: 16px; }
-          .edit-btns { flex-direction: row; width: auto; }
-          .edit-btns button { width: auto; }
-          .profile-card { padding: 28px; }
-          .inactive-banner { flex-direction: row !important; }
-          .profile-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (min-width: 1024px) {
-          .db-header { padding: 0 32px; }
-          .db-container { padding: 32px 24px; max-width: 1100px; margin: 0 auto; }
-          .profile-card { padding: 32px; }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,700;0,800;1,700&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { -webkit-font-smoothing: antialiased; }
+        input:focus, select:focus, textarea:focus { border-color: ${C.blue} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.12) !important; outline: none; }
+        button { font-family: 'Sora', sans-serif; }
+        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 99px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; border: none; background: transparent; color: ${C.muted}; font-size: 0.84rem; font-weight: 600; cursor: pointer; width: 100%; text-align: left; transition: all 0.15s; }
+        .nav-item:hover { background: rgba(26,63,111,0.06); color: ${C.navyMid}; }
+        .nav-item.active { background: ${C.navyMid}; color: white; }
+        .nav-item.active svg { stroke: white; }
+        .quick-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; background: white; border: 1.5px solid ${C.border}; color: ${C.text}; font-weight: 600; font-size: 0.86rem; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+        .quick-link:hover { border-color: ${C.blue}; color: ${C.navyMid}; transform: translateX(2px); }
+        .section-header { font-size: 0.7rem; font-weight: 800; color: ${C.muted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid ${C.border}; }
       `}</style>
 
-      <div className="db-header">
-        <a href="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.25rem", fontWeight: 700 }}>
-          <span style={{ color: "white" }}>Kita</span><span style={{ color: "#4ADE80" }}>Bridge</span>
-        </a>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span className="db-header-name" style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.82rem" }}>{arbeitgeber?.einrichtung_name}</span>
-          <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "white", padding: "7px 14px", borderRadius: 8, cursor: "pointer", fontSize: "0.82rem", fontFamily: "'DM Sans', sans-serif" }}>Ausloggen</button>
+      {/* TOP NAV */}
+      <header style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(247,249,252,0.9)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <a href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 2 }}>
+            <span style={{ fontFamily: "'Fraunces', serif", fontSize: "1.3rem", fontWeight: 800, color: C.navy }}>Kita</span>
+            <span style={{ fontFamily: "'Fraunces', serif", fontSize: "1.3rem", fontWeight: 800, color: C.green }}>Bridge</span>
+          </a>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: "0.82rem", color: C.muted, fontWeight: 500 }}>{arbeitgeber?.einrichtung_name}</span>
+            <button onClick={handleLogout} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 9, border: `1.5px solid ${C.border}`, background: "white", color: C.muted, fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
+              <Icon.logout />Abmelden
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <div className="db-container">
-        {!isAktiv && (
-          <div className="inactive-banner" style={{ background: "#FFF7ED", border: "1px solid #FED7AA", borderRadius: 16, padding: 16, marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <div style={{ fontWeight: 700, color: "#92400E", marginBottom: 4, fontSize: "0.9rem" }}>⚠️ Konto noch nicht aktiv</div>
-              <div style={{ color: "#78350F", fontSize: "0.85rem" }}>Ihr Account wird gerade geprüft oder die Zahlung steht noch aus.</div>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 24px", display: "flex", gap: 24, flex: 1, width: "100%" }}>
+
+        {/* SIDEBAR */}
+        <aside style={{ width: 240, flexShrink: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+          {/* Profile card */}
+          <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 20, marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+              <div style={{ width: 46, height: 46, borderRadius: 14, background: `linear-gradient(135deg, ${C.navyMid}, ${C.blue})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", fontWeight: 800, color: "white", flexShrink: 0 }}>
+                🏫
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 700, color: C.text, fontSize: "0.88rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{arbeitgeber?.einrichtung_name || "Einrichtung"}</div>
+                <div style={{ fontSize: "0.72rem", color: C.muted, marginTop: 1 }}>{arbeitgeber?.einrichtungstyp || "Kita"}</div>
+              </div>
             </div>
-            <a href="/bezahlung" style={{ background: "#EA580C", color: "white", padding: "10px 18px", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.88rem", whiteSpace: "nowrap", fontFamily: "'DM Sans', sans-serif" }}>Jetzt bezahlen →</a>
+            <div style={{ padding: "10px 12px", background: isAktiv ? "#ECFDF5" : "#FFFBEB", borderRadius: 10, display: "flex", alignItems: "center", gap: 8, border: `1px solid ${isAktiv ? "#A7F3D0" : "#FDE68A"}` }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: 800, color: isAktiv ? "#065F46" : "#92400E" }}>
+                {isAktiv ? "✓ Konto aktiv" : "⏳ In Prüfung"}
+              </div>
+            </div>
           </div>
-        )}
-        {isAktiv && (
-          <div style={{ background: "#EAF7EF", border: "1px solid #BBF7D0", borderRadius: 14, padding: 14, marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
-            <span>✅</span>
-            <span style={{ color: GREEN, fontWeight: 700, fontSize: "0.88rem" }}>Konto aktiv – Sie haben vollen Zugang zu allen Fachkräfte-Profilen</span>
-          </div>
-        )}
-        {saveSuccess && (
-          <div style={{ background: "#EAF7EF", border: "1px solid #BBF7D0", borderRadius: 12, padding: 12, marginBottom: 16, color: GREEN, fontWeight: 600, fontSize: "0.88rem" }}>✅ Profil erfolgreich gespeichert!</div>
-        )}
 
-        <div style={{ marginBottom: 20 }}>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", color: NAVY, marginBottom: 4 }}>Willkommen, {arbeitgeber?.ansprech_name?.split(" ")[0] || ""}! 👋</h1>
-          <p style={{ color: "#9BA8C0", fontSize: "0.85rem", margin: 0 }}>{arbeitgeber?.einrichtung_name} · {arbeitgeber?.ort}</p>
-        </div>
-
-        <div className="tab-bar-wrapper">
-          <div className="tab-bar">
-            {[
-              { key: "uebersicht", label: "📊 Übersicht" },
-              { key: "visitenkarte", label: "👁 Visitenkarte" },
-              { key: "profil", label: "👤 Mein Profil" },
-              { key: "fachkraefte", label: "🔍 Fachkräfte" },
-              { key: "nachrichten", label: "📩 Nachrichten" },
-            ].map(tab => (
-              <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ background: activeTab === tab.key ? NAVY : "transparent", color: activeTab === tab.key ? "white" : "#6B7897" }}>
-                {tab.label}
+          {/* Nav */}
+          <nav style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 8 }}>
+            {navItems.map(item => (
+              <button key={item.key} className={`nav-item${activeTab === item.key ? " active" : ""}`} onClick={() => setActiveTab(item.key)}>
+                <item.icon />{item.label}
               </button>
             ))}
-          </div>
-        </div>
+          </nav>
 
-        {activeTab === "uebersicht" && (
-          <div>
-            <div className="stats-grid">
-              {[
-                { icon: "👥", label: "Offene Stellen", value: arbeitgeber?.stellen_anzahl || "-" },
-                { icon: "📍", label: "Standort", value: arbeitgeber?.ort || "-" },
-                { icon: "🏢", label: "Einrichtungstyp", value: arbeitgeber?.einrichtungstyp || "-" },
-              ].map(stat => (
-                <div key={stat.label} style={{ background: "white", borderRadius: 14, padding: 16, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
-                  <div style={{ fontSize: "1.6rem", marginBottom: 6 }}>{stat.icon}</div>
-                  <div style={{ fontSize: "0.72rem", color: "#9BA8C0", fontWeight: 700, textTransform: "uppercase", marginBottom: 3 }}>{stat.label}</div>
-                  <div style={{ fontSize: "0.9rem", fontWeight: 700, color: NAVY }}>{stat.value}</div>
-                </div>
-              ))}
+          {/* Plan card */}
+          <div style={{ background: `linear-gradient(135deg, ${C.navy}, ${C.navyMid})`, borderRadius: 16, padding: "16px 18px", marginTop: 2 }}>
+            <div style={{ fontSize: "0.65rem", fontWeight: 800, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 6 }}>Ihr Plan</div>
+            <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.5rem", fontWeight: 800, color: "white", marginBottom: 2 }}>299 €</div>
+            <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)", marginBottom: 14 }}>pro Monat, zzgl. MwSt.</div>
+            {["Alle Profile", "Direktkontakt", "Keine Provision", "Monatlich kündbar"].map(f => (
+              <div key={f} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5, fontSize: "0.76rem", color: "rgba(255,255,255,0.75)" }}>
+                <span style={{ color: "#4ADE80" }}><Icon.check /></span>{f}
+              </div>
+            ))}
+            {arbeitgeber?.stripe_subscription_id && (
+              <button onClick={handleKuendigung} style={{ marginTop: 12, width: "100%", padding: "8px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.6)", borderRadius: 8, fontSize: "0.74rem", fontWeight: 600, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>
+                Abo kündigen
+              </button>
+            )}
+          </div>
+        </aside>
+
+        {/* MAIN */}
+        <main style={{ flex: 1, minWidth: 0 }}>
+
+          {/* Inactive banner */}
+          {!isAktiv && (
+            <div style={{ background: "#FFFBEB", border: "1.5px solid #FDE68A", borderRadius: 14, padding: "16px 20px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <div>
+                <div style={{ fontWeight: 800, color: "#92400E", marginBottom: 3, fontSize: "0.88rem" }}>Konto noch nicht aktiv</div>
+                <div style={{ color: "#78350F", fontSize: "0.81rem" }}>Die Zahlung steht noch aus oder Ihr Account wird geprüft.</div>
+              </div>
+              <a href="/bezahlung" style={{ background: C.amber, color: "white", padding: "9px 16px", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.84rem", whiteSpace: "nowrap", flexShrink: 0 }}>Jetzt bezahlen</a>
             </div>
-            <div className="quick-grid">
-              <div style={{ background: "white", borderRadius: 18, padding: 20, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.05rem", color: NAVY, marginBottom: 14, marginTop: 0 }}>Schnellzugriff</h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {[
-                    { icon: "🔍", label: "Fachkräfte suchen", tab: "fachkraefte" },
-                    { icon: "📩", label: "Nachrichten", tab: "nachrichten" },
-                    { icon: "👁", label: "Visitenkarte", tab: "visitenkarte" },
-                    { icon: "✏️", label: "Profil bearbeiten", tab: "profil" },
-                  ].map(item => (
-                    <button key={item.tab} onClick={() => setActiveTab(item.tab)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", border: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "left" }}>
-                      {item.icon} {item.label}
-                    </button>
-                  ))}
-                  <a href="/kontakt" style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 10, background: "#F8FAFF", textDecoration: "none", color: NAVY, fontWeight: 600, fontSize: "0.88rem" }}>✉️ Support</a>
+          )}
+
+          {/* ÜBERSICHT */}
+          {activeTab === "uebersicht" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {/* Welcome */}
+              <div style={{ background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 55%, #1B5E98 100%)`, borderRadius: 22, padding: "28px 30px", position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", top: -60, right: -60, width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
+                <div style={{ position: "relative" }}>
+                  <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 6 }}>Willkommen zurück</div>
+                  <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: "1.7rem", fontWeight: 800, color: "white", lineHeight: 1.15, marginBottom: 16 }}>
+                    Hallo, {arbeitgeber?.ansprech_name?.split(" ")[0] || ""}! 👋
+                  </h1>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {arbeitgeber?.einrichtung_name && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.1)", borderRadius: 99, padding: "4px 12px", fontSize: "0.73rem", color: "rgba(255,255,255,0.75)", fontWeight: 600 }}><Icon.building />{arbeitgeber.einrichtung_name}</span>}
+                    {arbeitgeber?.ort && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.1)", borderRadius: 99, padding: "4px 12px", fontSize: "0.73rem", color: "rgba(255,255,255,0.75)", fontWeight: 600 }}><Icon.pin />{arbeitgeber.ort}</span>}
+                    {arbeitgeber?.stellen_anzahl && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 99, padding: "4px 12px", fontSize: "0.73rem", color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>{arbeitgeber.stellen_anzahl} offen</span>}
+                  </div>
                 </div>
               </div>
-              <div className="plan-card" style={{ background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, borderRadius: 18, color: "white" }}>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.05rem", marginBottom: 10, marginTop: 0 }}>Ihr Plan</h3>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.9rem", fontWeight: 700, marginBottom: 2 }}>299 EUR</div>
-                <div style={{ opacity: 0.7, fontSize: "0.8rem", marginBottom: 16 }}>pro Monat, zzgl. MwSt.</div>
-                {arbeitgeber?.stripe_subscription_id && (
-                  <button onClick={handleKuendigung} style={{ marginBottom: 14, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.3)", color: "white", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: "0.78rem", fontFamily: "'DM Sans', sans-serif", width: "100%" }}>Abo kündigen</button>
-                )}
-                {["Alle Fachkräfte-Profile", "Direktkontakt", "Keine Provision", "Monatlich kündbar"].map(f => (
-                  <div key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7, fontSize: "0.84rem" }}>
-                    <span style={{ color: "#4ADE80" }}>✓</span> {f}
+
+              {/* Stats */}
+              <div style={{ display: "flex", gap: 12 }}>
+                {[
+                  { label: "Einrichtungstyp", value: arbeitgeber?.einrichtungstyp || "–", bg: "#EFF6FF", color: C.blue },
+                  { label: "Standort", value: arbeitgeber?.ort || "–", bg: "#F0FDF4", color: C.green },
+                  { label: "Offene Stellen", value: arbeitgeber?.stellen_anzahl || "–", bg: "#FFF7ED", color: C.amber },
+                ].map(s => (
+                  <div key={s.label} style={{ background: s.bg, borderRadius: 16, padding: "18px 16px", flex: 1 }}>
+                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: s.color, marginBottom: 4 }}>{s.value}</div>
+                    <div style={{ fontSize: "0.68rem", color: C.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>{s.label}</div>
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        )}
 
-        {activeTab === "visitenkarte" && (
-          <div style={{ background: "white", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
-            <div style={{ background: `linear-gradient(135deg, #0D1B2A 0%, ${NAVY} 60%, ${BLUE} 100%)`, padding: "28px 28px", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: -50, right: -50, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
-              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16, position: "relative" }}>
-                <div style={{ width: 58, height: 58, borderRadius: 16, background: "rgba(255,255,255,0.12)", border: "2px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem", flexShrink: 0 }}>🏫</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "white", fontFamily: "'Playfair Display', serif" }}>{arbeitgeber?.einrichtung_name}</div>
-                  <div style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{arbeitgeber?.einrichtungstyp}</div>
-                </div>
-                <div style={{ background: isAktiv ? "rgba(39,174,96,0.3)" : "rgba(255,255,255,0.1)", border: `1px solid ${isAktiv ? "rgba(39,174,96,0.5)" : "rgba(255,255,255,0.2)"}`, borderRadius: 50, padding: "4px 12px", fontSize: "0.7rem", fontWeight: 800, color: "white", textTransform: "uppercase" as const, whiteSpace: "nowrap" }}>
-                  {isAktiv ? "✓ Aktiv" : "⏳ In Prüfung"}
-                </div>
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {arbeitgeber?.ort && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 50, padding: "3px 11px", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>📍 {arbeitgeber.ort}</span>}
-                {arbeitgeber?.bundesland && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 50, padding: "3px 11px", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>🗺 {arbeitgeber.bundesland}</span>}
-                {arbeitgeber?.traeger && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 50, padding: "3px 11px", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>🏢 {arbeitgeber.traeger}</span>}
-                {arbeitgeber?.stellen_anzahl && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 50, padding: "3px 11px", fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>💼 {arbeitgeber.stellen_anzahl}</span>}
+              {/* Quick links */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="quick-link" onClick={() => setActiveTab("fachkraefte")}><span style={{ color: C.blue }}><Icon.search /></span>Fachkräfte suchen</button>
+                <button className="quick-link" onClick={() => setActiveTab("nachrichten")}><span style={{ color: C.navyMid }}><Icon.chat /></span>Nachrichten</button>
+                <button className="quick-link" onClick={() => setActiveTab("visitenkarte")}><span style={{ color: C.green }}><Icon.eye /></span>Visitenkarte</button>
+                <button className="quick-link" onClick={() => setActiveTab("profil")}><span style={{ color: C.muted }}><Icon.edit /></span>Profil bearbeiten</button>
               </div>
             </div>
-            <div style={{ padding: 20 }}>
-              {arbeitgeber?.beschreibung && <p style={{ color: "#444", lineHeight: 1.75, fontSize: "0.9rem", margin: "0 0 16px" }}>{arbeitgeber.beschreibung}</p>}
-              {arbeitgeber?.ansprech_name && (
-                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px", background: "#F8FAFF", borderRadius: 12, marginBottom: 16 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 800 }}>{arbeitgeber.ansprech_name[0]}</div>
-                  <div>
-                    <div style={{ fontWeight: 700, color: NAVY, fontSize: "0.9rem" }}>{arbeitgeber.ansprech_name}</div>
-                    {arbeitgeber.ansprech_rolle && <div style={{ fontSize: "0.78rem", color: "#9BA8C0" }}>{arbeitgeber.ansprech_rolle}</div>}
+          )}
+
+          {/* FACHKRÄFTE */}
+          {activeTab === "fachkraefte" && <FachkraefteTab arbeitgeber={arbeitgeber!} />}
+
+          {/* NACHRICHTEN */}
+          {activeTab === "nachrichten" && <NachrichtenTab arbeitgeber={arbeitgeber!} />}
+
+          {/* VISITENKARTE */}
+          {activeTab === "visitenkarte" && (
+            <div>
+              <div style={{ marginBottom: 22 }}>
+                <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: C.text }}>Visitenkarte</h2>
+                <p style={{ fontSize: "0.82rem", color: C.muted, marginTop: 3 }}>So sehen Fachkräfte Ihre Einrichtung.</p>
+              </div>
+              <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, overflow: "hidden" }}>
+                <div style={{ background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 55%, #1B5E98 100%)`, padding: "28px 28px", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: -60, right: -60, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+                  <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16, position: "relative" }}>
+                    <div style={{ width: 58, height: 58, borderRadius: 16, background: "rgba(255,255,255,0.12)", border: "2px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem", flexShrink: 0 }}>🏫</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "white", fontFamily: "'Fraunces', serif" }}>{arbeitgeber?.einrichtung_name}</div>
+                      <div style={{ fontSize: "0.81rem", color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{arbeitgeber?.einrichtungstyp}</div>
+                    </div>
+                    <span style={{ background: isAktiv ? "rgba(22,163,74,0.25)" : "rgba(255,255,255,0.1)", border: `1px solid ${isAktiv ? "rgba(22,163,74,0.4)" : "rgba(255,255,255,0.2)"}`, borderRadius: 99, padding: "4px 12px", fontSize: "0.7rem", fontWeight: 800, color: "white", textTransform: "uppercase" as const }}>
+                      {isAktiv ? "✓ Aktiv" : "⏳ Prüfung"}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, position: "relative" }}>
+                    {arbeitgeber?.ort && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 99, padding: "3px 11px", fontSize: "0.74rem", color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>📍 {arbeitgeber.ort}</span>}
+                    {arbeitgeber?.bundesland && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 99, padding: "3px 11px", fontSize: "0.74rem", color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>{arbeitgeber.bundesland}</span>}
+                    {arbeitgeber?.traeger && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 99, padding: "3px 11px", fontSize: "0.74rem", color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>{arbeitgeber.traeger}</span>}
+                    {arbeitgeber?.stellen_anzahl && <span style={{ background: "rgba(255,255,255,0.1)", borderRadius: 99, padding: "3px 11px", fontSize: "0.74rem", color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>💼 {arbeitgeber.stellen_anzahl}</span>}
                   </div>
                 </div>
-              )}
-              <a href={`/arbeitgeber/${arbeitgeber?.id}`} target="_blank" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 10, background: "#F0F4F9", color: NAVY, fontWeight: 600, fontSize: "0.85rem", textDecoration: "none" }}>
-                🔗 Öffentliche Visitenkarte öffnen →
-              </a>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "nachrichten" && <NachrichtenTab arbeitgeber={arbeitgeber} />}
-        {activeTab === "fachkraefte" && <FachkraefteTab arbeitgeber={arbeitgeber} />}
-
-        {activeTab === "profil" && (
-          <div className="profile-card" style={{ background: "white", borderRadius: 18, boxShadow: "0 2px 12px rgba(26,63,111,0.08)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
-              <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", color: NAVY, margin: 0 }}>Mein Profil</h2>
-              {!editMode ? (
-                <button onClick={() => setEditMode(true)} style={{ background: NAVY, color: "white", border: "none", padding: "9px 18px", borderRadius: 9, fontWeight: 700, fontSize: "0.86rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>✏️ Bearbeiten</button>
-              ) : (
-                <div className="edit-btns">
-                  <button onClick={() => { setEditMode(false); setForm(arbeitgeber); }} style={{ background: "transparent", color: NAVY, border: `1px solid ${NAVY}`, padding: "9px 16px", borderRadius: 9, fontWeight: 700, fontSize: "0.86rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Abbrechen</button>
-                  <button onClick={handleSave} disabled={saving} style={{ background: GREEN, color: "white", border: "none", padding: "9px 18px", borderRadius: 9, fontWeight: 700, fontSize: "0.86rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>{saving ? "Speichert..." : "💾 Speichern"}</button>
+                <div style={{ padding: 24 }}>
+                  {arbeitgeber?.beschreibung && <p style={{ color: "#4B5563", lineHeight: 1.75, fontSize: "0.9rem", marginBottom: 20 }}>{arbeitgeber.beschreibung}</p>}
+                  {arbeitgeber?.ansprech_name && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 14, background: C.surface, borderRadius: 12, marginBottom: 20 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${C.navyMid}, ${C.blue})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 800, flexShrink: 0 }}>{arbeitgeber.ansprech_name[0]}</div>
+                      <div>
+                        <div style={{ fontWeight: 700, color: C.text, fontSize: "0.88rem" }}>{arbeitgeber.ansprech_name}</div>
+                        {arbeitgeber.ansprech_rolle && <div style={{ fontSize: "0.76rem", color: C.muted }}>{arbeitgeber.ansprech_rolle}</div>}
+                      </div>
+                    </div>
+                  )}
+                  <a href={`/arbeitgeber/${arbeitgeber?.id}`} target="_blank" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 10, background: C.surface, border: `1.5px solid ${C.border}`, color: C.navyMid, fontWeight: 700, fontSize: "0.85rem", textDecoration: "none" }}>
+                    <Icon.externalLink />Öffentliche Visitenkarte öffnen
+                  </a>
                 </div>
-              )}
+              </div>
             </div>
-            {!editMode ? (
-              <div className="profile-grid">
-                {[
-                  ["Einrichtung", arbeitgeber?.einrichtung_name], ["Einrichtungstyp", arbeitgeber?.einrichtungstyp],
-                  ["Träger", arbeitgeber?.traeger], ["Ansprechpartner", arbeitgeber?.ansprech_name],
-                  ["Rolle", arbeitgeber?.ansprech_rolle], ["E-Mail", arbeitgeber?.email],
-                  ["Telefon", arbeitgeber?.telefon], ["Adresse", `${arbeitgeber?.strasse} ${arbeitgeber?.hausnummer}, ${arbeitgeber?.plz} ${arbeitgeber?.ort}`],
-                  ["Bundesland", arbeitgeber?.bundesland], ["Offene Stellen", arbeitgeber?.stellen_anzahl], ["Status", arbeitgeber?.status],
-                ].map(([k, v]) => v ? (
-                  <div key={k} style={{ padding: "12px 0", borderBottom: "1px solid #F0F4F9" }}>
-                    <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#9BA8C0", textTransform: "uppercase", marginBottom: 3 }}>{k}</div>
-                    <div style={{ color: NAVY, fontWeight: 600, fontSize: "0.9rem", wordBreak: "break-word" }}>{v}</div>
+          )}
+
+          {/* PROFIL */}
+          {activeTab === "profil" && form && (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+                <div>
+                  <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: C.text }}>Mein Profil</h2>
+                  <p style={{ fontSize: "0.82rem", color: C.muted, marginTop: 3 }}>Informationen zu Ihrer Einrichtung.</p>
+                </div>
+                {!editMode ? (
+                  <button onClick={() => setEditMode(true)} style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 18px", borderRadius: 10, border: `1.5px solid ${C.border}`, background: "white", color: C.text, fontWeight: 700, fontSize: "0.84rem", cursor: "pointer" }}>
+                    <Icon.edit />Bearbeiten
+                  </button>
+                ) : (
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={() => { setEditMode(false); setForm(arbeitgeber); }} style={{ padding: "9px 16px", borderRadius: 10, border: `1.5px solid ${C.border}`, background: "white", color: C.muted, fontWeight: 700, cursor: "pointer" }}>Abbrechen</button>
+                    <button onClick={handleSave} disabled={saving} style={{ padding: "9px 18px", borderRadius: 10, border: "none", background: C.green, color: "white", fontWeight: 700, cursor: "pointer" }}>{saving ? "Speichert..." : "Speichern"}</button>
                   </div>
-                ) : null)}
+                )}
               </div>
-            ) : (
-              <div>
-                <div style={{ marginBottom: 6, fontWeight: 700, color: BLUE, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: 1 }}>Einrichtung</div>
-                <div style={{ height: 1, background: "#F0F4F9", marginBottom: 14 }} />
-                <div style={{ marginBottom: 14 }}><label style={labelStyle}>Name der Einrichtung</label><input style={inputStyle} value={form.einrichtung_name || ""} onChange={e => set("einrichtung_name", e.target.value)} /></div>
-                <div className="two-col-grid" style={{ marginBottom: 14 }}>
-                  <div style={{ marginBottom: 14 }}><label style={labelStyle}>Einrichtungstyp</label><select style={selectStyle} value={form.einrichtungstyp || ""} onChange={e => set("einrichtungstyp", e.target.value)}><option value="">– bitte wählen –</option>{["Krippe (0-3 Jahre)", "Kindergarten (3-6 Jahre)", "Kita (0-6 Jahre)", "Hort (6-12 Jahre)", "Integrationskita", "Waldkita", "Montessori Kita", "Betriebskita"].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
-                  <div style={{ marginBottom: 14 }}><label style={labelStyle}>Träger</label><select style={selectStyle} value={form.traeger || ""} onChange={e => set("traeger", e.target.value)}><option value="">– bitte wählen –</option>{["Öffentlich (kommunal)", "AWO", "Caritas", "Diakonie", "DRK", "Paritätischer Wohlfahrtsverband", "Privat / Eigenträger", "Sonstiger freier Träger"].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+
+              {saveSuccess && <div style={{ padding: "12px 16px", background: "#ECFDF5", border: "1px solid #A7F3D0", borderRadius: 10, color: "#065F46", fontSize: "0.84rem", fontWeight: 600, marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}><Icon.check />Profil erfolgreich gespeichert!</div>}
+
+              <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 26 }}>
+                {!editMode ? (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+                    {([["Einrichtung", arbeitgeber?.einrichtung_name], ["Einrichtungstyp", arbeitgeber?.einrichtungstyp], ["Träger", arbeitgeber?.traeger], ["Ansprechpartner", arbeitgeber?.ansprech_name], ["Rolle", arbeitgeber?.ansprech_rolle], ["E-Mail", arbeitgeber?.email], ["Telefon", arbeitgeber?.telefon], ["Adresse", `${arbeitgeber?.strasse || ""} ${arbeitgeber?.hausnummer || ""}, ${arbeitgeber?.plz || ""} ${arbeitgeber?.ort || ""}`], ["Bundesland", arbeitgeber?.bundesland], ["Offene Stellen", arbeitgeber?.stellen_anzahl], ["Status", arbeitgeber?.status]] as [string, string | undefined][]).filter(([, v]) => v).map(([k, v]) => (
+                      <div key={k} style={{ padding: "13px 0", borderBottom: `1px solid ${C.border}` }}>
+                        <div style={{ fontSize: "0.7rem", fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 3 }}>{k}</div>
+                        <div style={{ color: C.text, fontWeight: 600, fontSize: "0.88rem", wordBreak: "break-word" }}>{v}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    <div className="section-header">Einrichtung</div>
+                    <div><label style={labelStyle}>Name der Einrichtung</label><input style={fieldStyle} value={form.einrichtung_name || ""} onChange={e => set("einrichtung_name", e.target.value)} /></div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <div><label style={labelStyle}>Einrichtungstyp</label><select style={selectFieldStyle} value={form.einrichtungstyp || ""} onChange={e => set("einrichtungstyp", e.target.value)}><option value="">– wählen –</option>{["Krippe (0-3 Jahre)", "Kindergarten (3-6 Jahre)", "Kita (0-6 Jahre)", "Hort (6-12 Jahre)", "Integrationskita", "Waldkita", "Montessori Kita", "Betriebskita"].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                      <div><label style={labelStyle}>Träger</label><select style={selectFieldStyle} value={form.traeger || ""} onChange={e => set("traeger", e.target.value)}><option value="">– wählen –</option>{["Öffentlich (kommunal)", "AWO", "Caritas", "Diakonie", "DRK", "Paritätischer Wohlfahrtsverband", "Privat / Eigenträger", "Sonstiger freier Träger"].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                    </div>
+                    <div><label style={labelStyle}>Beschreibung</label><textarea style={{ ...fieldStyle, resize: "vertical" }} rows={4} value={form.beschreibung || ""} onChange={e => set("beschreibung", e.target.value)} /></div>
+
+                    <div className="section-header" style={{ marginTop: 8 }}>Adresse</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 12 }}>
+                      <div><label style={labelStyle}>Straße</label><input style={fieldStyle} value={form.strasse || ""} onChange={e => set("strasse", e.target.value)} /></div>
+                      <div><label style={labelStyle}>Nr.</label><input style={fieldStyle} value={form.hausnummer || ""} onChange={e => set("hausnummer", e.target.value)} /></div>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12 }}>
+                      <div><label style={labelStyle}>PLZ</label><input style={fieldStyle} value={form.plz || ""} onChange={e => set("plz", e.target.value)} /></div>
+                      <div><label style={labelStyle}>Ort</label><input style={fieldStyle} value={form.ort || ""} onChange={e => set("ort", e.target.value)} /></div>
+                    </div>
+                    <div><label style={labelStyle}>Bundesland</label><select style={selectFieldStyle} value={form.bundesland || ""} onChange={e => set("bundesland", e.target.value)}><option value="">– wählen –</option>{["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}</select></div>
+
+                    <div className="section-header" style={{ marginTop: 8 }}>Ansprechpartner</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <div><label style={labelStyle}>Name</label><input style={fieldStyle} value={form.ansprech_name || ""} onChange={e => set("ansprech_name", e.target.value)} /></div>
+                      <div><label style={labelStyle}>Rolle</label><select style={selectFieldStyle} value={form.ansprech_rolle || ""} onChange={e => set("ansprech_rolle", e.target.value)}><option value="">– wählen –</option>{["Kita-Leitung","Stellv. Leitung","Träger-Geschäftsführung","HR / Personal","Sonstiges"].map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                    </div>
+                    <div><label style={labelStyle}>Telefon</label><input style={fieldStyle} value={form.telefon || ""} onChange={e => set("telefon", e.target.value)} /></div>
+                    <div><label style={labelStyle}>Offene Stellen</label><select style={selectFieldStyle} value={form.stellen_anzahl || ""} onChange={e => set("stellen_anzahl", e.target.value)}><option value="">– wählen –</option>{["1 Stelle","2-3 Stellen","4-5 Stellen","6-10 Stellen","Mehr als 10 Stellen"].map(s => <option key={s} value={s}>{s}</option>)}</select></div>
+
+                    {saveError && <div style={{ padding: "12px 16px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.84rem" }}>{saveError}</div>}
+                  </div>
+                )}
+
+                <div style={{ marginTop: 28, padding: 20, background: "#FFF5F5", border: "1.5px solid #FED7D7", borderRadius: 14 }}>
+                  <div style={{ fontWeight: 800, color: "#9B1C1C", marginBottom: 6, fontSize: "0.92rem" }}>Account löschen</div>
+                  <div style={{ color: "#7F1D1D", fontSize: "0.81rem", lineHeight: 1.65, marginBottom: 14 }}>Ihr Account und alle Daten werden unwiderruflich gelöscht.</div>
+                  <button onClick={handleDeleteAccount} style={{ background: C.red, color: "white", border: "none", padding: "11px 20px", borderRadius: 10, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Sora', sans-serif", width: "100%" }}>Account unwiderruflich löschen</button>
                 </div>
-                <div style={{ marginBottom: 14 }}><label style={labelStyle}>Beschreibung</label><textarea style={{ ...inputStyle, height: 88, resize: "vertical" }} value={form.beschreibung || ""} onChange={e => set("beschreibung", e.target.value)} /></div>
-                <div style={{ marginTop: 4, marginBottom: 6, fontWeight: 700, color: BLUE, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: 1 }}>Adresse</div>
-                <div style={{ height: 1, background: "#F0F4F9", marginBottom: 14 }} />
-                <div className="three-one-grid" style={{ marginBottom: 14 }}>
-                  <div style={{ marginBottom: 14 }}><label style={labelStyle}>Straße</label><input style={inputStyle} value={form.strasse || ""} onChange={e => set("strasse", e.target.value)} /></div>
-                  <div style={{ marginBottom: 14 }}><label style={labelStyle}>Nr.</label><input style={inputStyle} value={form.hausnummer || ""} onChange={e => set("hausnummer", e.target.value)} /></div>
-                </div>
-                <div className="one-two-grid" style={{ marginBottom: 14 }}>
-                  <div style={{ marginBottom: 14 }}><label style={labelStyle}>PLZ</label><input style={inputStyle} value={form.plz || ""} onChange={e => set("plz", e.target.value)} /></div>
-                  <div style={{ marginBottom: 14 }}><label style={labelStyle}>Ort</label><input style={inputStyle} value={form.ort || ""} onChange={e => set("ort", e.target.value)} /></div>
-                </div>
-                <div style={{ marginBottom: 14 }}><label style={labelStyle}>Bundesland</label><select style={selectStyle} value={form.bundesland || ""} onChange={e => set("bundesland", e.target.value)}><option value="">– bitte wählen –</option>{["Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}</select></div>
-                <div style={{ marginTop: 4, marginBottom: 6, fontWeight: 700, color: BLUE, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: 1 }}>Ansprechpartner</div>
-                <div style={{ height: 1, background: "#F0F4F9", marginBottom: 14 }} />
-                <div className="two-col-grid" style={{ marginBottom: 14 }}>
-                  <div style={{ marginBottom: 14 }}><label style={labelStyle}>Name</label><input style={inputStyle} value={form.ansprech_name || ""} onChange={e => set("ansprech_name", e.target.value)} /></div>
-                  <div style={{ marginBottom: 14 }}><label style={labelStyle}>Rolle</label><select style={selectStyle} value={form.ansprech_rolle || ""} onChange={e => set("ansprech_rolle", e.target.value)}><option value="">– bitte wählen –</option>{["Kita-Leitung", "Stellv. Leitung", "Träger-Geschäftsführung", "HR / Personal", "Sonstiges"].map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-                </div>
-                <div style={{ marginBottom: 14 }}><label style={labelStyle}>Telefon</label><input style={inputStyle} value={form.telefon || ""} onChange={e => set("telefon", e.target.value)} /></div>
-                <div style={{ marginBottom: 14 }}><label style={labelStyle}>Offene Stellen</label><select style={selectStyle} value={form.stellen_anzahl || ""} onChange={e => set("stellen_anzahl", e.target.value)}><option value="">– bitte wählen –</option>{["1 Stelle", "2-3 Stellen", "4-5 Stellen", "6-10 Stellen", "Mehr als 10 Stellen"].map(s => <option key={s} value={s}>{s}</option>)}</select></div>
-                {saveError && <div style={{ padding: "12px 14px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.85rem", marginBottom: 14 }}>⚠️ {saveError}</div>}
               </div>
-            )}
-            <div style={{ marginTop: 28, padding: 16, background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 12 }}>
-              <div style={{ fontWeight: 700, color: "#9B1C1C", marginBottom: 6, fontSize: "0.92rem" }}>⚠️ Account löschen</div>
-              <div style={{ color: "#7F1D1D", fontSize: "0.83rem", marginBottom: 12 }}>Ihr Account und alle Ihre Daten werden unwiderruflich gelöscht.</div>
-              <button onClick={handleDeleteAccount} style={{ background: RED, color: "white", border: "none", padding: "10px 20px", borderRadius: 8, fontWeight: 700, fontSize: "0.86rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", width: "100%" }}>Account unwiderruflich löschen</button>
             </div>
-          </div>
-        )}
+          )}
+        </main>
       </div>
     </div>
   );
