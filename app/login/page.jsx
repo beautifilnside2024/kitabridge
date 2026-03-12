@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect, Suspense } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -14,13 +14,30 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const rolleParam = searchParams.get("rolle");
     if (rolleParam === "fachkraft") setRolle("fachkraft");
     if (rolleParam === "kita") setRolle("kita");
-  }, [searchParams]);
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        supabase.from("arbeitgeber").select("id").eq("email", session.user.email).single()
+          .then(({ data }) => {
+            if (data) { router.replace("/dashboard"); }
+            else { router.replace("/fachkraft/dashboard"); }
+          });
+      } else {
+        setChecking(false);
+      }
+    });
+  }, []);
+
+  if (checking) return (
+    <div style={{ textAlign: "center", color: "#9BA8C0", fontSize: "1rem" }}>Wird geladen...</div>
+  );
 
   const handleLogin = async () => {
     setLoading(true);
@@ -31,11 +48,8 @@ function LoginForm() {
       setLoading(false);
       return;
     }
-    if (rolle === "kita") {
-      router.push("/dashboard");
-    } else {
-      router.push("/fachkraft/dashboard");
-    }
+    if (rolle === "kita") { router.replace("/dashboard"); }
+    else { router.replace("/fachkraft/dashboard"); }
   };
 
   return (
@@ -48,13 +62,13 @@ function LoginForm() {
       <div style={{ background: "white", borderRadius: 24, padding: "36px 32px", boxShadow: "0 4px 32px rgba(26,63,111,0.12)" }}>
         {!rolle ? (
           <div>
-            <h1 style={{ fontSize: "1.5rem", color: NAVY, marginBottom: 8 }}>Willkommen zurück</h1>
-            <p style={{ color: "#9BA8C0", fontSize: "0.9rem", marginBottom: 28 }}>Wie möchtest du dich anmelden?</p>
+            <h1 style={{ fontSize: "1.5rem", color: NAVY, marginBottom: 8 }}>Willkommen</h1>
+            <p style={{ color: "#9BA8C0", fontSize: "0.9rem", marginBottom: 28 }}>Wie moechtest du dich anmelden?</p>
             <button onClick={() => setRolle("kita")} style={{ width: "100%", padding: "18px 20px", background: "white", border: "2px solid #E2E8F0", borderRadius: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 16, marginBottom: 12 }}>
               <span style={{ fontSize: "1.5rem" }}>🏫</span>
               <div style={{ textAlign: "left" }}>
                 <div style={{ fontWeight: 700, color: NAVY }}>Als Kita / Einrichtung</div>
-                <div style={{ color: "#9BA8C0", fontSize: "0.82rem" }}>Fachkräfte finden und kontaktieren</div>
+                <div style={{ color: "#9BA8C0", fontSize: "0.82rem" }}>Fachkraefte finden und kontaktieren</div>
               </div>
             </button>
             <button onClick={() => setRolle("fachkraft")} style={{ width: "100%", padding: "18px 20px", background: "white", border: "2px solid #E2E8F0", borderRadius: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 16 }}>
@@ -67,12 +81,12 @@ function LoginForm() {
           </div>
         ) : (
           <div>
-            <button onClick={() => { setRolle(null); setError(""); }} style={{ background: "none", border: "none", color: "#9BA8C0", fontSize: "0.85rem", cursor: "pointer", marginBottom: 20, padding: 0 }}>← Zurück</button>
+            <button onClick={() => { setRolle(null); setError(""); }} style={{ background: "none", border: "none", color: "#9BA8C0", fontSize: "0.85rem", cursor: "pointer", marginBottom: 20, padding: 0 }}>zurueck</button>
             <div style={{ padding: "12px 16px", background: rolle === "kita" ? "#EEF2FF" : "#EAF7EF", borderRadius: 12, marginBottom: 24, fontWeight: 700, color: NAVY }}>
-              {rolle === "kita" ? "🏫 Anmeldung als Kita" : "👩‍🍼 Anmeldung als Fachkraft"}
+              {rolle === "kita" ? "Anmeldung als Kita" : "Anmeldung als Fachkraft"}
             </div>
             {error && (
-              <div style={{ marginBottom: 16, padding: "12px 16px", background: "#FFF5F5", borderRadius: 10, color: "#9B1C1C" }}>⚠️ {error}</div>
+              <div style={{ marginBottom: 16, padding: "12px 16px", background: "#FFF5F5", borderRadius: 10, color: "#9B1C1C" }}>{error}</div>
             )}
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#9BA8C0", marginBottom: 6 }}>E-MAIL</label>
@@ -99,9 +113,7 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F0F4F9, #E8EEF8)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "sans-serif", padding: "24px 16px" }}>
       <Suspense fallback={
-        <div style={{ textAlign: "center", color: "#9BA8C0", fontSize: "1rem" }}>
-          Wird geladen...
-        </div>
+        <div style={{ textAlign: "center", color: "#9BA8C0", fontSize: "1rem" }}>Wird geladen...</div>
       }>
         <LoginForm />
       </Suspense>
