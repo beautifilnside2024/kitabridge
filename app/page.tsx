@@ -296,7 +296,7 @@ export default function Home() {
               <button className={`lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}><img className="flag-img" src="https://flagcdn.com/w20/gb.png" alt="EN" />EN</button>
             </div>
             <a href="/login" className="btn-secondary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>{t.nav.login}</a>
-            <a href="/Arbeitgeber" className="btn-primary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>{t.nav.start}</a>
+            <a href="/arbeitgeber/registrieren" className="btn-primary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>{t.nav.start}</a>
           </div>
           <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} style={{ display: "none", background: "none", border: "none", cursor: "pointer", flexDirection: "column", gap: 5, padding: 4 }}>
             <div style={{ width: 24, height: 2, background: NAVY, borderRadius: 2, transition: "all 0.3s", transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : "none" }}/>
@@ -318,7 +318,7 @@ export default function Home() {
         <a href="#faq" onClick={() => setMenuOpen(false)} style={{ color: NAVY, textDecoration: "none", fontWeight: 600, padding: "8px 0" }}>{t.nav.faq}</a>
         <div style={{ display: "flex", gap: 10, paddingTop: 8, borderTop: "1px solid #E8EDF4" }}>
           <a href="/login" className="btn-secondary" style={{ flex: 1, textAlign: "center", padding: "10px 16px", fontSize: "0.88rem" }}>{t.nav.login}</a>
-          <a href="/Arbeitgeber" className="btn-primary" style={{ flex: 1, textAlign: "center", padding: "10px 16px", fontSize: "0.88rem" }}>{t.nav.startMobile}</a>
+          <a href="/arbeitgeber/registrieren" className="btn-primary" style={{ flex: 1, textAlign: "center", padding: "10px 16px", fontSize: "0.88rem" }}>{t.nav.startMobile}</a>
         </div>
       </div>
 
@@ -341,7 +341,7 @@ export default function Home() {
                 {t.hero.tagline}
               </p>
               <div className="hero-btns" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                <button onClick={() => router.push("/Arbeitgeber")} className="btn-primary">{t.hero.btnFind}</button>
+                <button onClick={() => router.push("/arbeitgeber/registrieren")} className="btn-primary">{t.hero.btnFind}</button>
                 <button onClick={() => router.push("/Registrieren")} className="btn-green">{t.hero.btnApply}</button>
               </div>
               <div className="hero-badges" style={{ display: "flex", gap: 20, marginTop: 40, flexWrap: "wrap" }}>
@@ -370,7 +370,7 @@ export default function Home() {
                     <span style={{ color: NAVY, fontWeight: 500 }}>{v}</span>
                   </div>
                 ))}
-                <button onClick={() => router.push("/Arbeitgeber")} className="btn-primary" style={{ width: "100%", marginTop: 20, textAlign: "center", display: "block" }}>{t.hero.profileBtn}</button>
+                <button onClick={() => router.push("/arbeitgeber/registrieren")} className="btn-primary" style={{ width: "100%", marginTop: 20, textAlign: "center", display: "block" }}>{t.hero.profileBtn}</button>
               </div>
               <div style={{ position: "absolute", top: -20, right: -20, background: "white", borderRadius: 16, padding: "12px 18px", boxShadow: "0 8px 24px rgba(0,0,0,0.1)", border: "1px solid #E8EDF4" }}>
                 <div style={{ fontSize: "0.75rem", color: "#9BA8C0", marginBottom: 2 }}>{t.hero.newRequest}</div>
@@ -420,7 +420,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <a href="/Arbeitgeber" className="btn-primary">{t.kitas.btn}</a>
+              <a href="/arbeitgeber/registrieren" className="btn-primary">{t.kitas.btn}</a>
             </div>
             <div>
               <div className="price-box" style={{ background: "linear-gradient(135deg, #1A3F6F, #2471A3)", borderRadius: 24, padding: 36, color: "white", position: "relative" }}>
@@ -567,7 +567,7 @@ export default function Home() {
           <h2 className="cta-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.6rem", fontWeight: 800, color: "white", marginBottom: 20 }}>{t.cta.title}</h2>
           <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "1.05rem", lineHeight: 1.75, marginBottom: 40 }}>{t.cta.desc}</p>
           <div className="cta-btns" style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href="/Arbeitgeber" className="btn-primary">{t.cta.btnFind}</a>
+            <a href="/arbeitgeber/registrieren" className="btn-primary">{t.cta.btnFind}</a>
             <a href="/Registrieren" className="btn-green">{t.cta.btnApply}</a>
           </div>
         </div>
