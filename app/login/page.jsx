@@ -12,7 +12,7 @@ const C = {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [rolle, setRolle] = useState<"kita" | "fachkraft" | null>(null);
+  const [rolle, setRolle] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -68,6 +68,7 @@ function LoginForm() {
         .btn-back { background: none; border: none; color: ${C.muted}; font-size: 0.82rem; cursor: pointer; font-family: 'Sora', sans-serif; font-weight: 600; display: flex; align-items: center; gap: 6px; padding: 0; margin-bottom: 24px; transition: color 0.15s; }
         .btn-back:hover { color: ${C.navyMid}; }
         .input-field { width: 100%; padding: 12px 16px; border: 1.5px solid ${C.border}; border-radius: 11px; font-size: 0.9rem; font-family: 'Sora', sans-serif; color: ${C.text}; background: white; outline: none; transition: all 0.15s; }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
       {/* Logo */}
@@ -131,7 +132,6 @@ function LoginForm() {
               Zurück
             </button>
 
-            {/* Rolle badge */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", background: rolle === "kita" ? "#EFF6FF" : "#ECFDF5", borderRadius: 12, marginBottom: 26, border: `1px solid ${rolle === "kita" ? "#BFDBFE" : "#A7F3D0"}` }}>
               <span style={{ fontSize: "1.1rem" }}>{rolle === "kita" ? "🏫" : "👩‍🍼"}</span>
               <span style={{ fontWeight: 700, color: C.text, fontSize: "0.88rem" }}>
@@ -220,14 +220,12 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div style={{ minHeight: "100vh", background: `linear-gradient(135deg, #EEF2F8 0%, #F7F9FC 50%, #EAF0F8 100%)`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Sora', sans-serif", padding: "24px 16px", position: "relative" }}>
-      {/* Subtle background decoration */}
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #EEF2F8 0%, #F7F9FC 50%, #EAF0F8 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Sora', sans-serif", padding: "24px 16px", position: "relative" }}>
       <div style={{ position: "fixed", top: -100, right: -100, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(36,113,163,0.06), transparent)", pointerEvents: "none" }} />
       <div style={{ position: "fixed", bottom: -100, left: -100, width: 350, height: 350, borderRadius: "50%", background: "radial-gradient(circle, rgba(22,163,74,0.05), transparent)", pointerEvents: "none" }} />
       <Suspense fallback={
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
           <div style={{ width: 36, height: 36, border: "3px solid #E4EAF4", borderTopColor: "#1A3F6F", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       }>
         <LoginForm />
