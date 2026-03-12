@@ -35,6 +35,14 @@ const C = {
   surface: "#F7F9FC", border: "#E4EAF4", muted: "#8A96B0", text: "#1C2B4A",
 };
 
+// ── Helper ─────────────────────────────────────────────────────────────────────
+const formatStatus = (status?: string) => {
+  if (status === "bestaetigt" || status === "bestätigt") return "Bestätigt";
+  if (status === "aktiv") return "Aktiv";
+  if (status === "inaktiv") return "Inaktiv";
+  return status;
+};
+
 // ── Icons ──────────────────────────────────────────────────────────────────────
 const Icon = {
   home: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
@@ -486,7 +494,7 @@ export default function Dashboard() {
     else alert("Fehler beim Kündigen. Bitte kontaktieren Sie uns unter hallo@kitabridge.de");
   };
 
-  const isAktiv = arbeitgeber?.status === "aktiv" || arbeitgeber?.status === "bestätigt";
+  const isAktiv = arbeitgeber?.status === "aktiv" || arbeitgeber?.status === "bestätigt" || arbeitgeber?.status === "bestaetigt";
 
   const fieldStyle: React.CSSProperties = { width: "100%", padding: "10px 13px", border: `1.5px solid ${C.border}`, borderRadius: 10, fontSize: "0.87rem", color: C.text, background: "white", outline: "none", fontFamily: "'Sora', sans-serif" };
   const selectFieldStyle: React.CSSProperties = { ...fieldStyle, appearance: "none" as any, backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A96B0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", paddingRight: 36 };
@@ -717,7 +725,7 @@ export default function Dashboard() {
               <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 26 }}>
                 {!editMode ? (
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
-                    {([["Einrichtung", arbeitgeber?.einrichtung_name], ["Einrichtungstyp", arbeitgeber?.einrichtungstyp], ["Träger", arbeitgeber?.traeger], ["Ansprechpartner", arbeitgeber?.ansprech_name], ["Rolle", arbeitgeber?.ansprech_rolle], ["E-Mail", arbeitgeber?.email], ["Telefon", arbeitgeber?.telefon], ["Adresse", `${arbeitgeber?.strasse || ""} ${arbeitgeber?.hausnummer || ""}, ${arbeitgeber?.plz || ""} ${arbeitgeber?.ort || ""}`], ["Bundesland", arbeitgeber?.bundesland], ["Offene Stellen", arbeitgeber?.stellen_anzahl], ["Status", arbeitgeber?.status]] as [string, string | undefined][]).filter(([, v]) => v).map(([k, v]) => (
+                    {([["Einrichtung", arbeitgeber?.einrichtung_name], ["Einrichtungstyp", arbeitgeber?.einrichtungstyp], ["Träger", arbeitgeber?.traeger], ["Ansprechpartner", arbeitgeber?.ansprech_name], ["Rolle", arbeitgeber?.ansprech_rolle], ["E-Mail", arbeitgeber?.email], ["Telefon", arbeitgeber?.telefon], ["Adresse", `${arbeitgeber?.strasse || ""} ${arbeitgeber?.hausnummer || ""}, ${arbeitgeber?.plz || ""} ${arbeitgeber?.ort || ""}`], ["Bundesland", arbeitgeber?.bundesland], ["Offene Stellen", arbeitgeber?.stellen_anzahl], ["Status", formatStatus(arbeitgeber?.status)]] as [string, string | undefined][]).filter(([, v]) => v).map(([k, v]) => (
                       <div key={k} style={{ padding: "13px 0", borderBottom: `1px solid ${C.border}` }}>
                         <div style={{ fontSize: "0.7rem", fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 3 }}>{k}</div>
                         <div style={{ color: C.text, fontWeight: 600, fontSize: "0.88rem", wordBreak: "break-word" }}>{v}</div>
