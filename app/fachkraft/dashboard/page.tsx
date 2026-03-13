@@ -395,10 +395,19 @@ export default function FachkraftDashboard() {
                 <button className="quick-link" onClick={() => setActiveTab("profil")}>
                   <span style={{ color: C.navyMid }}><Icon.user /></span>Profil bearbeiten
                 </button>
-                <a href="/kontakt" className="quick-link" style={{ gridColumn: "1/-1" }}>
+               <a href="/kontakt" className="quick-link" style={{ gridColumn: "1/-1" }}>
                   <span style={{ color: C.muted }}><Icon.settings /></span>Support kontaktieren
                 </a>
               </div>
+
+              {/* ── Missbrauch Banner ── */}
+              <div style={{ background: "#EFF6FF", border: "1.5px solid #BFDBFE", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <span style={{ color: C.blue, marginTop: 1, flexShrink: 0 }}><Icon.shield /></span>
+                <div style={{ fontSize: "0.8rem", color: "#1E40AF", lineHeight: 1.6 }}>
+                  <strong>Fairness-Hinweis:</strong> Falls eine Einrichtung dir über KitaBridge Stellen in anderen Einrichtungen anbietet, die nicht ihrem registrierten Account entsprechen, melde uns das bitte — <a href="mailto:hallo@kitabridge.de?subject=Missbrauch melden" style={{ color: C.blue, fontWeight: 700 }}>hallo@kitabridge.de</a>. Wir behandeln alle Hinweise vertraulich. 🙏
+                </div>
+              </div>
+
             </div>
           )}
 
