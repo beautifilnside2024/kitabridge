@@ -22,23 +22,12 @@ interface Nachricht {
 
 type Tab = "uebersicht" | "anfragen" | "nachrichten" | "profil" | "konto";
 
-// ── Constants ──────────────────────────────────────────────────────────────────
 const C = {
-  navy: "#0F2442",
-  navyMid: "#1A3F6F",
-  blue: "#2471A3",
-  blueLight: "#3B8FCC",
-  green: "#16A34A",
-  greenLight: "#22C55E",
-  red: "#DC2626",
-  amber: "#D97706",
-  surface: "#F7F9FC",
-  border: "#E4EAF4",
-  muted: "#8A96B0",
-  text: "#1C2B4A",
+  navy: "#0F2442", navyMid: "#1A3F6F", blue: "#2471A3", blueLight: "#3B8FCC",
+  green: "#16A34A", greenLight: "#22C55E", red: "#DC2626", amber: "#D97706",
+  surface: "#F7F9FC", border: "#E4EAF4", muted: "#8A96B0", text: "#1C2B4A",
 };
 
-// ── Tiny icon components ───────────────────────────────────────────────────────
 const Icon = {
   home: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
   inbox: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>,
@@ -53,9 +42,9 @@ const Icon = {
   pin: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
   clock: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
   zap: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  flag: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
 };
 
-// ── Main Component ─────────────────────────────────────────────────────────────
 export default function FachkraftDashboard() {
   const router = useRouter();
   const [fachkraft, setFachkraft] = useState<Fachkraft | null>(null);
@@ -72,7 +61,12 @@ export default function FachkraftDashboard() {
   const [antwort, setAntwort] = useState<Record<string, string>>({});
   const [sendingMsg, setSendingMsg] = useState<string | null>(null);
   const [msgSent, setMsgSent] = useState<Record<string, boolean>>({});
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // ── Missbrauch Melden State ──
+  const [meldungModal, setMeldungModal] = useState<{ partnerId: string; partnerName: string } | null>(null);
+  const [meldungText, setMeldungText] = useState("");
+  const [meldungGesendet, setMeldungGesendet] = useState(false);
+  const [meldungSending, setMeldungSending] = useState(false);
 
   useEffect(() => { loadDashboard(); }, []);
 
@@ -85,11 +79,8 @@ export default function FachkraftDashboard() {
     if (!session) { router.push("/login?rolle=fachkraft"); return; }
     const { data } = await supabase.from("fachkraefte").select("*").eq("email", session.user.email).single();
     if (!data) { router.push("/login?rolle=fachkraft"); return; }
-    setFachkraft(data);
-    setForm(data);
-    setLoading(false);
-    loadAnfragen(data.id);
-    loadNachrichten(data.id);
+    setFachkraft(data); setForm(data); setLoading(false);
+    loadAnfragen(data.id); loadNachrichten(data.id);
   };
 
   const loadAnfragen = async (id: string) => {
@@ -140,6 +131,28 @@ export default function FachkraftDashboard() {
     await loadNachrichten(fachkraft.id);
   };
 
+  // ── Missbrauch melden Handler ──
+  const handleMeldungSenden = async () => {
+    if (!meldungModal || !fachkraft) return;
+    setMeldungSending(true);
+    await fetch("/api/send-email", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "missbrauch_meldung",
+        data: {
+          melder_email: fachkraft.email,
+          melder_name: fachkraft.vorname || fachkraft.username || "Fachkraft",
+          verdaechtige_kita: meldungModal.partnerName,
+          verdaechtige_kita_id: meldungModal.partnerId,
+          beschreibung: meldungText,
+        }
+      }),
+    });
+    setMeldungSending(false);
+    setMeldungGesendet(true);
+    setMeldungText("");
+  };
+
   const handleSave = async () => {
     if (!form || !fachkraft) return;
     setSaving(true); setSaveError(""); setSaveSuccess(false);
@@ -167,15 +180,10 @@ export default function FachkraftDashboard() {
     else alert("Fehler beim Löschen. Bitte kontaktiere uns unter hallo@kitabridge.de");
   };
 
-  // ── Derived state ────────────────────────────────────────────────────────────
   const offeneAnfragen = anfragen.filter(a => a.status === "ausstehend");
   const bearbeiteteAnfragen = anfragen.filter(a => a.status !== "ausstehend");
-  const displayName = fachkraft?.vorname && fachkraft?.nachname
-    ? `${fachkraft.vorname} ${fachkraft.nachname}`
-    : fachkraft?.username || "Fachkraft";
-  const initials = fachkraft?.vorname && fachkraft?.nachname
-    ? `${fachkraft.vorname[0]}${fachkraft.nachname[0]}`.toUpperCase()
-    : (fachkraft?.username?.[0] || "F").toUpperCase();
+  const displayName = fachkraft?.vorname && fachkraft?.nachname ? `${fachkraft.vorname} ${fachkraft.nachname}` : fachkraft?.username || "Fachkraft";
+  const initials = fachkraft?.vorname && fachkraft?.nachname ? `${fachkraft.vorname[0]}${fachkraft.nachname[0]}`.toUpperCase() : (fachkraft?.username?.[0] || "F").toUpperCase();
 
   const getKonversationen = () => {
     if (!fachkraft) return {} as Record<string, Nachricht[]>;
@@ -190,7 +198,6 @@ export default function FachkraftDashboard() {
   const konversationen = getKonversationen();
   const ungelesene = nachrichten.filter(m => m.von_id !== fachkraft?.id && m.von_typ === "arbeitgeber").length;
 
-  // ── Nav items ────────────────────────────────────────────────────────────────
   const navItems: { key: Tab; label: string; icon: () => JSX.Element; badge?: number }[] = [
     { key: "uebersicht", label: "Übersicht", icon: Icon.home },
     { key: "anfragen", label: "Anfragen", icon: Icon.inbox, badge: offeneAnfragen.length || undefined },
@@ -199,7 +206,6 @@ export default function FachkraftDashboard() {
     { key: "konto", label: "Konto", icon: Icon.settings },
   ];
 
-  // ── Form helpers ─────────────────────────────────────────────────────────────
   const Field = ({ label, name, type = "text", options }: { label: string; name: keyof Fachkraft; type?: string; options?: string[] }) => (
     <div>
       <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 6 }}>{label}</label>
@@ -220,7 +226,6 @@ export default function FachkraftDashboard() {
     outline: "none", fontFamily: "inherit", appearance: "none" as any,
   };
 
-  // ── Loading screen ───────────────────────────────────────────────────────────
   if (loading) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: C.surface, fontFamily: "'Sora', sans-serif" }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
@@ -231,7 +236,6 @@ export default function FachkraftDashboard() {
     </div>
   );
 
-  // ── RENDER ───────────────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight: "100vh", background: C.surface, fontFamily: "'Sora', sans-serif", display: "flex", flexDirection: "column" }}>
       <style>{`
@@ -241,9 +245,7 @@ export default function FachkraftDashboard() {
         input:focus, select:focus, textarea:focus { border-color: ${C.blue} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.12) !important; outline: none; }
         button { font-family: 'Sora', sans-serif; }
         select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A96B0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px !important; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 99px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 99px; }
         .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; border: none; background: transparent; color: ${C.muted}; font-size: 0.84rem; font-weight: 600; cursor: pointer; width: 100%; text-align: left; transition: all 0.15s; position: relative; }
         .nav-item:hover { background: rgba(26,63,111,0.06); color: ${C.navyMid}; }
         .nav-item.active { background: ${C.navyMid}; color: white; }
@@ -254,8 +256,8 @@ export default function FachkraftDashboard() {
         .anfrage-card { background: white; border: 1.5px solid ${C.border}; border-radius: 16px; padding: 22px; margin-bottom: 12px; transition: box-shadow 0.2s; }
         .anfrage-card:hover { box-shadow: 0 4px 20px rgba(15,36,66,0.08); }
         .btn-primary { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; background: ${C.navyMid}; color: white; border: none; border-radius: 11px; font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all 0.15s; width: 100%; }
-        .btn-primary:hover { background: ${C.navy}; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,63,111,0.25); }
-        .btn-primary:disabled { background: ${C.border}; color: ${C.muted}; transform: none; box-shadow: none; cursor: not-allowed; }
+        .btn-primary:hover { background: ${C.navy}; }
+        .btn-primary:disabled { background: ${C.border}; color: ${C.muted}; cursor: not-allowed; }
         .btn-ghost { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; background: white; color: ${C.text}; border: 1.5px solid ${C.border}; border-radius: 11px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.15s; width: 100%; }
         .btn-ghost:hover { border-color: #C0CCDF; background: ${C.surface}; }
         .btn-green { background: ${C.green}; color: white; border: none; border-radius: 11px; padding: 11px 20px; font-weight: 700; font-size: 0.85rem; cursor: pointer; flex: 1; transition: all 0.15s; font-family: 'Sora', sans-serif; }
@@ -265,13 +267,11 @@ export default function FachkraftDashboard() {
         .toggle-track { width: 48px; height: 26px; border-radius: 13px; cursor: pointer; position: relative; transition: background 0.3s; flex-shrink: 0; }
         .toggle-thumb { position: absolute; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: white; box-shadow: 0 1px 4px rgba(0,0,0,0.2); transition: left 0.25s cubic-bezier(.4,0,.2,1); }
         .quick-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; background: white; border: 1.5px solid ${C.border}; text-decoration: none; color: ${C.text}; font-weight: 600; font-size: 0.86rem; cursor: pointer; transition: all 0.15s; }
-        .quick-link:hover { border-color: ${C.blue}; color: ${C.navyMid}; transform: translateX(2px); }
+        .quick-link:hover { border-color: ${C.blue}; color: ${C.navyMid}; }
         .chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 99px; font-size: 0.73rem; font-weight: 600; }
-        @media (max-width: 768px) {
-          .sidebar { display: none !important; }
-          .sidebar.open { display: flex !important; position: fixed; left: 0; top: 0; bottom: 0; z-index: 200; }
-          .main-content { margin-left: 0 !important; }
-        }
+        @media (max-width: 768px) { .sidebar { display: none !important; } .main-content { margin-left: 0 !important; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
       `}</style>
 
       {/* ── TOP NAV ── */}
@@ -298,13 +298,9 @@ export default function FachkraftDashboard() {
 
         {/* ── SIDEBAR ── */}
         <aside className="sidebar" style={{ width: 240, flexShrink: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-
-          {/* Profile card */}
           <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 20, marginBottom: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-              <div style={{ width: 46, height: 46, borderRadius: 14, background: `linear-gradient(135deg, ${C.navyMid}, ${C.blue})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", fontWeight: 800, color: "white", flexShrink: 0 }}>
-                {initials}
-              </div>
+              <div style={{ width: 46, height: 46, borderRadius: 14, background: `linear-gradient(135deg, ${C.navyMid}, ${C.blue})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", fontWeight: 800, color: "white", flexShrink: 0 }}>{initials}</div>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 700, color: C.text, fontSize: "0.9rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{displayName}</div>
                 <div style={{ fontSize: "0.73rem", color: C.muted, marginTop: 1 }}>{fachkraft?.qualifikation || "Fachkraft"}</div>
@@ -315,44 +311,31 @@ export default function FachkraftDashboard() {
                 <div style={{ fontSize: "0.75rem", fontWeight: 700, color: C.text }}>Aktiv auf Suche</div>
                 <div style={{ fontSize: "0.68rem", color: C.muted, marginTop: 1 }}>{fachkraft?.aktiv_suchend ? "Sichtbar für Kitas" : "Nicht sichtbar"}</div>
               </div>
-              <div
-                className="toggle-track"
-                style={{ background: fachkraft?.aktiv_suchend ? C.green : C.border }}
-                onClick={async () => {
-                  if (!fachkraft) return;
-                  const neu = !fachkraft.aktiv_suchend;
-                  await supabase.from("fachkraefte").update({ aktiv_suchend: neu }).eq("email", fachkraft.email);
-                  setFachkraft({ ...fachkraft, aktiv_suchend: neu });
-                }}
-              >
+              <div className="toggle-track" style={{ background: fachkraft?.aktiv_suchend ? C.green : C.border }} onClick={async () => {
+                if (!fachkraft) return;
+                const neu = !fachkraft.aktiv_suchend;
+                await supabase.from("fachkraefte").update({ aktiv_suchend: neu }).eq("email", fachkraft.email);
+                setFachkraft({ ...fachkraft, aktiv_suchend: neu });
+              }}>
                 <div className="toggle-thumb" style={{ left: fachkraft?.aktiv_suchend ? 25 : 3 }} />
               </div>
             </div>
           </div>
-
-          {/* Nav */}
           <nav style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 8 }}>
             {navItems.map(item => (
               <button key={item.key} className={`nav-item${activeTab === item.key ? " active" : ""}`} onClick={() => setActiveTab(item.key)}>
-                <item.icon />
-                {item.label}
+                <item.icon />{item.label}
                 {item.badge ? <span className="badge">{item.badge}</span> : null}
               </button>
             ))}
           </nav>
-
-          {/* Status badge */}
           <div style={{ padding: "12px 14px", borderRadius: 12, background: fachkraft?.status === "bestaetigt" ? "#ECFDF5" : "#FFF8ED", border: `1px solid ${fachkraft?.status === "bestaetigt" ? "#A7F3D0" : "#FDE68A"}`, display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
             <div style={{ color: fachkraft?.status === "bestaetigt" ? C.green : C.amber }}>
               {fachkraft?.status === "bestaetigt" ? <Icon.shield /> : <Icon.clock />}
             </div>
             <div>
-              <div style={{ fontSize: "0.73rem", fontWeight: 800, color: fachkraft?.status === "bestaetigt" ? "#065F46" : "#92400E" }}>
-                {fachkraft?.status === "bestaetigt" ? "Verifiziert" : "In Prüfung"}
-              </div>
-              <div style={{ fontSize: "0.66rem", color: C.muted, marginTop: 1 }}>
-                {fachkraft?.status === "bestaetigt" ? "Profil bestätigt" : "Wird geprüft"}
-              </div>
+              <div style={{ fontSize: "0.73rem", fontWeight: 800, color: fachkraft?.status === "bestaetigt" ? "#065F46" : "#92400E" }}>{fachkraft?.status === "bestaetigt" ? "Verifiziert" : "In Prüfung"}</div>
+              <div style={{ fontSize: "0.66rem", color: C.muted, marginTop: 1 }}>{fachkraft?.status === "bestaetigt" ? "Profil bestätigt" : "Wird geprüft"}</div>
             </div>
           </div>
         </aside>
@@ -363,14 +346,10 @@ export default function FachkraftDashboard() {
           {/* ── ÜBERSICHT ── */}
           {activeTab === "uebersicht" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              {/* Welcome */}
               <div style={{ background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 55%, #1B5E98 100%)`, borderRadius: 22, padding: "28px 30px", position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", top: -60, right: -60, width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
-                <div style={{ position: "absolute", bottom: -40, right: 40, width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
                 <div style={{ position: "relative" }}>
-                  <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 6 }}>
-                    Willkommen zurück
-                  </div>
+                  <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 6 }}>Willkommen zurück</div>
                   <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: "1.7rem", fontWeight: 800, color: "white", lineHeight: 1.15, marginBottom: 16 }}>
                     Hallo, {fachkraft?.vorname || fachkraft?.username || "Fachkraft"} 👋
                   </h1>
@@ -381,8 +360,6 @@ export default function FachkraftDashboard() {
                   </div>
                 </div>
               </div>
-
-              {/* Stats */}
               <div style={{ display: "flex", gap: 12 }}>
                 {[
                   { label: "Offene Anfragen", value: offeneAnfragen.length, accent: offeneAnfragen.length > 0 ? C.red : C.navyMid, bg: offeneAnfragen.length > 0 ? "#FFF5F5" : "#F0F4FF" },
@@ -395,14 +372,11 @@ export default function FachkraftDashboard() {
                   </div>
                 ))}
               </div>
-
-              {/* Alert for new requests */}
               {offeneAnfragen.length > 0 && (
                 <div style={{ background: "#FFFBEB", border: "1.5px solid #FDE68A", borderRadius: 16, padding: 20 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.amber, animation: "pulse 1.5s infinite" }} />
                     <span style={{ fontWeight: 800, color: "#92400E", fontSize: "0.88rem" }}>{offeneAnfragen.length} neue Anfrage{offeneAnfragen.length > 1 ? "n" : ""} warten auf dich</span>
-                    <style>{`@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }`}</style>
                   </div>
                   {offeneAnfragen.slice(0, 2).map(a => (
                     <div key={a.id} style={{ padding: "10px 14px", background: "white", borderRadius: 10, marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid #FDE68A" }}>
@@ -410,25 +384,19 @@ export default function FachkraftDashboard() {
                       <span style={{ fontSize: "0.72rem", color: C.muted }}>{new Date(a.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "short" })}</span>
                     </div>
                   ))}
-                  <button className="btn-primary" style={{ marginTop: 8 }} onClick={() => setActiveTab("anfragen")}>
-                    Alle Anfragen ansehen
-                  </button>
+                  <button className="btn-primary" style={{ marginTop: 8 }} onClick={() => setActiveTab("anfragen")}>Alle Anfragen ansehen</button>
                 </div>
               )}
-
-              {/* Quick links */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <button className="quick-link" onClick={() => setActiveTab("nachrichten")}>
                   <span style={{ color: C.blue }}><Icon.chat /></span>
                   Nachrichten {nachrichten.length > 0 && <span style={{ marginLeft: "auto", background: C.blue, color: "white", borderRadius: 99, padding: "1px 8px", fontSize: "0.68rem", fontWeight: 800 }}>{nachrichten.length}</span>}
                 </button>
                 <button className="quick-link" onClick={() => setActiveTab("profil")}>
-                  <span style={{ color: C.navyMid }}><Icon.user /></span>
-                  Profil bearbeiten
+                  <span style={{ color: C.navyMid }}><Icon.user /></span>Profil bearbeiten
                 </button>
                 <a href="/kontakt" className="quick-link" style={{ gridColumn: "1/-1" }}>
-                  <span style={{ color: C.muted }}><Icon.settings /></span>
-                  Support kontaktieren
+                  <span style={{ color: C.muted }}><Icon.settings /></span>Support kontaktieren
                 </a>
               </div>
             </div>
@@ -441,7 +409,6 @@ export default function FachkraftDashboard() {
                 <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: C.text }}>Anfragen</h2>
                 <p style={{ fontSize: "0.82rem", color: C.muted, marginTop: 3 }}>Kitas, die Interesse an deinem Profil haben.</p>
               </div>
-
               {anfragen.length === 0 ? (
                 <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: "50px 24px", textAlign: "center" }}>
                   <div style={{ fontSize: "2rem", marginBottom: 12 }}>📭</div>
@@ -452,9 +419,7 @@ export default function FachkraftDashboard() {
                 <>
                   {offeneAnfragen.length > 0 && (
                     <div style={{ marginBottom: 28 }}>
-                      <div style={{ fontSize: "0.7rem", fontWeight: 800, color: C.blue, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12 }}>
-                        Offen · {offeneAnfragen.length}
-                      </div>
+                      <div style={{ fontSize: "0.7rem", fontWeight: 800, color: C.blue, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12 }}>Offen · {offeneAnfragen.length}</div>
                       {offeneAnfragen.map(anfrage => (
                         <div key={anfrage.id} className="anfrage-card" style={{ borderLeft: `4px solid ${C.blue}` }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
@@ -520,6 +485,14 @@ export default function FachkraftDashboard() {
                 <p style={{ fontSize: "0.82rem", color: C.muted, marginTop: 3 }}>Deine Unterhaltungen mit Kitas.</p>
               </div>
 
+              {/* ── Missbrauch Hinweis Banner ── */}
+              <div style={{ background: "#EFF6FF", border: "1.5px solid #BFDBFE", borderRadius: 14, padding: "14px 16px", marginBottom: 18, display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <span style={{ color: C.blue, marginTop: 1, flexShrink: 0 }}><Icon.shield /></span>
+                <div style={{ fontSize: "0.8rem", color: "#1E40AF", lineHeight: 1.6 }}>
+                  <strong>Fairness-Hinweis:</strong> Falls eine Einrichtung dir über KitaBridge Stellen in anderen Einrichtungen anbietet, die nicht ihrem registrierten Account entsprechen, bitte melde uns das. Du hilfst damit, die Plattform fair für alle zu halten. Wir behandeln alle Hinweise vertraulich.
+                </div>
+              </div>
+
               {Object.keys(konversationen).length === 0 ? (
                 <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: "50px 24px", textAlign: "center" }}>
                   <div style={{ fontSize: "2rem", marginBottom: 12 }}>💬</div>
@@ -532,8 +505,15 @@ export default function FachkraftDashboard() {
                 const sorted = [...msgs].sort((a, b) => new Date(a.erstellt_am).getTime() - new Date(b.erstellt_am).getTime());
                 return (
                   <div key={partnerId} style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 22, marginBottom: 16 }}>
-                    <div style={{ fontWeight: 800, color: C.text, marginBottom: 18, fontSize: "0.95rem", paddingBottom: 14, borderBottom: `1px solid ${C.border}` }}>
-                      {agName}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, paddingBottom: 14, borderBottom: `1px solid ${C.border}` }}>
+                      <span style={{ fontWeight: 800, color: C.text, fontSize: "0.95rem" }}>{agName}</span>
+                      {/* ── Missbrauch melden Button ── */}
+                      <button
+                        onClick={() => { setMeldungModal({ partnerId, partnerName: agName }); setMeldungGesendet(false); setMeldungText(""); }}
+                        style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 8, border: "1.5px solid #FED7D7", background: "#FFF5F5", color: C.red, fontSize: "0.72rem", fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}
+                      >
+                        <Icon.flag />Missbrauch melden
+                      </button>
                     </div>
                     <div style={{ marginBottom: 16, display: "flex", flexDirection: "column", gap: 8 }}>
                       {sorted.map(msg => (
@@ -549,19 +529,8 @@ export default function FachkraftDashboard() {
                       <div style={{ color: C.green, fontWeight: 700, fontSize: "0.83rem", padding: "10px 0", display: "flex", alignItems: "center", gap: 6 }}><Icon.check /> Gesendet!</div>
                     ) : (
                       <div style={{ display: "flex", gap: 8 }}>
-                        <textarea
-                          placeholder={`Antwort an ${agName}...`}
-                          rows={2}
-                          value={antwort[partnerId] || ""}
-                          onChange={e => setAntwort(prev => ({ ...prev, [partnerId]: e.target.value }))}
-                          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleAntwort(partnerId); } }}
-                          style={{ flex: 1, padding: "10px 13px", border: `1.5px solid ${C.border}`, borderRadius: 11, fontSize: "0.86rem", resize: "none", fontFamily: "'Sora', sans-serif", outline: "none" }}
-                        />
-                        <button
-                          onClick={() => handleAntwort(partnerId)}
-                          disabled={sendingMsg === partnerId || !antwort[partnerId]?.trim()}
-                          style={{ padding: "0 18px", background: C.navyMid, color: "white", border: "none", borderRadius: 11, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: (!antwort[partnerId]?.trim()) ? 0.4 : 1, transition: "opacity 0.2s" }}
-                        >
+                        <textarea placeholder={`Antwort an ${agName}...`} rows={2} value={antwort[partnerId] || ""} onChange={e => setAntwort(prev => ({ ...prev, [partnerId]: e.target.value }))} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleAntwort(partnerId); } }} style={{ flex: 1, padding: "10px 13px", border: `1.5px solid ${C.border}`, borderRadius: 11, fontSize: "0.86rem", resize: "none", fontFamily: "'Sora', sans-serif", outline: "none" }} />
+                        <button onClick={() => handleAntwort(partnerId)} disabled={sendingMsg === partnerId || !antwort[partnerId]?.trim()} style={{ padding: "0 18px", background: C.navyMid, color: "white", border: "none", borderRadius: 11, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: (!antwort[partnerId]?.trim()) ? 0.4 : 1 }}>
                           <Icon.send />
                         </button>
                       </div>
@@ -579,23 +548,15 @@ export default function FachkraftDashboard() {
                 <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: C.text }}>Mein Profil</h2>
                 <p style={{ fontSize: "0.82rem", color: C.muted, marginTop: 3 }}>Diese Informationen sehen Kitas auf deiner Visitenkarte.</p>
               </div>
-
               <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 26 }}>
-                {/* Section: Persönliches */}
                 <div style={{ marginBottom: 28 }}>
                   <div style={{ fontSize: "0.72rem", fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 16, paddingBottom: 10, borderBottom: `1px solid ${C.border}` }}>Persönliches</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 16px" }}>
-                    <Field label="Vorname" name="vorname" />
-                    <Field label="Nachname" name="nachname" />
-                    <Field label="Telefon" name="telefon" type="tel" />
-                    <Field label="Wohnort" name="wohnort" />
+                    <Field label="Vorname" name="vorname" /><Field label="Nachname" name="nachname" />
+                    <Field label="Telefon" name="telefon" type="tel" /><Field label="Wohnort" name="wohnort" />
                   </div>
-                  <div style={{ marginTop: 14 }}>
-                    <Field label="Bundesland" name="bundesland" options={["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"]} />
-                  </div>
+                  <div style={{ marginTop: 14 }}><Field label="Bundesland" name="bundesland" options={["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"]} /></div>
                 </div>
-
-                {/* Section: Qualifikation */}
                 <div style={{ marginBottom: 28 }}>
                   <div style={{ fontSize: "0.72rem", fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 16, paddingBottom: 10, borderBottom: `1px solid ${C.border}` }}>Qualifikation</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -608,20 +569,14 @@ export default function FachkraftDashboard() {
                     </div>
                   </div>
                 </div>
-
-                {/* Section: Sprachen */}
                 <div style={{ marginBottom: 28 }}>
                   <div style={{ fontSize: "0.72rem", fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 16, paddingBottom: 10, borderBottom: `1px solid ${C.border}` }}>Sprachen</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 16px" }}>
                     <Field label="Deutsch" name="deutsch" options={["Muttersprache","Sehr gut (C1/C2)","Gut (B1/B2)","Grundkenntnisse (A1/A2)"]} />
                     <Field label="Englisch" name="englisch" options={["Muttersprache","Sehr gut (C1/C2)","Gut (B1/B2)","Grundkenntnisse (A1/A2)","Keine"]} />
                   </div>
-                  <div style={{ marginTop: 14 }}>
-                    <Field label="Weitere Sprachen" name="weitere_sprachen" />
-                  </div>
+                  <div style={{ marginTop: 14 }}><Field label="Weitere Sprachen" name="weitere_sprachen" /></div>
                 </div>
-
-                {/* Section: Verfügbarkeit */}
                 <div style={{ marginBottom: 28 }}>
                   <div style={{ fontSize: "0.72rem", fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 16, paddingBottom: 10, borderBottom: `1px solid ${C.border}` }}>Verfügbarkeit</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
@@ -629,25 +584,13 @@ export default function FachkraftDashboard() {
                     <Field label="Arbeitszeit" name="arbeitszeit" options={["Vollzeit","Teilzeit","Vollzeit & Teilzeit","Minijob"]} />
                   </div>
                 </div>
-
-                {/* Beschreibung */}
                 <div style={{ marginBottom: 24 }}>
                   <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Über mich</label>
-                  <textarea
-                    value={form.beschreibung || ""}
-                    onChange={e => setForm(f => ({ ...f!, beschreibung: e.target.value }))}
-                    rows={4}
-                    placeholder="Beschreibe dich kurz — was macht dich als Fachkraft aus?"
-                    style={{ ...fieldStyle, resize: "vertical" }}
-                  />
+                  <textarea value={form.beschreibung || ""} onChange={e => setForm(f => ({ ...f!, beschreibung: e.target.value }))} rows={4} placeholder="Beschreibe dich kurz — was macht dich als Fachkraft aus?" style={{ ...fieldStyle, resize: "vertical" }} />
                 </div>
-
                 {saveError && <div style={{ marginBottom: 12, padding: "12px 16px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.84rem" }}>{saveError}</div>}
                 {saveSuccess && <div style={{ marginBottom: 12, padding: "12px 16px", background: "#ECFDF5", border: "1px solid #A7F3D0", borderRadius: 10, color: "#065F46", fontSize: "0.84rem", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}><Icon.check /> Profil erfolgreich gespeichert!</div>}
-
-                <button className="btn-primary" onClick={handleSave} disabled={saving}>
-                  {saving ? "Wird gespeichert..." : "Änderungen speichern"}
-                </button>
+                <button className="btn-primary" onClick={handleSave} disabled={saving}>{saving ? "Wird gespeichert..." : "Änderungen speichern"}</button>
               </div>
             </div>
           )}
@@ -659,31 +602,77 @@ export default function FachkraftDashboard() {
                 <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: C.text }}>Konto</h2>
                 <p style={{ fontSize: "0.82rem", color: C.muted, marginTop: 3 }}>Deine Account-Einstellungen.</p>
               </div>
-
               <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 24, marginBottom: 16 }}>
                 <div style={{ fontSize: "0.7rem", fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 14 }}>E-Mail-Adresse</div>
-                <div style={{ padding: "12px 16px", background: C.surface, borderRadius: 10, color: C.text, fontWeight: 600, fontSize: "0.9rem", border: `1.5px solid ${C.border}` }}>
-                  {fachkraft?.email}
+                <div style={{ padding: "12px 16px", background: C.surface, borderRadius: 10, color: C.text, fontWeight: 600, fontSize: "0.9rem", border: `1.5px solid ${C.border}` }}>{fachkraft?.email}</div>
+              </div>
+
+              {/* ── Missbrauch melden Karte ── */}
+              <div style={{ background: "#EFF6FF", border: "1.5px solid #BFDBFE", borderRadius: 18, padding: 24, marginBottom: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ color: C.blue }}><Icon.shield /></span>
+                  <div style={{ fontWeight: 800, color: "#1E40AF", fontSize: "0.95rem" }}>Missbrauch melden</div>
                 </div>
+                <div style={{ color: "#1E40AF", fontSize: "0.82rem", lineHeight: 1.7, marginBottom: 16 }}>
+                  Falls eine Einrichtung dir über KitaBridge Stellen in anderen Einrichtungen anbietet, die nicht ihrem registrierten Account entsprechen, melde uns das bitte. Du hilfst damit, die Plattform fair für alle zu halten. Wir behandeln alle Hinweise vertraulich.
+                </div>
+                <a href="mailto:hallo@kitabridge.de?subject=Missbrauch melden" style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", background: C.blue, color: "white", borderRadius: 10, fontWeight: 700, fontSize: "0.84rem", textDecoration: "none", fontFamily: "'Sora', sans-serif" }}>
+                  <Icon.flag />Jetzt melden — hallo@kitabridge.de
+                </a>
               </div>
 
               <div style={{ background: "#FFF5F5", border: "1.5px solid #FED7D7", borderRadius: 18, padding: 24 }}>
                 <div style={{ fontWeight: 800, color: "#9B1C1C", fontSize: "0.95rem", marginBottom: 6 }}>Account löschen</div>
-                <div style={{ color: "#7F1D1D", fontSize: "0.82rem", lineHeight: 1.7, marginBottom: 18 }}>
-                  Dein Account und alle gespeicherten Daten werden unwiderruflich und dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.
-                </div>
-                <button
-                  onClick={handleDeleteAccount}
-                  style={{ background: C.red, color: "white", border: "none", padding: "11px 20px", borderRadius: 10, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Sora', sans-serif", width: "100%" }}
-                >
-                  Account unwiderruflich löschen
-                </button>
+                <div style={{ color: "#7F1D1D", fontSize: "0.82rem", lineHeight: 1.7, marginBottom: 18 }}>Dein Account und alle gespeicherten Daten werden unwiderruflich und dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.</div>
+                <button onClick={handleDeleteAccount} style={{ background: C.red, color: "white", border: "none", padding: "11px 20px", borderRadius: 10, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Sora', sans-serif", width: "100%" }}>Account unwiderruflich löschen</button>
               </div>
             </div>
           )}
-
         </main>
       </div>
+
+      {/* ── MISSBRAUCH MODAL ── */}
+      {meldungModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,36,66,0.6)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => { if (e.target === e.currentTarget) { setMeldungModal(null); setMeldungGesendet(false); } }}>
+          <div style={{ background: "white", borderRadius: "24px 24px 0 0", padding: "24px 20px 32px", width: "100%", maxWidth: 560 }}>
+            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 20px" }} />
+            {meldungGesendet ? (
+              <div style={{ textAlign: "center", padding: "16px 0" }}>
+                <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>🙏</div>
+                <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.3rem", color: C.text, marginBottom: 8 }}>Vielen Dank!</div>
+                <div style={{ color: C.muted, fontSize: "0.84rem", lineHeight: 1.6, marginBottom: 20 }}>
+                  Deine Meldung wurde an KitaBridge übermittelt. Wir prüfen den Fall vertraulich und melden uns falls nötig bei dir.
+                </div>
+                <button onClick={() => { setMeldungModal(null); setMeldungGesendet(false); }} style={{ width: "100%", padding: "13px", borderRadius: 12, border: "none", background: C.navyMid, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Schließen</button>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  <span style={{ color: C.red }}><Icon.flag /></span>
+                  <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.15rem", fontWeight: 800, color: C.text }}>Missbrauch melden</div>
+                </div>
+                <div style={{ fontSize: "0.8rem", color: C.muted, lineHeight: 1.6, marginBottom: 16 }}>
+                  Du meldest einen möglichen Missbrauch durch <strong style={{ color: C.text }}>{meldungModal.partnerName}</strong>. Deine Meldung wird vertraulich behandelt.
+                </div>
+                <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Was ist passiert?</label>
+                <textarea
+                  value={meldungText}
+                  onChange={e => setMeldungText(e.target.value)}
+                  rows={4}
+                  placeholder="z.B. Die Einrichtung hat mir Stellen in anderen Kitas angeboten, die nicht zu ihrem Account gehören..."
+                  style={{ width: "100%", padding: "11px 13px", borderRadius: 11, border: `1.5px solid ${C.border}`, fontSize: "0.86rem", fontFamily: "'Sora', sans-serif", resize: "none", outline: "none", color: C.text, marginBottom: 14 }}
+                />
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button onClick={() => setMeldungModal(null)} style={{ flex: 1, padding: "13px", borderRadius: 11, border: `1.5px solid ${C.border}`, background: "white", color: C.muted, fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Abbrechen</button>
+                  <button onClick={handleMeldungSenden} disabled={meldungSending || !meldungText.trim()} style={{ flex: 2, padding: "13px", borderRadius: 11, border: "none", background: meldungSending || !meldungText.trim() ? C.border : C.red, color: "white", fontWeight: 700, cursor: meldungSending || !meldungText.trim() ? "not-allowed" : "pointer", fontFamily: "'Sora', sans-serif" }}>
+                    {meldungSending ? "Wird gesendet..." : "Meldung absenden"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
