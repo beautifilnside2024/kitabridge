@@ -290,7 +290,7 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
       status: "ausstehend",
     }]);
     if (error) { alert("Fehler: " + error.message); setSendingAnfrage(false); return; }
-    try { await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "neue_anfrage", data: { fachkraft_id: selectedFachkraft.id, kita_name: arbeitgeber.einrichtung_name, nachricht: nachricht.trim() } }) }); } catch {}
+    try { await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "neue_anfrage", data: { fachkraft_id: selectedFachkraft.id, arbeitgeber_id: arbeitgeber.id, kita_name: arbeitgeber.einrichtung_name, nachricht: nachricht.trim() } }) }); } catch {}
     await loadGesendeteAnfragen();
     setAnfrageSuccess("ok");
     setSendingAnfrage(false);

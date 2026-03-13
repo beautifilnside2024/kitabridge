@@ -20,7 +20,7 @@ export async function POST(request) {
         from: "KitaBridge <hallo@kitabridge.de>",
         to: data.email,
         subject: "Willkommen bei KitaBridge! · Welcome to KitaBridge! 🎉",
-        html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>body{margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;-webkit-text-size-adjust:100%}.wrapper{width:100%;padding:20px 12px;box-sizing:border-box}.card{max-width:560px;margin:0 auto;border-radius:16px;overflow:hidden}.header{background:linear-gradient(135deg,#1A3F6F,#2471A3);padding:28px 24px;text-align:center}.body{background:white;padding:28px 24px}.footer{padding:20px 24px;text-align:center}.btn{display:block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:15px;padding:14px 24px;border-radius:50px;text-decoration:none;text-align:center}.section-de{border-left:4px solid #1A3F6F;padding-left:16px;margin-bottom:24px}.section-en{border-left:4px solid #27AE60;padding-left:16px;margin-bottom:24px}h1{font-size:17px;font-weight:700;color:#1A3F6F;margin:0 0 10px}p{font-size:14px;color:#444;line-height:1.8;margin:0 0 10px}</style></head><body><div class="wrapper"><div class="card"><div class="header"><div style="font-size:24px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div><div style="color:rgba(255,255,255,0.7);font-size:12px;margin-top:6px;">Die Plattform für pädagogische Fachkräfte</div></div><div class="body"><div style="text-align:center;font-size:44px;margin-bottom:20px;">🎉</div><div class="section-de"><h1>Herzlich willkommen bei KitaBridge${displayName ? `, ${displayName}` : ""}!</h1><p>Wir freuen uns sehr, dich in unserer Community begrüßen zu dürfen! 🌟</p><p>Bei KitaBridge kannst du dein Profil erstellen und wirst direkt von Kitas in ganz Deutschland kontaktiert – <strong>kein Lebenslauf, kein Anschreiben</strong> nötig.</p><p>Einfach sichtbar sein – und die passende Einrichtung meldet sich bei dir. 💪</p></div><hr style="border:none;border-top:2px dashed #E8EDF4;margin:0 0 24px;"><div class="section-en"><h1>Welcome to KitaBridge${displayName ? `, ${displayName}` : ""}!</h1><p>We are so happy to have you here! 🌟</p><p>At KitaBridge, you can create your profile and get contacted directly by daycare centers across Germany – <strong>no CV, no cover letter</strong> required.</p><p>Simply be visible – and the right employer will reach out to you. 💪</p></div><hr style="border:none;border-top:1px solid #E8EDF4;margin:0 0 20px;"><p style="font-size:14px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Deine nächsten Schritte · Your next steps:</p><p style="font-size:13px;color:#444;line-height:2;margin:0 0 24px;">✏️ Profil vervollständigen · Complete your profile<br>🔍 Von Kitas gefunden werden · Get found<br>📩 Kontaktiert werden · Get contacted<br>🤝 Deinen Traumjob finden · Find your dream job</p><a href="https://kitabridge.de/fachkraft/einstellungen" class="btn">Jetzt Profil vervollständigen →</a></div><div class="footer"><p style="font-size:12px;color:#9BA8C0;margin:0 0 6px;">Bei Fragen · Questions: <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p><p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p></div></div></div></body></html>`
+        html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>body{margin:0;padding:0;background:#F0F4F9;font-family:Arial,sans-serif;-webkit-text-size-adjust:100%}.wrapper{width:100%;padding:20px 12px;box-sizing:border-box}.card{max-width:560px;margin:0 auto;border-radius:16px;overflow:hidden}.header{background:linear-gradient(135deg,#1A3F6F,#2471A3);padding:28px 24px;text-align:center}.body{background:white;padding:28px 24px}.footer{padding:20px 24px;text-align:center}.btn{display:block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:15px;padding:14px 24px;border-radius:50px;text-decoration:none;text-align:center}.section-de{border-left:4px solid #1A3F6F;padding-left:16px;margin-bottom:24px}.section-en{border-left:4px solid #27AE60;padding-left:16px;margin-bottom:24px}h1{font-size:17px;font-weight:700;color:#1A3F6F;margin:0 0 10px}p{font-size:14px;color:#444;line-height:1.8;margin:0 0 10px}</style></head><body><div class="wrapper"><div class="card"><div class="header"><div style="font-size:24px;font-weight:800;color:white;">Kita<span style="color:#27AE60;">Bridge</span></div><div style="color:rgba(255,255,255,0.7);font-size:12px;margin-top:6px;">Die Plattform für pädagogische Fachkräfte</div></div><div class="body"><div style="text-align:center;font-size:44px;margin-bottom:20px;">🎉</div><div class="section-de"><h1>Herzlich willkommen bei KitaBridge${displayName ? `, ${displayName}` : ""}!</h1><p>Wir freuen uns sehr, dich in unserer Community begrüßen zu dürfen! 🌟</p><p>Bei KitaBridge kannst du dein Profil erstellen und wirst direkt von Kitas in ganz Deutschland kontaktiert – <strong>kein Lebenslauf, kein Anschreiben</strong> nötig.</p><p>Einfach sichtbar sein – und die passende Einrichtung meldet sich bei dir. 💪</p></div><hr style="border:none;border-top:2px dashed #E8EDF4;margin:0 0 24px;"><div class="section-en"><h1>Welcome to KitaBridge${displayName ? `, ${displayName}` : ""}!</h1><p>We are so happy to have you here! 🌟</p><p>At KitaBridge, you can create your profile and get contacted directly by daycare centers across Germany – <strong>no CV, no cover letter</strong> required.</p><p>Simply be visible – and the right employer will reach out to you. 💪</p></div><hr style="border:none;border-top:1px solid #E8EDF4;margin:0 0 20px;"><p style="font-size:14px;font-weight:700;color:#1A3F6F;margin:0 0 12px;">Deine nächsten Schritte · Your next steps:</p><p style="font-size:13px;color:#444;line-height:2;margin:0 0 24px;">✏️ Profil vervollständigen · Complete your profile<br>🔍 Von Kitas gefunden werden · Get found<br>📩 Kontaktiert werden · Get contacted<br>🤝 Deinen Traumjob finden · Find your dream job</p><a href="https://kitabridge.de/fachkraft/dashboard" class="btn">Jetzt Profil vervollständigen →</a></div><div class="footer"><p style="font-size:12px;color:#9BA8C0;margin:0 0 6px;">Bei Fragen · Questions: <a href="mailto:hallo@kitabridge.de" style="color:#2471A3;">hallo@kitabridge.de</a></p><p style="font-size:11px;color:#C0CAD8;margin:0;">© 2026 KitaBridge</p></div></div></div></body></html>`
       });
     }
 
@@ -82,7 +82,7 @@ export async function POST(request) {
         return new Response(JSON.stringify({ error: "Fachkraft nicht gefunden" }), { status: 404 });
       }
 
-      // Arbeitgeber-Daten holen für Visitenkarte
+      // ── FIX: Arbeitgeber-Daten über arbeitgeber_id laden ──────────────────
       const { data: ag } = await supabaseAdmin
         .from("arbeitgeber")
         .select("*")
@@ -99,95 +99,113 @@ export async function POST(request) {
         subject: `Neue Anfrage von ${kitaName} – KitaBridge`,
         html: `<!DOCTYPE html>
 <html>
-<body style="font-family:Arial,sans-serif;background:#E8EDF5;margin:0;padding:40px 20px;">
-<div style="max-width:560px;margin:0 auto;background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(26,63,111,0.12);">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body style="font-family:Arial,sans-serif;background:#E8EDF5;margin:0;padding:20px 12px;">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+<table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
 
-  <div style="background:linear-gradient(135deg,#0F2442,#1A3F6F);padding:28px 32px;">
-    <div style="font-size:22px;font-weight:800;color:white;font-family:serif;">Kita<span style="color:#4ADE80;">Bridge</span></div>
-  </div>
+  <!-- HEADER -->
+  <tr><td style="background:linear-gradient(135deg,#0F2442,#1A3F6F);border-radius:16px 16px 0 0;padding:24px 28px;">
+    <div style="font-size:22px;font-weight:800;color:white;font-family:Georgia,serif;">Kita<span style="color:#4ADE80;">Bridge</span></div>
+  </td></tr>
 
-  <div style="padding:32px;">
-    <h2 style="color:#1A3F6F;font-size:20px;margin:0 0 8px;">Hallo ${fachkraftName}!</h2>
-    <p style="color:#6B7897;font-size:15px;margin:0 0 20px;line-height:1.6;">
+  <!-- BODY -->
+  <tr><td style="background:white;padding:28px;">
+    <h2 style="color:#1A3F6F;font-size:18px;margin:0 0 6px;">Hallo ${fachkraftName}!</h2>
+    <p style="color:#6B7897;font-size:14px;margin:0 0 18px;line-height:1.6;">
       <strong style="color:#1A3F6F;">${kitaName}</strong> hat dir eine Anfrage geschickt:
     </p>
 
-    <div style="background:#F8FAFF;border-left:3px solid #1A3F6F;padding:16px 20px;border-radius:0 12px 12px 0;margin-bottom:24px;">
-      <p style="color:#374151;font-size:15px;line-height:1.7;margin:0;">${nachricht}</p>
-    </div>
+    <!-- Nachricht -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:22px;">
+      <tr><td style="background:#F8FAFF;border-left:3px solid #1A3F6F;padding:14px 18px;border-radius:0 10px 10px 0;">
+        <p style="color:#374151;font-size:14px;line-height:1.7;margin:0;">${nachricht}</p>
+      </td></tr>
+    </table>
 
-    <!-- Visitenkarte -->
-    <div style="border:1.5px solid #E4EAF4;border-radius:16px;overflow:hidden;margin-bottom:24px;">
-
-      <div style="background:linear-gradient(135deg,#0F2442,#1A3F6F);padding:20px 22px;">
-        <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Über die Einrichtung</div>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">🏫</div>
-          <div>
-            <div style="font-size:16px;font-weight:800;color:white;margin-bottom:4px;">${kitaName}</div>
-            <div style="display:flex;gap:5px;flex-wrap:wrap;">
-              ${ag?.einrichtungstyp ? `<span style="background:rgba(255,255,255,0.12);border-radius:99px;padding:2px 10px;font-size:11px;color:rgba(255,255,255,0.8);font-weight:600;">🏫 ${ag.einrichtungstyp}</span>` : ""}
-              ${ag?.traeger ? `<span style="background:rgba(255,255,255,0.12);border-radius:99px;padding:2px 10px;font-size:11px;color:rgba(255,255,255,0.8);font-weight:600;">🏛 ${ag.traeger}</span>` : ""}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div style="padding:18px 22px;background:white;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+    <!-- VISITENKARTE HEADER -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1.5px solid #E4EAF4;border-radius:14px;overflow:hidden;margin-bottom:22px;">
+      <tr><td style="background:linear-gradient(135deg,#0F2442,#1A3F6F);padding:18px 20px;">
+        <p style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1.5px;margin:0 0 10px;">Über die Einrichtung</p>
+        <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
-            ${ag?.plz || ag?.ort ? `
-            <td style="padding:8px 0;border-bottom:1px solid #F0F4F9;width:50%;vertical-align:top;">
-              <div style="font-size:10px;font-weight:800;color:#8A96B0;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">📍 Standort</div>
-              <div style="font-size:13px;font-weight:700;color:#1C2B4A;">${[ag.plz, ag.ort, ag.bundesland].filter(Boolean).join(", ")}</div>
-            </td>` : "<td></td>"}
-            ${ag?.stellen_anzahl ? `
-            <td style="padding:8px 0 8px 16px;border-bottom:1px solid #F0F4F9;vertical-align:top;">
-              <div style="font-size:10px;font-weight:800;color:#8A96B0;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">👥 Offene Stellen</div>
-              <div style="font-size:13px;font-weight:700;color:#1C2B4A;">${ag.stellen_anzahl}</div>
-            </td>` : "<td></td>"}
-          </tr>
-          <tr>
-            ${ag?.ansprech_name ? `
-            <td style="padding:8px 0 0;width:50%;vertical-align:top;">
-              <div style="font-size:10px;font-weight:800;color:#8A96B0;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">👤 Ansprechpartner</div>
-              <div style="font-size:13px;font-weight:700;color:#1C2B4A;">${ag.ansprech_name}</div>
-              ${ag?.ansprech_rolle ? `<div style="font-size:12px;color:#8A96B0;">${ag.ansprech_rolle}</div>` : ""}
-            </td>` : "<td></td>"}
-            ${ag?.traeger ? `
-            <td style="padding:8px 0 0 16px;vertical-align:top;">
-              <div style="font-size:10px;font-weight:800;color:#8A96B0;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">🏛 Träger</div>
-              <div style="font-size:13px;font-weight:700;color:#1C2B4A;">${ag.traeger}</div>
-            </td>` : "<td></td>"}
+            <td style="width:50px;vertical-align:middle;">
+              <div style="width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.2);text-align:center;line-height:44px;font-size:22px;">🏫</div>
+            </td>
+            <td style="padding-left:12px;vertical-align:middle;">
+              <p style="font-size:16px;font-weight:800;color:white;margin:0 0 6px;">${kitaName}</p>
+              <table cellpadding="0" cellspacing="0"><tr>
+                ${ag?.einrichtungstyp ? `<td style="padding-right:5px;"><span style="background:rgba(255,255,255,0.12);border-radius:99px;padding:3px 10px;font-size:11px;color:rgba(255,255,255,0.85);font-weight:600;">🏫 ${ag.einrichtungstyp}</span></td>` : ""}
+                ${ag?.traeger ? `<td><span style="background:rgba(255,255,255,0.12);border-radius:99px;padding:3px 10px;font-size:11px;color:rgba(255,255,255,0.85);font-weight:600;">🏛 ${ag.traeger}</span></td>` : ""}
+              </tr></table>
+            </td>
           </tr>
         </table>
+      </td></tr>
 
-        ${ag?.beschreibung ? `
-        <div style="background:#F7F9FC;border-radius:10px;padding:12px 14px;margin-bottom:16px;">
-          <div style="font-size:10px;font-weight:800;color:#8A96B0;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Über uns</div>
-          <p style="font-size:13px;color:#4B5563;line-height:1.7;margin:0;">${ag.beschreibung}</p>
-        </div>` : ""}
+      <!-- VISITENKARTE DETAILS -->
+      <tr><td style="background:white;padding:18px 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          ${(ag?.plz || ag?.ort) && ag?.stellen_anzahl ? `
+          <tr>
+            <td style="width:50%;padding:8px 8px 8px 0;border-bottom:1px solid #F0F4F9;vertical-align:top;">
+              <p style="font-size:10px;font-weight:800;color:#8A96B0;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 3px;">📍 Standort</p>
+              <p style="font-size:13px;font-weight:700;color:#1C2B4A;margin:0;">${[ag?.plz, ag?.ort, ag?.bundesland].filter(Boolean).join(", ")}</p>
+            </td>
+            <td style="padding:8px 0 8px 8px;border-bottom:1px solid #F0F4F9;vertical-align:top;">
+              <p style="font-size:10px;font-weight:800;color:#8A96B0;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 3px;">👥 Offene Stellen</p>
+              <p style="font-size:13px;font-weight:700;color:#1C2B4A;margin:0;">${ag.stellen_anzahl}</p>
+            </td>
+          </tr>` : (ag?.plz || ag?.ort) ? `
+          <tr><td colspan="2" style="padding:8px 0;border-bottom:1px solid #F0F4F9;">
+            <p style="font-size:10px;font-weight:800;color:#8A96B0;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 3px;">📍 Standort</p>
+            <p style="font-size:13px;font-weight:700;color:#1C2B4A;margin:0;">${[ag?.plz, ag?.ort, ag?.bundesland].filter(Boolean).join(", ")}</p>
+          </td></tr>` : ""}
+
+          ${ag?.ansprech_name ? `
+          <tr><td colspan="2" style="padding:8px 0;border-bottom:1px solid #F0F4F9;">
+            <p style="font-size:10px;font-weight:800;color:#8A96B0;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 3px;">👤 Ansprechpartner</p>
+            <p style="font-size:13px;font-weight:700;color:#1C2B4A;margin:0;">${ag.ansprech_name}${ag?.ansprech_rolle ? ` · <span style="font-weight:400;color:#8A96B0;">${ag.ansprech_rolle}</span>` : ""}</p>
+          </td></tr>` : ""}
+
+          ${ag?.beschreibung ? `
+          <tr><td colspan="2" style="padding:12px 0 0;">
+            <p style="font-size:10px;font-weight:800;color:#8A96B0;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 6px;">Über uns</p>
+            <p style="font-size:13px;color:#4B5563;line-height:1.7;margin:0;">${ag.beschreibung}</p>
+          </td></tr>` : ""}
+        </table>
 
         ${ag?.telefon || ag?.email ? `
-        <div style="background:#0F2442;border-radius:10px;padding:14px 16px;">
-          <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Kontakt</div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            ${ag?.telefon ? `<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:14px;">📞</span><span style="font-size:13px;color:white;font-weight:600;">${ag.telefon}</span></div>` : ""}
-            ${ag?.email ? `<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:14px;">✉️</span><a href="mailto:${ag.email}" style="font-size:13px;color:#93C5FD;font-weight:600;">${ag.email}</a></div>` : ""}
-          </div>
-        </div>` : ""}
-      </div>
-    </div>
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:14px;">
+          <tr><td style="background:#0F2442;border-radius:10px;padding:14px 16px;">
+            <p style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin:0 0 10px;">Kontakt</p>
+            ${ag?.telefon ? `<p style="margin:0 0 6px;font-size:13px;color:white;">📞 ${ag.telefon}</p>` : ""}
+            ${ag?.email ? `<p style="margin:0;font-size:13px;"><a href="mailto:${ag.email}" style="color:#93C5FD;">✉️ ${ag.email}</a></p>` : ""}
+          </td></tr>
+        </table>` : ""}
+      </td></tr>
+    </table>
 
-    <a href="https://kitabridge.de/login?rolle=fachkraft" style="display:block;text-align:center;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;padding:14px 32px;border-radius:50px;text-decoration:none;font-weight:700;font-size:15px;">
-      Jetzt antworten →
-    </a>
-  </div>
+    <!-- CTA -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr><td align="center">
+        <a href="https://kitabridge.de/login?rolle=fachkraft" style="display:inline-block;background:linear-gradient(135deg,#1A3F6F,#2471A3);color:white;padding:14px 32px;border-radius:50px;text-decoration:none;font-weight:700;font-size:15px;">
+          Jetzt antworten →
+        </a>
+      </td></tr>
+    </table>
+  </td></tr>
 
-  <div style="padding:20px 32px;border-top:1px solid #E8EDF4;text-align:center;">
+  <!-- FOOTER -->
+  <tr><td style="padding:18px 28px;border-top:1px solid #E8EDF4;text-align:center;">
     <p style="color:#9BA8C0;font-size:12px;margin:0;">Diese E-Mail wurde über KitaBridge gesendet · <a href="https://kitabridge.de" style="color:#9BA8C0;">kitabridge.de</a></p>
-  </div>
-</div>
+  </td></tr>
+
+</table>
+</td></tr></table>
 </body>
 </html>`
       });
@@ -218,7 +236,8 @@ export async function POST(request) {
       ${fachkraft_telefon ? `<p style="font-size:14px;color:#444;margin:0;">📞 ${fachkraft_telefon}</p>` : ""}
     </div>
     <div style="text-align:center;">
-      <a href="https://kitabridge.de/arbeitgeber/dashboard" style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Zum Dashboard →</a>
+      <!-- ── FIX: direkter Dashboard-Link, kein Login-Redirect nötig ── -->
+      <a href="https://kitabridge.de/arbeitgeber/dashboard" style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Zu meinem Dashboard →</a>
     </div>
   </td></tr>
   <tr><td style="padding:24px 40px;text-align:center;">
