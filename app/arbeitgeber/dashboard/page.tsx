@@ -475,11 +475,29 @@ export default function Dashboard() {
   const [saveError, setSaveError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => { loadDashboard(); }, []);
+  // ── Session fix: nur bei SIGNED_OUT rauswerfen ──
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        router.push("/login");
+      }
+    });
+
+    loadDashboard();
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const loadDashboard = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { router.push("/login"); return; }
+    if (!session) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const { data: { session: session2 } } = await supabase.auth.getSession();
+      if (!session2) { router.push("/login"); return; }
+      const { data } = await supabase.from("arbeitgeber").select("*").eq("email", session2.user.email).single();
+      setArbeitgeber(data); setForm(data); setLoading(false);
+      return;
+    }
     const { data } = await supabase.from("arbeitgeber").select("*").eq("email", session.user.email).single();
     setArbeitgeber(data); setForm(data); setLoading(false);
   };
@@ -547,25 +565,17 @@ export default function Dashboard() {
         input:focus, select:focus, textarea:focus { border-color: ${C.blue} !important; box-shadow: 0 0 0 3px rgba(36,113,163,0.12) !important; outline: none; }
         button { font-family: 'Sora', sans-serif; }
         ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 99px; }
-
-        /* Desktop sidebar nav */
         .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; border: none; background: transparent; color: ${C.muted}; font-size: 0.84rem; font-weight: 600; cursor: pointer; width: 100%; text-align: left; transition: all 0.15s; }
         .nav-item:hover { background: rgba(26,63,111,0.06); color: ${C.navyMid}; }
         .nav-item.active { background: ${C.navyMid}; color: white; }
         .nav-item.active svg { stroke: white; }
-
-        /* Bottom nav mobile */
         .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1.5px solid ${C.border}; z-index: 100; padding: 6px 0 env(safe-area-inset-bottom, 6px); }
         .bottom-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 4px; border: none; background: none; cursor: pointer; color: ${C.muted}; font-size: 0.6rem; font-weight: 700; font-family: 'Sora', sans-serif; transition: color 0.15s; }
         .bottom-nav-item.active { color: ${C.navyMid}; }
         .bottom-nav-item.active svg { stroke: ${C.navyMid}; }
-
-        /* Desktop layout */
         .dashboard-layout { display: flex; gap: 24px; flex: 1; width: 100%; }
         .sidebar { width: 240px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
         .main-content { flex: 1; min-width: 0; padding-bottom: 24px; }
-
-        /* Mobile overrides */
         @media (max-width: 768px) {
           .sidebar { display: none; }
           .bottom-nav { display: flex; }
@@ -573,13 +583,12 @@ export default function Dashboard() {
           .dashboard-layout { padding: 16px !important; }
           .desktop-header-name { display: none; }
         }
-
         .quick-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; background: white; border: 1.5px solid ${C.border}; color: ${C.text}; font-weight: 600; font-size: 0.86rem; cursor: pointer; transition: all 0.15s; text-decoration: none; }
         .quick-link:hover { border-color: ${C.blue}; color: ${C.navyMid}; }
         .section-header { font-size: 0.7rem; font-weight: 800; color: ${C.muted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid ${C.border}; }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
-      {/* TOP NAV */}
       <header style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(247,249,252,0.95)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 20px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <a href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 2 }}>
@@ -597,7 +606,6 @@ export default function Dashboard() {
 
       <div className="dashboard-layout" style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 20px" }}>
 
-        {/* SIDEBAR (Desktop only) */}
         <aside className="sidebar">
           <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 18, marginBottom: 6 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
@@ -639,20 +647,17 @@ export default function Dashboard() {
           </div>
         </aside>
 
-        {/* MAIN CONTENT */}
         <main className="main-content">
-
           {!isAktiv && (
             <div style={{ background: "#FFFBEB", border: "1.5px solid #FDE68A", borderRadius: 14, padding: "14px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
               <div>
                 <div style={{ fontWeight: 800, color: "#92400E", marginBottom: 3, fontSize: "0.86rem" }}>Konto noch nicht aktiv</div>
                 <div style={{ color: "#78350F", fontSize: "0.79rem" }}>Die Zahlung steht noch aus oder Ihr Account wird geprüft.</div>
               </div>
-              <a href="/bezahlung" style={{ background: C.amber, color: "white", padding: "9px 16px", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.84rem", whiteSpace: "nowrap", flexShrink: 0 }}>Jetzt bezahlen</a>
+              <a href="/login?rolle=kita&redirect=/arbeitgeber/dashboard" style={{ background: C.amber, color: "white", padding: "9px 16px", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.84rem", whiteSpace: "nowrap", flexShrink: 0 }}>Anmelden</a>
             </div>
           )}
 
-          {/* ÜBERSICHT */}
           {activeTab === "uebersicht" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 55%, #1B5E98 100%)`, borderRadius: 20, padding: "24px 22px", position: "relative", overflow: "hidden" }}>
@@ -689,15 +694,12 @@ export default function Dashboard() {
                 <button className="quick-link" onClick={() => setActiveTab("visitenkarte")}><span style={{ color: C.green }}><Icon.eye /></span>Visitenkarte</button>
                 <button className="quick-link" onClick={() => setActiveTab("profil")}><span style={{ color: C.muted }}><Icon.edit /></span>Profil</button>
               </div>
-
-              
             </div>
           )}
 
           {activeTab === "fachkraefte" && <FachkraefteTab arbeitgeber={arbeitgeber!} />}
           {activeTab === "nachrichten" && <NachrichtenTab arbeitgeber={arbeitgeber!} />}
 
-          {/* VISITENKARTE */}
           {activeTab === "visitenkarte" && (
             <div>
               <div style={{ marginBottom: 18 }}>
@@ -739,7 +741,6 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* PROFIL */}
           {activeTab === "profil" && form && (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
@@ -780,7 +781,6 @@ export default function Dashboard() {
                       <div><label style={labelStyle}>Träger</label><select style={selectFieldStyle} value={form.traeger || ""} onChange={e => set("traeger", e.target.value)}><option value="">– wählen –</option>{["Öffentlich (kommunal)", "AWO", "Caritas", "Diakonie", "DRK", "Paritätischer Wohlfahrtsverband", "Privat / Eigenträger", "Sonstiger freier Träger"].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
                     </div>
                     <div><label style={labelStyle}>Beschreibung</label><textarea style={{ ...fieldStyle, resize: "vertical" }} rows={4} value={form.beschreibung || ""} onChange={e => set("beschreibung", e.target.value)} /></div>
-
                     <div className="section-header" style={{ marginTop: 4 }}>Adresse</div>
                     <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 10 }}>
                       <div><label style={labelStyle}>Straße</label><input style={fieldStyle} value={form.strasse || ""} onChange={e => set("strasse", e.target.value)} /></div>
@@ -791,7 +791,6 @@ export default function Dashboard() {
                       <div><label style={labelStyle}>Ort</label><input style={fieldStyle} value={form.ort || ""} onChange={e => set("ort", e.target.value)} /></div>
                     </div>
                     <div><label style={labelStyle}>Bundesland</label><select style={selectFieldStyle} value={form.bundesland || ""} onChange={e => set("bundesland", e.target.value)}><option value="">– wählen –</option>{["Baden-Württemberg","Bayern","Berlin","Brandenburg","Bremen","Hamburg","Hessen","Mecklenburg-Vorpommern","Niedersachsen","Nordrhein-Westfalen","Rheinland-Pfalz","Saarland","Sachsen","Sachsen-Anhalt","Schleswig-Holstein","Thüringen"].map(b => <option key={b} value={b}>{b}</option>)}</select></div>
-
                     <div className="section-header" style={{ marginTop: 4 }}>Ansprechpartner</div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                       <div><label style={labelStyle}>Name</label><input style={fieldStyle} value={form.ansprech_name || ""} onChange={e => set("ansprech_name", e.target.value)} /></div>
@@ -799,7 +798,6 @@ export default function Dashboard() {
                     </div>
                     <div><label style={labelStyle}>Telefon</label><input style={fieldStyle} value={form.telefon || ""} onChange={e => set("telefon", e.target.value)} /></div>
                     <div><label style={labelStyle}>Offene Stellen</label><select style={selectFieldStyle} value={form.stellen_anzahl || ""} onChange={e => set("stellen_anzahl", e.target.value)}><option value="">– wählen –</option>{["1 Stelle","2-3 Stellen","4-5 Stellen","6-10 Stellen","Mehr als 10 Stellen"].map(s => <option key={s} value={s}>{s}</option>)}</select></div>
-
                     {saveError && <div style={{ padding: "12px 15px", background: "#FFF5F5", border: "1px solid #FED7D7", borderRadius: 10, color: "#9B1C1C", fontSize: "0.84rem" }}>{saveError}</div>}
                   </div>
                 )}
@@ -815,7 +813,6 @@ export default function Dashboard() {
         </main>
       </div>
 
-      {/* BOTTOM NAV (Mobile only) */}
       <nav className="bottom-nav">
         {navItems.map(item => (
           <button key={item.key} className={`bottom-nav-item${activeTab === item.key ? " active" : ""}`} onClick={() => setActiveTab(item.key)}>
