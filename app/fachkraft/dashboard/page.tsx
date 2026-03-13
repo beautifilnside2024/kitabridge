@@ -591,18 +591,7 @@ export default function FachkraftDashboard() {
                 <div style={{ fontSize: "0.7rem", fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 14 }}>E-Mail-Adresse</div>
                 <div style={{ padding: "12px 16px", background: C.surface, borderRadius: 10, color: C.text, fontWeight: 600, fontSize: "0.9rem", border: `1.5px solid ${C.border}` }}>{fachkraft?.email}</div>
               </div>
-              <div style={{ background: "#EFF6FF", border: "1.5px solid #BFDBFE", borderRadius: 18, padding: 24, marginBottom: 16 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                  <span style={{ color: C.blue }}><Icon.shield /></span>
-                  <div style={{ fontWeight: 800, color: "#1E40AF", fontSize: "0.95rem" }}>Missbrauch melden</div>
-                </div>
-                <div style={{ color: "#1E40AF", fontSize: "0.82rem", lineHeight: 1.7, marginBottom: 16 }}>
-                  Falls eine Einrichtung dir über KitaBridge Stellen in anderen Einrichtungen anbietet, die nicht ihrem registrierten Account entsprechen, melde uns das bitte. Wir behandeln alle Hinweise vertraulich.
-                </div>
-                <button onClick={() => { setMeldungModal({ partnerId: "", partnerName: "Unbekannte Einrichtung" }); setMeldungGesendet(false); setMeldungText(""); }} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", background: C.blue, color: "white", borderRadius: 10, fontWeight: 700, fontSize: "0.84rem", border: "none", cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>
-                  <Icon.flag />Jetzt melden
-                </button>
-              </div>
+             
               <div style={{ background: "#FFF5F5", border: "1.5px solid #FED7D7", borderRadius: 18, padding: 24 }}>
                 <div style={{ fontWeight: 800, color: "#9B1C1C", fontSize: "0.95rem", marginBottom: 6 }}>Account löschen</div>
                 <div style={{ color: "#7F1D1D", fontSize: "0.82rem", lineHeight: 1.7, marginBottom: 18 }}>Dein Account und alle gespeicherten Daten werden unwiderruflich und dauerhaft gelöscht.</div>
