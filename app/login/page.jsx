@@ -27,9 +27,11 @@ function LoginForm() {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        const redirect = searchParams.get("redirect");
         supabase.from("arbeitgeber").select("id").eq("email", session.user.email).single()
           .then(({ data }) => {
-            if (data) router.replace("/dashboard");
+            if (redirect) router.replace(redirect);
+            else if (data) router.replace("/arbeitgeber/dashboard");
             else router.replace("/fachkraft/dashboard");
           });
       } else {
@@ -44,7 +46,14 @@ function LoginForm() {
     setError("");
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError) { setError("E-Mail oder Passwort falsch."); setLoading(false); return; }
-    if (rolle === "kita") router.replace("/dashboard");
+
+    // ── Nach Login: redirect-Parameter prüfen ────────────────────────────
+    const redirect = searchParams.get("redirect");
+    if (redirect) {
+      router.replace(redirect);
+      return;
+    }
+    if (rolle === "kita") router.replace("/arbeitgeber/dashboard");
     else router.replace("/fachkraft/dashboard");
   };
 
