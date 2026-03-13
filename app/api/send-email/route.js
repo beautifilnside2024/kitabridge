@@ -289,7 +289,20 @@ export async function POST(request) {
           <p><strong>Nachricht:</strong> ${data.nachricht}</p>`
       });
     }
-
+if (type === "missbrauch_meldung") {
+      await resend.emails.send({
+        from: "KitaBridge <hallo@kitabridge.de>",
+        to: "hallo@kitabridge.de",
+        subject: `⚠️ Missbrauch gemeldet: ${data.verdaechtige_kita}`,
+        html: `<h2>⚠️ Missbrauchsmeldung</h2>
+          <p><strong>Gemeldet von:</strong> ${data.melder_name} (${data.melder_email})</p>
+          <p><strong>Verdächtige Einrichtung:</strong> ${data.verdaechtige_kita}</p>
+          <p><strong>Einrichtungs-ID:</strong> ${data.verdaechtige_kita_id || "nicht bekannt"}</p>
+          <hr>
+          <p><strong>Beschreibung:</strong></p>
+          <p>${data.beschreibung}</p>`
+      });
+    }
     return Response.json({ ok: true });
 
   } catch (error) {
