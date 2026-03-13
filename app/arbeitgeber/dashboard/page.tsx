@@ -48,7 +48,9 @@ const Icon = {
   user: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
   eye: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
   logout: () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
-  check: (size = 14) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  check: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  checkSm: () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  checkLg: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
   send: () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
   pin: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
   building: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
@@ -364,7 +366,7 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
                 {bereitsAngefragt ? (
                   <div>
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 99, fontSize: "0.77rem", fontWeight: 700, background: status === "akzeptiert" ? "#ECFDF5" : status === "abgelehnt" ? C.surface : "#EFF6FF", color: status === "akzeptiert" ? C.green : status === "abgelehnt" ? C.muted : C.blue }}>
-                      {status === "akzeptiert" ? <><Icon.check(12) /> Akzeptiert</> : status === "abgelehnt" ? "Abgelehnt" : "⏳ Ausstehend"}
+                      {status === "akzeptiert" ? <><Icon.checkSm /> Akzeptiert</> : status === "abgelehnt" ? "Abgelehnt" : "⏳ Ausstehend"}
                     </span>
                     {status === "akzeptiert" && (
                       <div style={{ marginTop: 10, padding: "12px 13px", background: "#ECFDF5", borderRadius: 11, fontSize: "0.82rem" }}>
@@ -397,7 +399,7 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, gap: 8, flexWrap: "wrap" }}>
               <div style={{ fontWeight: 700, color: C.text, fontSize: "0.9rem" }}>Anfrage an Fachkraft</div>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 99, fontSize: "0.72rem", fontWeight: 700, background: anfrage.status === "akzeptiert" ? "#ECFDF5" : anfrage.status === "abgelehnt" ? C.surface : "#EFF6FF", color: anfrage.status === "akzeptiert" ? C.green : anfrage.status === "abgelehnt" ? C.muted : C.blue }}>
-                {anfrage.status === "akzeptiert" ? <><Icon.check(12) /> Akzeptiert</> : anfrage.status === "abgelehnt" ? "Abgelehnt" : "⏳ Ausstehend"}
+                {anfrage.status === "akzeptiert" ? <><Icon.checkSm /> Akzeptiert</> : anfrage.status === "abgelehnt" ? "Abgelehnt" : "⏳ Ausstehend"}
               </span>
             </div>
             {anfrage.nachricht && <div style={{ fontSize: "0.8rem", color: C.muted, lineHeight: 1.6, marginBottom: 8, fontStyle: "italic" }}>"{anfrage.nachricht}"</div>}
@@ -420,7 +422,7 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 20px" }} />
             {anfrageSuccess === "ok" ? (
               <div style={{ textAlign: "center", padding: "16px 0" }}>
-                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#ECFDF5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", color: C.green }}><Icon.check(22) /></div>
+                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#ECFDF5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", color: C.green }}><Icon.checkLg /></div>
                 <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.3rem", color: C.text, marginBottom: 8 }}>Anfrage gesendet!</div>
                 <div style={{ color: C.muted, fontSize: "0.84rem", marginBottom: 20 }}>Die Fachkraft wird benachrichtigt.</div>
                 <button onClick={() => { setSelectedFachkraft(null); setAnfrageSuccess(null); }} style={{ width: "100%", padding: "13px", borderRadius: 12, border: "none", background: C.navyMid, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Schließen</button>
@@ -626,7 +628,7 @@ export default function Dashboard() {
             <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)", marginBottom: 14 }}>pro Monat, zzgl. MwSt.</div>
             {["Alle Profile", "Direktkontakt", "Keine Provision", "Monatlich kündbar"].map(f => (
               <div key={f} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5, fontSize: "0.76rem", color: "rgba(255,255,255,0.75)" }}>
-                <span style={{ color: "#4ADE80" }}><Icon.check(12) /></span>{f}
+                <span style={{ color: "#4ADE80" }}><Icon.checkSm /></span>{f}
               </div>
             ))}
             {arbeitgeber?.stripe_subscription_id && (
@@ -698,7 +700,7 @@ export default function Dashboard() {
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
                     {["Alle Profile", "Direktkontakt", "Keine Provision"].map(f => (
                       <span key={f} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.08)", borderRadius: 99, padding: "3px 9px", fontSize: "0.68rem", color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>
-                        <span style={{ color: "#4ADE80" }}><Icon.check(10) /></span>{f}
+                        <span style={{ color: "#4ADE80" }}><Icon.checkSm /></span>{f}
                       </span>
                     ))}
                   </div>
@@ -777,7 +779,7 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {saveSuccess && <div style={{ padding: "12px 15px", background: "#ECFDF5", border: "1px solid #A7F3D0", borderRadius: 10, color: "#065F46", fontSize: "0.84rem", fontWeight: 600, marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}><Icon.check(14) />Profil erfolgreich gespeichert!</div>}
+              {saveSuccess && <div style={{ padding: "12px 15px", background: "#ECFDF5", border: "1px solid #A7F3D0", borderRadius: 10, color: "#065F46", fontSize: "0.84rem", fontWeight: 600, marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}><Icon.check />Profil erfolgreich gespeichert!</div>}
 
               <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 20 }}>
                 {!editMode ? (
