@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-// ── Types ──────────────────────────────────────────────────────────────────────
 interface Fachkraft {
   id: string; email: string; username?: string; vorname?: string; nachname?: string;
   telefon?: string; wohnort?: string; bundesland?: string; qualifikation?: string;
@@ -61,8 +60,6 @@ export default function FachkraftDashboard() {
   const [antwort, setAntwort] = useState<Record<string, string>>({});
   const [sendingMsg, setSendingMsg] = useState<string | null>(null);
   const [msgSent, setMsgSent] = useState<Record<string, boolean>>({});
-
-  // ── Missbrauch Melden State ──
   const [meldungModal, setMeldungModal] = useState<{ partnerId: string; partnerName: string } | null>(null);
   const [meldungText, setMeldungText] = useState("");
   const [meldungGesendet, setMeldungGesendet] = useState(false);
@@ -131,22 +128,12 @@ export default function FachkraftDashboard() {
     await loadNachrichten(fachkraft.id);
   };
 
-  // ── Missbrauch melden Handler ──
   const handleMeldungSenden = async () => {
     if (!meldungModal || !fachkraft) return;
     setMeldungSending(true);
     await fetch("/api/send-email", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "missbrauch_meldung",
-        data: {
-          melder_email: fachkraft.email,
-          melder_name: fachkraft.vorname || fachkraft.username || "Fachkraft",
-          verdaechtige_kita: meldungModal.partnerName,
-          verdaechtige_kita_id: meldungModal.partnerId,
-          beschreibung: meldungText,
-        }
-      }),
+      body: JSON.stringify({ type: "missbrauch_meldung", data: { melder_email: fachkraft.email, melder_name: fachkraft.vorname || fachkraft.username || "Fachkraft", verdaechtige_kita: meldungModal.partnerName, verdaechtige_kita_id: meldungModal.partnerId, beschreibung: meldungText } }),
     });
     setMeldungSending(false);
     setMeldungGesendet(true);
@@ -274,7 +261,6 @@ export default function FachkraftDashboard() {
         @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
       `}</style>
 
-      {/* ── TOP NAV ── */}
       <header style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(247,249,252,0.9)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <a href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 2 }}>
@@ -296,7 +282,6 @@ export default function FachkraftDashboard() {
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 24px", display: "flex", gap: 24, flex: 1, width: "100%" }}>
 
-        {/* ── SIDEBAR ── */}
         <aside className="sidebar" style={{ width: 240, flexShrink: 0, display: "flex", flexDirection: "column", gap: 6 }}>
           <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 20, marginBottom: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
@@ -340,7 +325,6 @@ export default function FachkraftDashboard() {
           </div>
         </aside>
 
-        {/* ── MAIN CONTENT ── */}
         <main className="main-content" style={{ flex: 1, minWidth: 0 }}>
 
           {/* ── ÜBERSICHT ── */}
@@ -395,19 +379,24 @@ export default function FachkraftDashboard() {
                 <button className="quick-link" onClick={() => setActiveTab("profil")}>
                   <span style={{ color: C.navyMid }}><Icon.user /></span>Profil bearbeiten
                 </button>
-               <a href="/kontakt" className="quick-link" style={{ gridColumn: "1/-1" }}>
+                <a href="/kontakt" className="quick-link" style={{ gridColumn: "1/-1" }}>
                   <span style={{ color: C.muted }}><Icon.settings /></span>Support kontaktieren
                 </a>
               </div>
 
-              {/* ── Missbrauch Banner ── */}
-              <div style={{ background: "#EFF6FF", border: "1.5px solid #BFDBFE", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "flex-start", gap: 10 }}>
-                <span style={{ color: C.blue, marginTop: 1, flexShrink: 0 }}><Icon.shield /></span>
-                <div style={{ fontSize: "0.8rem", color: "#1E40AF", lineHeight: 1.6 }}>
-                  <strong>Fairness-Hinweis:</strong> Falls eine Einrichtung dir über KitaBridge Stellen in anderen Einrichtungen anbietet, die nicht ihrem registrierten Account entsprechen, melde uns das bitte — <a href="mailto:hallo@kitabridge.de?subject=Missbrauch melden" style={{ color: C.blue, fontWeight: 700 }}>hallo@kitabridge.de</a>. Wir behandeln alle Hinweise vertraulich. 🙏
+              {/* ── Missbrauch Banner mit Button ── */}
+              <div style={{ background: "#EFF6FF", border: "1.5px solid #BFDBFE", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ color: C.blue, flexShrink: 0 }}><Icon.shield /></span>
+                <div style={{ flex: 1, fontSize: "0.8rem", color: "#1E40AF", lineHeight: 1.5 }}>
+                  <strong>Fairness-Hinweis:</strong> Falls eine Einrichtung dir Stellen anbietet die nicht zu ihrem Account gehören, melde es uns. Wir behandeln alle Hinweise vertraulich. 🙏
                 </div>
+                <button
+                  onClick={() => { setMeldungModal({ partnerId: "", partnerName: "Unbekannte Einrichtung" }); setMeldungGesendet(false); setMeldungText(""); }}
+                  style={{ display: "flex", alignItems: "center", gap: 5, padding: "8px 14px", borderRadius: 9, border: "1.5px solid #FED7D7", background: "#FFF5F5", color: C.red, fontSize: "0.78rem", fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif", flexShrink: 0, whiteSpace: "nowrap" }}
+                >
+                  <Icon.flag />Melden
+                </button>
               </div>
-
             </div>
           )}
 
@@ -493,15 +482,6 @@ export default function FachkraftDashboard() {
                 <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: C.text }}>Nachrichten</h2>
                 <p style={{ fontSize: "0.82rem", color: C.muted, marginTop: 3 }}>Deine Unterhaltungen mit Kitas.</p>
               </div>
-
-              {/* ── Missbrauch Hinweis Banner ── */}
-              <div style={{ background: "#EFF6FF", border: "1.5px solid #BFDBFE", borderRadius: 14, padding: "14px 16px", marginBottom: 18, display: "flex", alignItems: "flex-start", gap: 10 }}>
-                <span style={{ color: C.blue, marginTop: 1, flexShrink: 0 }}><Icon.shield /></span>
-                <div style={{ fontSize: "0.8rem", color: "#1E40AF", lineHeight: 1.6 }}>
-                  <strong>Fairness-Hinweis:</strong> Falls eine Einrichtung dir über KitaBridge Stellen in anderen Einrichtungen anbietet, die nicht ihrem registrierten Account entsprechen, bitte melde uns das. Du hilfst damit, die Plattform fair für alle zu halten. Wir behandeln alle Hinweise vertraulich.
-                </div>
-              </div>
-
               {Object.keys(konversationen).length === 0 ? (
                 <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: "50px 24px", textAlign: "center" }}>
                   <div style={{ fontSize: "2rem", marginBottom: 12 }}>💬</div>
@@ -516,11 +496,7 @@ export default function FachkraftDashboard() {
                   <div key={partnerId} style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 22, marginBottom: 16 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, paddingBottom: 14, borderBottom: `1px solid ${C.border}` }}>
                       <span style={{ fontWeight: 800, color: C.text, fontSize: "0.95rem" }}>{agName}</span>
-                      {/* ── Missbrauch melden Button ── */}
-                      <button
-                        onClick={() => { setMeldungModal({ partnerId, partnerName: agName }); setMeldungGesendet(false); setMeldungText(""); }}
-                        style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 8, border: "1.5px solid #FED7D7", background: "#FFF5F5", color: C.red, fontSize: "0.72rem", fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}
-                      >
+                      <button onClick={() => { setMeldungModal({ partnerId, partnerName: agName }); setMeldungGesendet(false); setMeldungText(""); }} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 8, border: "1.5px solid #FED7D7", background: "#FFF5F5", color: C.red, fontSize: "0.72rem", fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>
                         <Icon.flag />Missbrauch melden
                       </button>
                     </div>
@@ -615,24 +591,21 @@ export default function FachkraftDashboard() {
                 <div style={{ fontSize: "0.7rem", fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 14 }}>E-Mail-Adresse</div>
                 <div style={{ padding: "12px 16px", background: C.surface, borderRadius: 10, color: C.text, fontWeight: 600, fontSize: "0.9rem", border: `1.5px solid ${C.border}` }}>{fachkraft?.email}</div>
               </div>
-
-              {/* ── Missbrauch melden Karte ── */}
               <div style={{ background: "#EFF6FF", border: "1.5px solid #BFDBFE", borderRadius: 18, padding: 24, marginBottom: 16 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                   <span style={{ color: C.blue }}><Icon.shield /></span>
                   <div style={{ fontWeight: 800, color: "#1E40AF", fontSize: "0.95rem" }}>Missbrauch melden</div>
                 </div>
                 <div style={{ color: "#1E40AF", fontSize: "0.82rem", lineHeight: 1.7, marginBottom: 16 }}>
-                  Falls eine Einrichtung dir über KitaBridge Stellen in anderen Einrichtungen anbietet, die nicht ihrem registrierten Account entsprechen, melde uns das bitte. Du hilfst damit, die Plattform fair für alle zu halten. Wir behandeln alle Hinweise vertraulich.
+                  Falls eine Einrichtung dir über KitaBridge Stellen in anderen Einrichtungen anbietet, die nicht ihrem registrierten Account entsprechen, melde uns das bitte. Wir behandeln alle Hinweise vertraulich.
                 </div>
-                <a href="mailto:hallo@kitabridge.de?subject=Missbrauch melden" style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", background: C.blue, color: "white", borderRadius: 10, fontWeight: 700, fontSize: "0.84rem", textDecoration: "none", fontFamily: "'Sora', sans-serif" }}>
-                  <Icon.flag />Jetzt melden — hallo@kitabridge.de
-                </a>
+                <button onClick={() => { setMeldungModal({ partnerId: "", partnerName: "Unbekannte Einrichtung" }); setMeldungGesendet(false); setMeldungText(""); }} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", background: C.blue, color: "white", borderRadius: 10, fontWeight: 700, fontSize: "0.84rem", border: "none", cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>
+                  <Icon.flag />Jetzt melden
+                </button>
               </div>
-
               <div style={{ background: "#FFF5F5", border: "1.5px solid #FED7D7", borderRadius: 18, padding: 24 }}>
                 <div style={{ fontWeight: 800, color: "#9B1C1C", fontSize: "0.95rem", marginBottom: 6 }}>Account löschen</div>
-                <div style={{ color: "#7F1D1D", fontSize: "0.82rem", lineHeight: 1.7, marginBottom: 18 }}>Dein Account und alle gespeicherten Daten werden unwiderruflich und dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.</div>
+                <div style={{ color: "#7F1D1D", fontSize: "0.82rem", lineHeight: 1.7, marginBottom: 18 }}>Dein Account und alle gespeicherten Daten werden unwiderruflich und dauerhaft gelöscht.</div>
                 <button onClick={handleDeleteAccount} style={{ background: C.red, color: "white", border: "none", padding: "11px 20px", borderRadius: 10, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Sora', sans-serif", width: "100%" }}>Account unwiderruflich löschen</button>
               </div>
             </div>
@@ -649,9 +622,7 @@ export default function FachkraftDashboard() {
               <div style={{ textAlign: "center", padding: "16px 0" }}>
                 <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>🙏</div>
                 <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.3rem", color: C.text, marginBottom: 8 }}>Vielen Dank!</div>
-                <div style={{ color: C.muted, fontSize: "0.84rem", lineHeight: 1.6, marginBottom: 20 }}>
-                  Deine Meldung wurde an KitaBridge übermittelt. Wir prüfen den Fall vertraulich und melden uns falls nötig bei dir.
-                </div>
+                <div style={{ color: C.muted, fontSize: "0.84rem", lineHeight: 1.6, marginBottom: 20 }}>Deine Meldung wurde an KitaBridge übermittelt. Wir prüfen den Fall vertraulich und melden uns falls nötig bei dir.</div>
                 <button onClick={() => { setMeldungModal(null); setMeldungGesendet(false); }} style={{ width: "100%", padding: "13px", borderRadius: 12, border: "none", background: C.navyMid, color: "white", fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Schließen</button>
               </div>
             ) : (
@@ -664,13 +635,7 @@ export default function FachkraftDashboard() {
                   Du meldest einen möglichen Missbrauch durch <strong style={{ color: C.text }}>{meldungModal.partnerName}</strong>. Deine Meldung wird vertraulich behandelt.
                 </div>
                 <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Was ist passiert?</label>
-                <textarea
-                  value={meldungText}
-                  onChange={e => setMeldungText(e.target.value)}
-                  rows={4}
-                  placeholder="z.B. Die Einrichtung hat mir Stellen in anderen Kitas angeboten, die nicht zu ihrem Account gehören..."
-                  style={{ width: "100%", padding: "11px 13px", borderRadius: 11, border: `1.5px solid ${C.border}`, fontSize: "0.86rem", fontFamily: "'Sora', sans-serif", resize: "none", outline: "none", color: C.text, marginBottom: 14 }}
-                />
+                <textarea value={meldungText} onChange={e => setMeldungText(e.target.value)} rows={4} placeholder="z.B. Die Einrichtung hat mir Stellen in anderen Kitas angeboten, die nicht zu ihrem Account gehören..." style={{ width: "100%", padding: "11px 13px", borderRadius: 11, border: `1.5px solid ${C.border}`, fontSize: "0.86rem", fontFamily: "'Sora', sans-serif", resize: "none", outline: "none", color: C.text, marginBottom: 14 }} />
                 <div style={{ display: "flex", gap: 10 }}>
                   <button onClick={() => setMeldungModal(null)} style={{ flex: 1, padding: "13px", borderRadius: 11, border: `1.5px solid ${C.border}`, background: "white", color: C.muted, fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Abbrechen</button>
                   <button onClick={handleMeldungSenden} disabled={meldungSending || !meldungText.trim()} style={{ flex: 2, padding: "13px", borderRadius: 11, border: "none", background: meldungSending || !meldungText.trim() ? C.border : C.red, color: "white", fontWeight: 700, cursor: meldungSending || !meldungText.trim() ? "not-allowed" : "pointer", fontFamily: "'Sora', sans-serif" }}>
