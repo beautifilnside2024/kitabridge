@@ -9,6 +9,15 @@ const pwaConfig = withPWA({
 
 const nextConfig = {
   turbopack: {},
+  async redirects() {
+    return [
+      {
+        source: '/fachkraft/einstellungen',
+        destination: '/fachkraft/dashboard',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default pwaConfig(nextConfig);
