@@ -65,7 +65,122 @@ export default function ArbeitgeberRegistrieren() {
 
   const progress = ((step + 1) / STEPS.length) * 100;
 
-  const einrichtungstypen = ["Krippe (0-3 Jahre)", "Kindergarten (3-6 Jahre)", "Kita (0-6 Jahre)", "Hort (6-12 Jahre)", "Integrationskita", "Waldkita", "Montessori Kita", "Betriebskita"];
+  const einrichtungstypen = [
+  // Kindertagesbetreuung
+  "Krippe (0–3 Jahre)",
+  "Kindergarten (3–6 Jahre)",
+  "Kita / Kindertagesstätte (0–6 Jahre)",
+  "Kindertagespflege / Tageseltern",
+  "Hort (6–12 Jahre)",
+  "Inklusionskindergarten",
+  "Waldkita",
+  "Montessori Kita",
+  "Betriebskita",
+
+  // Kinder & Jugend
+  "Abenteuerspielplatz",
+  "Spielmobil",
+  "Kinderbauernhof",
+  "Kindermuseum",
+  "Kinder- und Jugendkulturzentrum",
+  "Jugendzentrum / Jugendclub",
+  "Jugendheim / Jugendwohngruppe",
+  "Betreutes Jugendwohnen",
+  "Außenwohngruppe",
+  "Heimerziehung / Stationäre Wohngruppe",
+  "Mutter-Kind-Einrichtung",
+  "Kriseninterventionszentrum",
+
+  // Hilfen zur Erziehung
+  "Erziehungsberatungsstelle",
+  "Erziehungsbeistandschaft",
+  "Sozialpädagogische Familienhilfe",
+  "Sozialpädagogische Einzelbetreuung",
+  "Intensive sozialpädagogische Einzelbetreuung (ISE)",
+  "Streetwork / Mobile Jugendarbeit",
+  "Schulsozialarbeit",
+
+  // Förderung & Inklusion
+  "Heilpädagogische Tagesstätte (HPT)",
+  "Frühförderstelle",
+  "Sozialpädiatrisches Zentrum (SPZ)",
+  "Förderzentrum",
+  "Autismus-Therapiezentrum",
+  "Frühinterventionszentrum",
+  "Integrationsfachdienst",
+
+  // Behinderung
+  "Werkstatt für Menschen mit Behinderung (WfbM)",
+  "Wohnheim für Menschen mit Behinderung",
+  "Tagesstätte für Menschen mit Behinderung",
+
+  // Senioren & Pflege
+  "Seniorenheim / Altenpflege",
+  "Tagespflege für Senioren",
+  "Geriatrische Klinik",
+  "Hospiz (Kinder & Jugendliche)",
+  "Palliativpflegeeinrichtung",
+
+  // Gesundheit & Therapie
+  "Kinderkrankenhaus",
+  "Kinder- & Jugendpsychiatrie (KJP)",
+  "Sozialdienst im Krankenhaus",
+  "Therapeutische Wohngruppe",
+  "Psychiatrische Tagesklinik",
+  "Rehabilitationszentrum",
+  "Kinderrehaklinik",
+  "Ergotherapiepraxis",
+  "Logopädiepraxis",
+
+  // Bildung & Beratung
+  "Familienzentrum",
+  "Eltern-Kind-Zentrum",
+  "Mütterzentrum",
+  "Mehrgenerationenhaus",
+  "Volkshochschule (VHS)",
+  "Bildungszentrum / Bildungsträger",
+  "Berufsbildungswerk",
+  "Berufsförderungswerk",
+
+  // Migration & Integration
+  "Migrationsberatungsstelle",
+  "Interkultureller Treffpunkt",
+  "Sprachschule / DaZ-Zentrum",
+  "Flüchtlingsunterkunft / Asylbewerberheim",
+
+  // Soziale Hilfen
+  "Obdachlosenunterkunft",
+  "Frauenhaus / Frauenschutzhaus",
+  "Männerberatungsstelle",
+  "LGBTQ+ Beratungszentrum",
+  "Suchtberatungsstelle",
+  "Sozialpsychiatrischer Dienst",
+  "Familienentlastender Dienst",
+  "Trauerbegleitungsstelle",
+
+  // Justiz & Prävention
+  "Jugendgerichtshilfe",
+  "Bewährungshilfe",
+  "Täter-Opfer-Ausgleich",
+  "Antigewalttraining / Präventionsprogramm",
+  "Jugendarrestanstalt (sozialpädagogische Betreuung)",
+
+  // Arbeit & Beschäftigung
+  "Sozialunternehmen / Sozialfirma",
+  "Inklusionsbetrieb",
+  "Beschäftigungsträger",
+  "Qualifizierungsmaßnahmen-Träger",
+
+  // Gemeinwesen
+  "Nachbarschaftszentrum",
+  "Quartiersmanagement",
+  "Gemeinwesenarbeit",
+  "Selbsthilfegruppen-Koordination",
+  "Online-Beratungsstelle",
+
+  // Sonstiges
+  "Sonstige soziale Einrichtung",
+];
   const traegerListe = ["Öffentlich (kommunal)", "AWO", "Caritas", "Diakonie", "DRK", "Paritätischer Wohlfahrtsverband", "Privat / Eigenträger", "Sonstiger freier Träger"];
   const rollen = ["Kita-Leitung", "Stellv. Leitung", "Träger-Geschäftsführung", "HR / Personal", "Sonstiges"];
   const stellen = ["1 Stelle", "2-3 Stellen", "4-5 Stellen", "6-10 Stellen", "Mehr als 10 Stellen"];
