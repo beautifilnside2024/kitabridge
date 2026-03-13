@@ -56,6 +56,7 @@ const Icon = {
   pin: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
   building: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
   edit: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+  trash: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>,
 };
 
 // ── Nachrichten Sub-Component ──────────────────────────────────────────────────
@@ -118,6 +119,15 @@ function NachrichtenTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
     setSubTab("konversationen");
   };
 
+  // ── NEU: Konversation löschen ──────────────────────────────────────────────
+  const handleKonversationLoeschen = async (partnerId: string) => {
+    if (!window.confirm("Konversation wirklich löschen?")) return;
+    await supabase.from("nachrichten").delete().or(
+      `and(von_id.eq.${arbeitgeber.id},an_id.eq.${partnerId}),and(von_id.eq.${partnerId},an_id.eq.${arbeitgeber.id})`
+    );
+    await loadAll();
+  };
+
   const getKonversationen = () => {
     const map: Record<string, Nachricht[]> = {};
     nachrichten.forEach(msg => {
@@ -159,7 +169,17 @@ function NachrichtenTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
           const sorted = [...msgs].sort((a, b) => new Date(a.erstellt_am).getTime() - new Date(b.erstellt_am).getTime());
           return (
             <div key={partnerId} style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 18, padding: 22, marginBottom: 16 }}>
-              <div style={{ fontWeight: 800, color: C.text, marginBottom: 18, fontSize: "0.95rem", paddingBottom: 14, borderBottom: `1px solid ${C.border}` }}>{name}</div>
+              {/* Header mit Löschen-Button */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, paddingBottom: 14, borderBottom: `1px solid ${C.border}` }}>
+                <span style={{ fontWeight: 800, color: C.text, fontSize: "0.95rem" }}>{name}</span>
+                <button
+                  onClick={() => handleKonversationLoeschen(partnerId)}
+                  style={{ display: "flex", alignItems: "center", gap: 5, background: "#FFF5F5", border: "1.5px solid #FED7D7", color: C.red, borderRadius: 8, padding: "5px 10px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}
+                >
+                  <Icon.trash />Löschen
+                </button>
+              </div>
+
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
                 {sorted.map(msg => (
                   <div key={msg.id} style={{ display: "flex", justifyContent: msg.von_id === arbeitgeber.id ? "flex-end" : "flex-start" }}>
@@ -246,6 +266,13 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
   const loadGesendeteAnfragen = async () => {
     const { data } = await supabase.from("anfragen").select("*").eq("kita_id", arbeitgeber.id).order("created_at", { ascending: false });
     setGesendeteAnfragen(data || []);
+  };
+
+  // ── NEU: Anfrage löschen ───────────────────────────────────────────────────
+  const handleAnfrageLoeschen = async (anfrageId: string) => {
+    if (!window.confirm("Anfrage wirklich löschen?")) return;
+    await supabase.from("anfragen").delete().eq("id", anfrageId);
+    await loadGesendeteAnfragen();
   };
 
   const getAnfrageStatus = (id: string) => gesendeteAnfragen.find(a => a.fachkraft_id === id)?.status;
@@ -386,12 +413,19 @@ function FachkraefteTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
               </span>
             </div>
             {anfrage.nachricht && <div style={{ fontSize: "0.81rem", color: C.muted, lineHeight: 1.65, marginBottom: 8, fontStyle: "italic" }}>"{anfrage.nachricht}"</div>}
-            <div style={{ fontSize: "0.73rem", color: C.muted }}>{new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div>
+            <div style={{ fontSize: "0.73rem", color: C.muted, marginBottom: 12 }}>{new Date(anfrage.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div>
             {anfrage.status === "akzeptiert" && (
-              <div style={{ marginTop: 10, background: "#ECFDF5", borderRadius: 10, padding: "9px 12px", fontSize: "0.8rem", color: "#065F46", fontWeight: 600 }}>
+              <div style={{ marginBottom: 12, background: "#ECFDF5", borderRadius: 10, padding: "9px 12px", fontSize: "0.8rem", color: "#065F46", fontWeight: 600 }}>
                 ✓ Akzeptiert – Du kannst dieser Fachkraft jetzt im Nachrichten-Tab schreiben.
               </div>
             )}
+            {/* Löschen-Button */}
+            <button
+              onClick={() => handleAnfrageLoeschen(anfrage.id)}
+              style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "9px", borderRadius: 10, border: "1.5px solid #FED7D7", background: "#FFF5F5", color: C.red, fontWeight: 700, fontSize: "0.8rem", cursor: "pointer", fontFamily: "'Sora', sans-serif", justifyContent: "center" }}
+            >
+              <Icon.trash />Anfrage löschen
+            </button>
           </div>
         ))
       )}
@@ -651,10 +685,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* FACHKRÄFTE */}
           {activeTab === "fachkraefte" && <FachkraefteTab arbeitgeber={arbeitgeber!} />}
-
-          {/* NACHRICHTEN */}
           {activeTab === "nachrichten" && <NachrichtenTab arbeitgeber={arbeitgeber!} />}
 
           {/* VISITENKARTE */}
