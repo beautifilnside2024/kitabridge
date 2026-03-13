@@ -21,9 +21,10 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    const rolleParam = searchParams.get("rolle");
-    if (rolleParam === "fachkraft") setRolle("fachkraft");
-    if (rolleParam === "kita") setRolle("kita");
+  const rolleParam = searchParams.get("rolle");
+  if (rolleParam === "fachkraft") setRolle("fachkraft");
+  if (rolleParam === "kita") setRolle("kita");
+  if (rolleParam === "arbeitgeber") setRolle("kita");
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {

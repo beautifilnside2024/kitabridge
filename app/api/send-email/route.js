@@ -237,7 +237,7 @@ export async function POST(request) {
     </div>
     <div style="text-align:center;">
       <!-- ── FIX: direkter Dashboard-Link, kein Login-Redirect nötig ── -->
-      <a href="https://kitabridge.de/arbeitgeber/dashboard" style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Zu meinem Dashboard →</a>
+      <a href="https://kitabridge.de/login?redirect=/arbeitgeber/dashboard" style="display:inline-block;background:linear-gradient(135deg,#1E8449,#27AE60);color:white;font-weight:700;font-size:16px;padding:16px 40px;border-radius:50px;text-decoration:none;">Zu meinem Dashboard →</a>
     </div>
   </td></tr>
   <tr><td style="padding:24px 40px;text-align:center;">
