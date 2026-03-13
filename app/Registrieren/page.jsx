@@ -19,7 +19,7 @@ const t = {
     profileMode: "Wie möchtest du dich vorstellen?",
     profileModeDesc: "Du kannst deinen echten Namen angeben oder anonym bleiben. Dein Name wird erst sichtbar, wenn du eine Anfrage einer Kita annimmst.",
     modeReal: "Mit echtem Namen",
-    modeRealDesc: "Vor- und Nachname sind nach Anfrage-Annahme sichtbar",
+    modeRealDesc: "Vor- und Nachname sind sichtbar",
     modeAnon: "Anonym (Benutzername)",
     modeAnonDesc: "Nur dein Benutzername ist sichtbar – nie dein echter Name",
     firstName: "Vorname *", lastName: "Nachname *", email: "E-Mail-Adresse *",
@@ -284,7 +284,7 @@ export default function Registrieren() {
               {tx.nextStepsList.map((s, i) => <div key={i}>{i+1}. {s}</div>)}
             </div>
           </div>
-          <button onClick={() => router.push("/fachkraft/einstellungen")} style={{ display: "block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", marginBottom: 12, width: "100%" }}>
+          <button onClick={() => router.push("/fachkraft/dashboard")} style={{ display: "block", padding: "12px 28px", borderRadius: 50, background: `linear-gradient(135deg, ${NAVY}, ${BLUE})`, color: "white", fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", marginBottom: 12, width: "100%" }}>
             {tx.viewProfile}
           </button>
           <a href="/" style={{ display: "block", color: "#9BA8C0", fontSize: "0.88rem", textDecoration: "none" }}>{tx.backHome}</a>
