@@ -690,27 +690,7 @@ export default function Dashboard() {
                 <button className="quick-link" onClick={() => setActiveTab("profil")}><span style={{ color: C.muted }}><Icon.edit /></span>Profil</button>
               </div>
 
-              {/* Plan info auf Mobile */}
-              <div style={{ background: `linear-gradient(135deg, ${C.navy}, ${C.navyMid})`, borderRadius: 16, padding: "16px 18px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ fontSize: "0.65rem", fontWeight: 800, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 4 }}>Ihr Plan</div>
-                    <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.3rem", fontWeight: 800, color: "white" }}>299 € <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)", fontFamily: "'Sora', sans-serif", fontWeight: 400 }}>/ Monat</span></div>
-                  </div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                    {["Alle Profile", "Direktkontakt", "Keine Provision"].map(f => (
-                      <span key={f} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.08)", borderRadius: 99, padding: "3px 9px", fontSize: "0.68rem", color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>
-                        <span style={{ color: "#4ADE80" }}><Icon.checkSm /></span>{f}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                {arbeitgeber?.stripe_subscription_id && (
-                  <button onClick={handleKuendigung} style={{ marginTop: 12, width: "100%", padding: "8px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.6)", borderRadius: 8, fontSize: "0.74rem", fontWeight: 600, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>
-                    Abo kündigen
-                  </button>
-                )}
-              </div>
+              
             </div>
           )}
 
