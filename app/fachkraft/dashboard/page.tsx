@@ -621,8 +621,15 @@ export default function FachkraftDashboard() {
                   <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.15rem", fontWeight: 800, color: C.text }}>Missbrauch melden</div>
                 </div>
                 <div style={{ fontSize: "0.8rem", color: C.muted, lineHeight: 1.6, marginBottom: 16 }}>
-                  Du meldest einen möglichen Missbrauch durch <strong style={{ color: C.text }}>{meldungModal.partnerName}</strong>. Deine Meldung wird vertraulich behandelt.
+                  Deine Meldung wird vertraulich behandelt.
                 </div>
+                <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Name der Einrichtung</label>
+                <input
+                  value={meldungModal.partnerName === "Unbekannte Einrichtung" ? "" : meldungModal.partnerName}
+                  onChange={e => setMeldungModal(m => m ? { ...m, partnerName: e.target.value } : m)}
+                  placeholder="z.B. Kita Sonnenschein Berlin..."
+                  style={{ width: "100%", padding: "11px 13px", borderRadius: 11, border: `1.5px solid ${C.border}`, fontSize: "0.86rem", fontFamily: "'Sora', sans-serif", outline: "none", color: C.text, marginBottom: 14 }}
+                />
                 <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Was ist passiert?</label>
                 <textarea value={meldungText} onChange={e => setMeldungText(e.target.value)} rows={4} placeholder="z.B. Die Einrichtung hat mir Stellen in anderen Kitas angeboten, die nicht zu ihrem Account gehören..." style={{ width: "100%", padding: "11px 13px", borderRadius: 11, border: `1.5px solid ${C.border}`, fontSize: "0.86rem", fontFamily: "'Sora', sans-serif", resize: "none", outline: "none", color: C.text, marginBottom: 14 }} />
                 <div style={{ display: "flex", gap: 10 }}>
