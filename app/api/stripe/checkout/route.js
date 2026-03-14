@@ -7,7 +7,7 @@ export async function POST(request) {
     const { arbeitgeber_id, email, einrichtung_name } = await request.json();
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card", "sepa_debit", "paypal"],
+      
       mode: "subscription",
       customer_email: email,
       line_items: [
