@@ -59,11 +59,10 @@ export default function ArbeitgeberRegistrieren() {
       const { data: ag, error: dbError } = await supabase.from("arbeitgeber").insert([{ einrichtung_name: form.einrichtung_name, einrichtungstyp: form.einrichtungstyp, traeger: form.traeger, beschreibung: form.beschreibung, stellen_anzahl: form.stellen_anzahl, strasse: form.strasse, hausnummer: form.hausnummer, plz: form.plz, ort: form.ort, bundesland: form.bundesland, ansprech_name: form.ansprech_name, ansprech_rolle: form.ansprech_rolle, telefon: form.telefon, email: form.email, status: "ausstehend" }]).select().single();
       if (dbError) { setError("Fehler: " + dbError.message); setLoading(false); return; }
       try { await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "willkommen_arbeitgeber", data: { ...form, id: ag.id } }) }); } catch {}
-      router.push(`/bezahlung?id=${ag.id}&email=${encodeURIComponent(form.email)}&name=${encodeURIComponent(form.einrichtung_name)}`);
+      // ── Weiterleitung zur Warteliste statt Bezahlung ──
+      router.push(`/arbeitgeber/warteliste?email=${encodeURIComponent(form.email)}`);
     } catch (e: any) { setError("Unerwarteter Fehler: " + e.message); setLoading(false); }
   };
-
-  const progress = ((step + 1) / STEPS.length) * 100;
 
   const einrichtungstypen = [
   // Kindertagesbetreuung
@@ -204,6 +203,7 @@ export default function ArbeitgeberRegistrieren() {
         @media (max-width: 560px) {
           .two-col, .three-one, .one-two { grid-template-columns: 1fr !important; }
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
       {/* Header */}
@@ -381,16 +381,18 @@ export default function ArbeitgeberRegistrieren() {
                 ))}
               </div>
 
-              {/* Pricing */}
+              {/* Info Banner statt Pricing */}
               <div style={{ background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 60%, #1B5E98 100%)`, borderRadius: 18, padding: "22px 24px", color: "white", position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
-                <div style={{ fontSize: "0.65rem", fontWeight: 800, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Nach der Registrierung</div>
-                <div style={{ fontFamily: "'Fraunces', serif", fontSize: "2rem", fontWeight: 800, marginBottom: 2 }}>
-                  299 € <span style={{ fontSize: "1rem", fontWeight: 400, opacity: 0.6 }}>/ Monat</span>
+                <div style={{ fontSize: "0.65rem", fontWeight: 800, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Kostenlos registrieren</div>
+                <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.6rem", fontWeight: 800, marginBottom: 6, lineHeight: 1.2 }}>
+                  Jetzt auf die Warteliste
                 </div>
-                <div style={{ fontSize: "0.75rem", opacity: 0.5, marginBottom: 16 }}>zzgl. MwSt. · Monatlich kündbar</div>
+                <div style={{ fontSize: "0.8rem", opacity: 0.65, marginBottom: 16, lineHeight: 1.6 }}>
+                  Wir benachrichtigen Sie sobald 5.000 Fachkräfte registriert sind. Dann können Sie sofort loslegen.
+                </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {["Zugang zur Fachkräfte-Datenbank", "Direktkontakt ohne Vermittler", "Keine Provision", "Monatlich kündbar"].map(f => (
+                  {["Kostenlose Registrierung", "Zugang sobald Pool bereit ist", "Direktkontakt ohne Vermittler", "Keine Provision"].map(f => (
                     <div key={f} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem", color: "rgba(255,255,255,0.8)" }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                       {f}
@@ -444,7 +446,7 @@ export default function ArbeitgeberRegistrieren() {
                   </>
                 ) : (
                   <>
-                    Registrieren & Bezahlen
+                    Kostenlos registrieren
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                   </>
                 )}
@@ -459,7 +461,6 @@ export default function ArbeitgeberRegistrieren() {
           <a href="/login?rolle=kita" style={{ color: C.navyMid, fontWeight: 700, textDecoration: "none" }}>Einloggen</a>
         </div>
       </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

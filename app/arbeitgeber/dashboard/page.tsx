@@ -34,6 +34,9 @@ const C = {
   surface: "#F7F9FC", border: "#E4EAF4", muted: "#8A96B0", text: "#1C2B4A",
 };
 
+// ── Pool Lock ── auf false setzen wenn 5000 Fachkräfte erreicht sind
+const POOL_LOCKED = true;
+
 const formatStatus = (status?: string) => {
   if (status === "bestaetigt" || status === "bestätigt") return "Bestätigt";
   if (status === "aktiv") return "Aktiv";
@@ -230,6 +233,33 @@ function NachrichtenTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
 
 // ── Fachkräfte Tab ─────────────────────────────────────────────────────────────
 function FachkraefteTab({ arbeitgeber }: { arbeitgeber: Arbeitgeber }) {
+
+  // ── Pool gesperrt ──────────────────────────────────────────────────────────
+  if (POOL_LOCKED) {
+    return (
+      <div>
+        <div style={{ marginBottom: 18 }}>
+          <h2 style={{ fontSize: "1.1rem", fontWeight: 800, color: C.text }}>Fachkräfte</h2>
+        </div>
+        <div style={{ background: "white", border: `1.5px solid ${C.border}`, borderRadius: 20, padding: "48px 28px", textAlign: "center" }}>
+          <div style={{ fontSize: "3rem", marginBottom: 16 }}>🌱</div>
+          <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.3rem", fontWeight: 800, color: C.text, marginBottom: 12 }}>
+            Wir sammeln gerade Fachkräfte
+          </div>
+          <div style={{ color: C.muted, fontSize: "0.88rem", lineHeight: 1.8, maxWidth: 380, margin: "0 auto 28px" }}>
+            Sobald <strong style={{ color: C.navyMid }}>5.000 Fachkräfte</strong> registriert sind,
+            erhalten Sie sofortigen Zugang zur Datenbank.
+            Wir benachrichtigen Sie per E-Mail, sobald es losgeht!
+          </div>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#EFF6FF", border: "1.5px solid #BFDBFE", borderRadius: 99, padding: "10px 20px", fontSize: "0.84rem", color: C.blue, fontWeight: 700 }}>
+            ⏳ Bitte haben Sie noch etwas Geduld
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // ──────────────────────────────────────────────────────────────────────────
+
   const [fachkraefte, setFachkraefte] = useState<Fachkraft[]>([]);
   const [gesendeteAnfragen, setGesendeteAnfragen] = useState<Anfrage[]>([]);
   const [searching, setSearching] = useState(false);
@@ -475,16 +505,11 @@ export default function Dashboard() {
   const [saveError, setSaveError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // ── Session fix: nur bei SIGNED_OUT rauswerfen ──
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_OUT") {
-        router.push("/login");
-      }
+      if (event === "SIGNED_OUT") router.push("/login");
     });
-
     loadDashboard();
-
     return () => subscription.unsubscribe();
   }, []);
 
