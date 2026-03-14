@@ -306,6 +306,19 @@ export default function Home() {
         </div>
       </nav>
 
+      {/* Early Access Banner */}
+<div style={{ background: "linear-gradient(135deg, #1A3F6F, #2471A3)", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" as any }}>
+  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+    <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#4ADE80", flexShrink: 0 }} />
+    <span style={{ color: "white", fontSize: "0.88rem", fontWeight: 500 }}>
+      ⚡ Early Access — Registriere dich jetzt und erhalte sofortigen Zugang, sobald 5.000 Fachkräfte im Pool sind.
+    </span>
+  </div>
+  <a href="/arbeitgeber/registrieren" style={{ background: "rgba(255,255,255,0.15)", color: "white", fontSize: "0.82rem", fontWeight: 600, padding: "6px 16px", borderRadius: 99, whiteSpace: "nowrap" as any, border: "1px solid rgba(255,255,255,0.25)", textDecoration: "none" }}>
+    Als Einrichtung registrieren →
+  </a>
+</div>
+
       {/* Mobile Menu */}
       <div className={`mobile-menu${menuOpen ? " open" : ""}`}>
         <div style={{ display: "flex", gap: 8, paddingBottom: 12, borderBottom: "1px solid #E8EDF4" }}>
