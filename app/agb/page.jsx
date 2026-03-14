@@ -107,7 +107,7 @@ export default function AGB() {
           {/* § 8 */}
           <h2 style={{ color: NAVY, fontSize: "1.1rem", marginBottom: 12 }}>§ 8 Kündigung</h2>
           <p style={{ color: "#444", lineHeight: 1.8, marginBottom: 24 }}>
-            Fachkräfte können ihr Konto jederzeit durch Selbstlöschung in den Einstellungen oder per E-Mail an <a href="mailto:hallo@kitabridge.com" style={{ color: BLUE }}>hallo@kitabridge.com</a> kündigen. Arbeitgeber-Abonnements können mit einer Frist von 14 Tagen zum Ende des jeweiligen Abrechnungsmonats gekündigt werden. Die Kündigung hat schriftlich per E-Mail zu erfolgen. Bereits gezahlte Beträge für den laufenden Abrechnungszeitraum werden nicht erstattet.
+            Alle Nutzer – sowohl Fachkräfte als auch Arbeitgeber – können ihr Konto jederzeit durch Selbstlöschung in den Einstellungen kündigen. Mit der Löschung des Accounts endet die Nutzungsberechtigung. Bereits gezahlte Beträge für den laufenden Abrechnungszeitraum werden nicht erstattet.
           </p>
 
           {/* § 9 */}
@@ -134,8 +134,18 @@ export default function AGB() {
             Sollten einzelne Bestimmungen dieser AGB unwirksam oder undurchführbar sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen davon unberührt. Die unwirksame Bestimmung wird durch eine wirksame ersetzt, die dem wirtschaftlichen Zweck der unwirksamen Bestimmung am nächsten kommt.
           </p>
 
-          {/* § 13 */}
-          <h2 style={{ color: NAVY, fontSize: "1.1rem", marginBottom: 12 }}>§ 13 Kontakt</h2>
+          {/* § 13 – NEU: Faire Nutzung & Hinweisgebersystem */}
+          <h2 style={{ color: NAVY, fontSize: "1.1rem", marginBottom: 12 }}>§ 13 Faire Nutzung und Hinweisgebersystem</h2>
+          <p style={{ color: "#444", lineHeight: 1.8, marginBottom: 16 }}>
+            <strong>Account-Bindung an eine Einrichtung:</strong> Ein Account bei KitaBridge berechtigt ausschließlich zur Nutzung für eine einzige Einrichtung an einem Standort. Die Weitergabe von Zugangsdaten sowie die Nutzung eines Accounts für mehrere Einrichtungen, Standorte oder Träger ist ausdrücklich untersagt. Bei einem Verstoß ist KitaBridge berechtigt, den Account ohne Vorankündigung und ohne Rückerstattung bereits geleisteter Zahlungen zu sperren. Darüber hinaus behält sich KitaBridge das Recht vor, entstandene Schäden geltend zu machen.
+          </p>
+          <p style={{ color: "#444", lineHeight: 1.8, marginBottom: 24 }}>
+            <strong>Hinweisgebersystem für Fachkräfte:</strong> Als registrierte Fachkraft auf KitaBridge bist du Teil einer fairen und vertrauensvollen Community. Wenn eine Einrichtung dich über KitaBridge kontaktiert und dabei Stellen in anderen Einrichtungen anbietet, die nicht dem registrierten Account entsprechen, bitten wir dich, dies umgehend an{" "}
+            <a href="mailto:hallo@kitabridge.de" style={{ color: BLUE }}>hallo@kitabridge.de</a> zu melden. Gleiches gilt für jegliches Verhalten, das gegen die fairen Nutzungsbedingungen von KitaBridge verstößt. Deine Meldung hilft uns, die Plattform fair und sicher für alle zu halten. Alle Hinweise werden vertraulich behandelt.
+          </p>
+
+          {/* § 14 (ehem. § 13) */}
+          <h2 style={{ color: NAVY, fontSize: "1.1rem", marginBottom: 12 }}>§ 14 Kontakt</h2>
           <p style={{ color: "#444", lineHeight: 1.8, marginBottom: 24 }}>
             Bei Fragen zu diesen AGB wenden Sie sich an:{" "}
             <a href="mailto:hallo@kitabridge.com" style={{ color: BLUE }}>hallo@kitabridge.com</a>
